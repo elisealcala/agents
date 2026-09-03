@@ -2,7 +2,7 @@
 
 ## Status
 
-Current: `ingest-classifier` exists (model-picker slice done).
+Current: `ingest-classifier` exists (model-picker done; GitHub milestones exist).
 Next: product work stays in `ingest-classifier/memory-bank/`.
 
 ## Checklist
@@ -28,3 +28,7 @@ Next: product work stays in `ingest-classifier/memory-bank/`.
 - Repo is on GitHub: https://github.com/elisealcala/agents
 - Copied `_template/` → `ingest-classifier/`. Further product work uses that agent's bank.
 - ingest-classifier first slice (model picker) is done. Classification is not started.
+
+### 2026-09-03
+
+- ingest-classifier now has GitHub milestones/issues. Product detail stays in that agent's bank, not here.

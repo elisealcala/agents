@@ -10,4 +10,4 @@
 
 ## Next steps
 
-1. Classification and later product work in `ingest-classifier/memory-bank/` only.
+1. Product work (including the GitHub roadmap) in `ingest-classifier/memory-bank/` only.
