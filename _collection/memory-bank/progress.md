@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: memory-bank protocol scaffolded; product agent not started.
-Next: copy `_template/` to `ingest-classifier` and start that agent.
+Current: `ingest-classifier` exists (model-picker slice done).
+Next: product work stays in `ingest-classifier/memory-bank/`.
 
 ## Checklist
 
@@ -12,7 +12,8 @@ Next: copy `_template/` to `ingest-classifier` and start that agent.
 - [x] Root protocol: `AGENTS.md`, `CLAUDE.md`, Cursor rule, Claude rule
 - [x] `_collection` memory-bank
 - [x] `_template` for new agents
-- [ ] `ingest-classifier` (next slice — do not start until this bank is in use)
+- [x] Root `README.md`
+- [x] `ingest-classifier` folder created from `_template` (model picker done)
 
 ## Log
 
@@ -23,3 +24,7 @@ Next: copy `_template/` to `ingest-classifier` and start that agent.
 - Created `_collection` bank (`PROTOCOL.md`, `progress.md`, `decisions.md`, `active-context.md`, `plans/`).
 - Created `_template` for copying into new agents.
 - Did **not** add `ingest-classifier` code in this slice.
+- Added root `README.md` (collection layout, bank usage, how to add an agent).
+- Repo is on GitHub: https://github.com/elisealcala/agents
+- Copied `_template/` → `ingest-classifier/`. Further product work uses that agent's bank.
+- ingest-classifier first slice (model picker) is done. Classification is not started.
