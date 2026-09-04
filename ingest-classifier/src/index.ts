@@ -33,6 +33,13 @@ export {
   type EmbeddingProvider,
 } from "./embeddings.ts";
 export {
+  DocumentStore,
+  backfillDocumentEmbeddings,
+  type StoredDocument,
+  type EmbeddingStatus,
+  type BackfillReport,
+} from "./documents.ts";
+export {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
   SEED_CATEGORIES,

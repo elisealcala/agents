@@ -11,6 +11,7 @@ import {
   resolveCategoryProposal,
 } from "./categoryDedup.ts";
 import { LocalHashEmbedding, type EmbeddingProvider } from "./embeddings.ts";
+import { DocumentStore } from "./documents.ts";
 import { moveWithoutOverwrite, restoreMovedFile } from "./fileMover.ts";
 import { parseMarkdownFile } from "./markdown.ts";
 import type { ModelClient } from "./providers/types.ts";
@@ -41,6 +42,7 @@ export class AdaptiveIngestPipeline {
   readonly paths: LibraryPaths;
   readonly audit: AuditStore;
   readonly categories: CategoryStore;
+  readonly documents: DocumentStore;
   readonly embeddingProvider: EmbeddingProvider;
   readonly dedupThreshold: number;
   private readonly client: ModelClient;
@@ -55,9 +57,10 @@ export class AdaptiveIngestPipeline {
     this.embeddingProvider = options.embeddingProvider ?? new LocalHashEmbedding();
     this.dedupThreshold = options.dedupThreshold ?? DEFAULT_CATEGORY_DEDUP_THRESHOLD;
     this.pollIntervalMs = options.pollIntervalMs ?? 1_000;
-    this.examples = options.examples ?? (() => []);
     this.audit = new AuditStore(this.paths.database);
     this.categories = new CategoryStore(this.paths.database, this.paths.root);
+    this.documents = new DocumentStore(this.paths.database);
+    this.examples = options.examples ?? (() => []);
   }
 
   async initialize(): Promise<void> {
@@ -67,6 +70,7 @@ export class AdaptiveIngestPipeline {
   }
 
   close(): void {
+    this.documents.close();
     this.categories.close();
     this.audit.close();
   }
@@ -156,6 +160,14 @@ export class AdaptiveIngestPipeline {
         `${resolution.categoryAction}:${resolution.category.id}`,
       );
 
+      let documentEmbedding: number[] | null = null;
+      let embeddingError: string | null = null;
+      try {
+        documentEmbedding = await this.embeddingProvider.embed(parsed.cleanText);
+      } catch (error) {
+        embeddingError = error instanceof Error ? error.message : String(error);
+      }
+
       stage = "move";
       const moved = await moveWithoutOverwrite(
         sourcePath,
@@ -164,9 +176,21 @@ export class AdaptiveIngestPipeline {
       );
       try {
         this.audit.setDestination(auditId, moved.destinationPath);
+        this.documents.upsert({
+          auditId,
+          sourcePath,
+          destinationPath: moved.destinationPath,
+          categoryId: resolution.category.id,
+          summary: classification.summary,
+          cleanText: parsed.cleanText,
+          embedding: documentEmbedding,
+          embeddingProvider: documentEmbedding ? this.embeddingProvider.id : null,
+          embeddingError,
+        });
         this.audit.recordEvent(auditId, "move", "ok");
         this.audit.complete(auditId);
       } catch (error) {
+        this.documents.deleteByAuditId(auditId);
         await restoreMovedFile(moved.destinationPath, sourcePath);
         throw error;
       }

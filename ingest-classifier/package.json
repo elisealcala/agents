@@ -8,6 +8,7 @@
     "watch": "tsx src/cli.ts watch",
     "eval:m1": "tsx src/evals/m1.ts",
     "eval:m2": "tsx src/evals/m2.ts",
+    "backfill": "tsx src/cli.ts backfill",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
