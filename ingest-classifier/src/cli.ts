@@ -1,6 +1,6 @@
 import { config as loadEnvFile } from "dotenv";
 import { createModelClient } from "./providers/createClient.ts";
-import { IngestPipeline } from "./pipeline.ts";
+import { AdaptiveIngestPipeline } from "./adaptivePipeline.ts";
 
 loadEnvFile();
 
@@ -15,7 +15,12 @@ async function main(): Promise<void> {
   const [command = "smoke", ...args] = process.argv.slice(2);
   const client = createModelClient();
   if (command === "run" || command === "watch") {
-    const pipeline = new IngestPipeline({ root: readRoot(args), client });
+    const configuredThreshold = process.env.INGEST_CATEGORY_DEDUP_THRESHOLD;
+    const pipeline = new AdaptiveIngestPipeline({
+      root: readRoot(args),
+      client,
+      dedupThreshold: configuredThreshold ? Number(configuredThreshold) : undefined,
+    });
     try {
       if (command === "run") {
         const results = await pipeline.scanOnce();

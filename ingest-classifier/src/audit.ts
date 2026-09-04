@@ -1,7 +1,13 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import type { Classification } from "./classifier.ts";
+
+type AuditableClassification = {
+  category: string;
+  summary: string;
+  tags: string[];
+  confidence_score: number;
+};
 
 export type AuditStatus = "processing" | "ok" | "failed" | "skipped";
 export type AuditStage = "detect" | "parse" | "classify" | "move";
@@ -91,7 +97,7 @@ export class AuditStore {
       .run(auditId, stage, status, details ?? null);
   }
 
-  setClassification(auditId: number, result: Classification): void {
+  setClassification(auditId: number, result: AuditableClassification): void {
     this.db
       .prepare(
         `UPDATE audit_records
