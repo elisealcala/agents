@@ -71,3 +71,27 @@ Status: accepted
 Context: SQLite and filesystem operations cannot share a transaction, but a file must never move into a category that is absent from the database.
 Decision: Insert the category row, create the matching folder, and only then use the M1 verified move. Folder-creation failure compensates by deleting the new row; file-move failure leaves the row and its folder valid for retry.
 Consequences: A moved note always has a durable category record, and concurrent proposals are serialized through dedup so they cannot create duplicate themes.
+
+## DEC-010: Five recent corrections as prompt examples
+
+Date: 2026-09-04
+Status: accepted
+Context: Human corrections should influence later classifications without growing every prompt indefinitely.
+Decision: Persist every correction in SQLite and inject the five most recent records into adaptive classification prompts. The default limit is an exported constant and can be overridden through the library API.
+Consequences: Corrections survive restarts, prompt size stays bounded, and the first CLI version records intent without automatically moving an existing file.
+
+## DEC-011: Suggestion-only deterministic two-way clustering
+
+Date: 2026-09-04
+Status: accepted
+Context: M3 needs actionable folder split suggestions without silently reorganizing the library or adding a native clustering dependency.
+Decision: Run deterministic cosine k-means with two clusters inside sufficiently populated categories. Emit separation, dominant-term labels, counts, and example filenames to JSON; never move files.
+Consequences: The job is reproducible and inspectable. Applying, naming, or expanding a suggested taxonomy remains a human decision.
+
+## DEC-012: Stored-vector retrieval with a relevance floor
+
+Date: 2026-09-04
+Status: accepted
+Context: Natural-language answers must reuse stored embeddings, cite real files, and fail honestly when the library has no grounding.
+Decision: Embed only the query, retrieve up to five documents above cosine 0.20 by default, and send only their summaries/snippets/paths to the selected completion model. Attach citations from retrieved records in deterministic code.
+Consequences: A model cannot add unverified paths to the returned citation list; empty and irrelevant questions return no sources.

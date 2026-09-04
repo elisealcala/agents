@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: M1 and M2 complete and verified. M3 not started.
-Next: M3 tickets, starting with persisted document embeddings (#16).
+Current: M1–M3 complete and verified. All roadmap implementation and exit gates pass.
+Next: maintain quality, review the branch, and choose merge/release timing.
 
 ## Checklist
 
@@ -16,7 +16,7 @@ Next: M3 tickets, starting with persisted document embeddings (#16).
 - [x] GitHub roadmap: milestones M1–M3, issues #1–#20 (`DEC-003`)
 - [x] M1 Zero-Loss Core Pipeline (issues #2–#8)
 - [x] M2 Adaptive Memory & Dynamic Taxonomy (issues #10–#14)
-- [ ] M3 Offline Re-clustering & Interactive Retrieval (issues #16–#20)
+- [x] M3 Offline Re-clustering & Interactive Retrieval (issues #16–#20)
 
 ## Log
 
@@ -42,3 +42,6 @@ Next: M3 tickets, starting with persisted document embeddings (#16).
 - Completed M2 issues #10–#14: durable category rows and folders, live-taxonomy classification with the strict 0.80 fit rule, persisted local embeddings, configurable semantic deduplication, serialized novel-category creation, and the offline 57-file exit gate.
 - Verification: typecheck passed; 134/134 tests passed; M1 remained green; `pnpm eval:m2` passed with 57/57 notes sorted, 57 complete audit rows, two sensible novel themes, later-note reuse, and zero duplicate category pairs.
 - Added `DEC-007` through `DEC-009`. Next work is M3 #16.
+- Completed M3 issues #16–#20: stored document clean text/summaries/vectors, legacy backfill, durable five-example correction memory, suggestion-only deterministic clustering, stored-vector grounded retrieval, and the end-to-end M3 gate.
+- Verification: typecheck passed; 174/174 tests passed; M1 and M2 regression evals remained green; `pnpm eval:m3` passed with 12/12 embeddings ready, an actionable architecture split, cited caching Q&A, a persisted correction, and no clustering file moves.
+- Added `DEC-010` and `DEC-011`. The complete GitHub roadmap is ready to close.
