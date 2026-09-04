@@ -5,6 +5,7 @@ import { AuditStore } from "./audit.ts";
 import { CorrectionStore } from "./corrections.ts";
 import { DocumentStore, backfillDocumentEmbeddings } from "./documents.ts";
 import { LocalHashEmbedding } from "./embeddings.ts";
+import { runClusteringJob } from "./clustering.ts";
 import { getLibraryPaths } from "./taxonomy.ts";
 
 loadEnvFile();
@@ -95,9 +96,25 @@ async function main(): Promise<void> {
     }
     return;
   }
+  if (command === "cluster") {
+    const documents = new DocumentStore(paths.database);
+    const outputPath = readOption(args, "--output") ?? `${paths.root}/cluster-suggestions.json`;
+    try {
+      console.log(
+        JSON.stringify(
+          await runClusteringJob({ documents, outputPath }),
+          null,
+          2,
+        ),
+      );
+    } finally {
+      documents.close();
+    }
+    return;
+  }
   if (command !== "smoke") {
     throw new Error(
-      `Unknown command "${command}". Use smoke, run, watch, backfill, or correct.`,
+      `Unknown command "${command}". Use smoke, run, watch, backfill, correct, or cluster.`,
     );
   }
   const client = createModelClient();

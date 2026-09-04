@@ -45,6 +45,12 @@ export {
   type Correction,
 } from "./corrections.ts";
 export {
+  runClusteringJob,
+  suggestTaxonomySplits,
+  type ClusteringReport,
+  type TaxonomySplitSuggestion,
+} from "./clustering.ts";
+export {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
   SEED_CATEGORIES,
