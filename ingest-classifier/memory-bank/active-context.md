@@ -2,15 +2,15 @@
 
 ## Current focus
 
-GitHub roadmap is the source of truth for *what* to build. Model picker is still the only shipped code. First implementation ticket: [#2 seed taxonomy](https://github.com/elisealcala/agents/issues/2).
+M1 is implemented and verified. The next implementation ticket is [#10 persisted categories](https://github.com/elisealcala/agents/issues/10), beginning M2 dynamic taxonomy.
 
 ## Recent changes
 
-- Milestones: [M1](https://github.com/elisealcala/agents/milestone/1), [M2](https://github.com/elisealcala/agents/milestone/2), [M3](https://github.com/elisealcala/agents/milestone/3).
-- Epics: #1, #9, #15. Child issues #2–#8, #10–#14, #16–#20.
-- `DEC-003`: TypeScript still; brief’s Python examples are not a stack change.
+- M1 added the library contract, polling scanner, clean Markdown parser, structured classifier, safe mover, SQLite audit store, and a reproducible 20-file offline eval.
+- M1 verification passed: typecheck, 70 tests, and the 20/20 zero-loss exit gate.
+- `DEC-004`–`DEC-006` record fallback, move, and recommended-model behavior.
 
 ## Next steps
 
-1. Implement M1 in issue order (#2 → #8). Do not start M2 until #8 passes.
-2. Optional: `gh auth refresh -s project,read:project` if we want a GitHub Project Roadmap board.
+1. Implement M2 in issue order (#10 → #14). Do not start M3 until #14 passes.
+2. Persist seed categories as first-class SQLite rows, then build dynamic prompting and semantic dedup around the live table.

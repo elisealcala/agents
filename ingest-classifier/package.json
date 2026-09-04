@@ -4,11 +4,15 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/cli.ts",
+    "run": "tsx src/cli.ts run",
+    "watch": "tsx src/cli.ts watch",
+    "eval:m1": "tsx src/evals/m1.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

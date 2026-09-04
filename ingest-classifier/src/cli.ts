@@ -1,12 +1,39 @@
 import { config as loadEnvFile } from "dotenv";
 import { createModelClient } from "./providers/createClient.ts";
+import { IngestPipeline } from "./pipeline.ts";
 
 loadEnvFile();
 
 const SMOKE_PROMPT = "Reply with the provider and model id.";
 
+function readRoot(args: string[]): string {
+  const index = args.indexOf("--root");
+  return index >= 0 && args[index + 1] ? args[index + 1]! : process.cwd();
+}
+
 async function main(): Promise<void> {
+  const [command = "smoke", ...args] = process.argv.slice(2);
   const client = createModelClient();
+  if (command === "run" || command === "watch") {
+    const pipeline = new IngestPipeline({ root: readRoot(args), client });
+    try {
+      if (command === "run") {
+        const results = await pipeline.scanOnce();
+        console.log(JSON.stringify(results, null, 2));
+      } else {
+        const controller = new AbortController();
+        process.once("SIGINT", () => controller.abort());
+        process.once("SIGTERM", () => controller.abort());
+        await pipeline.watch(controller.signal);
+      }
+    } finally {
+      pipeline.close();
+    }
+    return;
+  }
+  if (command !== "smoke") {
+    throw new Error(`Unknown command "${command}". Use smoke, run, or watch.`);
+  }
   const text = await client.complete(SMOKE_PROMPT);
   console.log(
     JSON.stringify(
