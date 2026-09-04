@@ -40,6 +40,11 @@ export {
   type BackfillReport,
 } from "./documents.ts";
 export {
+  CorrectionStore,
+  DEFAULT_CORRECTION_EXAMPLE_LIMIT,
+  type Correction,
+} from "./corrections.ts";
+export {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
   SEED_CATEGORIES,

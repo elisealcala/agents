@@ -2,6 +2,7 @@ import { config as loadEnvFile } from "dotenv";
 import { createModelClient } from "./providers/createClient.ts";
 import { AdaptiveIngestPipeline } from "./adaptivePipeline.ts";
 import { AuditStore } from "./audit.ts";
+import { CorrectionStore } from "./corrections.ts";
 import { DocumentStore, backfillDocumentEmbeddings } from "./documents.ts";
 import { LocalHashEmbedding } from "./embeddings.ts";
 import { getLibraryPaths } from "./taxonomy.ts";
@@ -13,6 +14,17 @@ const SMOKE_PROMPT = "Reply with the provider and model id.";
 function readRoot(args: string[]): string {
   const index = args.indexOf("--root");
   return index >= 0 && args[index + 1] ? args[index + 1]! : process.cwd();
+}
+
+function readOption(args: string[], name: string): string | undefined {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
+}
+
+function requireOption(args: string[], name: string): string {
+  const value = readOption(args, name)?.trim();
+  if (!value) throw new Error(`${name} is required`);
+  return value;
 }
 
 async function main(): Promise<void> {
@@ -63,9 +75,29 @@ async function main(): Promise<void> {
     }
     return;
   }
+  if (command === "correct") {
+    const corrections = new CorrectionStore(paths.database);
+    try {
+      console.log(
+        JSON.stringify(
+          corrections.record({
+            originalPath: requireOption(args, "--path"),
+            wrongCategory: requireOption(args, "--wrong"),
+            correctCategory: requireOption(args, "--correct"),
+            note: readOption(args, "--note"),
+          }),
+          null,
+          2,
+        ),
+      );
+    } finally {
+      corrections.close();
+    }
+    return;
+  }
   if (command !== "smoke") {
     throw new Error(
-      `Unknown command "${command}". Use smoke, run, watch, or backfill.`,
+      `Unknown command "${command}". Use smoke, run, watch, backfill, or correct.`,
     );
   }
   const client = createModelClient();

@@ -18,6 +18,7 @@ import {
 import { cosineSimilarity, type EmbeddingProvider } from "./embeddings.ts";
 import { AdaptiveFixtureModelClient } from "./evals/adaptiveFixtureModel.ts";
 import type { ModelClient } from "./providers/types.ts";
+import { backfillDocumentEmbeddings } from "./documents.ts";
 
 type Note = readonly [filename: string, content: string];
 
@@ -246,6 +247,184 @@ describe("AdaptiveIngestPipeline category lifecycle", () => {
         error: "destination verification failed",
       }),
     ]);
+  });
+});
+
+describe("AdaptiveIngestPipeline document memory", () => {
+  it("stores a ready document row for every successful sort", async () => {
+    const root = await temporaryRoot();
+    const inbox = path.join(root, "inbox");
+    const notes = [
+      ["roadmap.md", "# Product roadmap\nLaunch requirements and acceptance criteria."],
+      ["api.md", "# API architecture\nDatabase and cache boundaries."],
+      ["meeting.md", "# Weekly meeting\nAttendees, decisions, and minutes."],
+    ] as const;
+    await Promise.all(
+      notes.map(([filename, content]) =>
+        writeFile(path.join(inbox, filename), content, "utf8"),
+      ),
+    );
+    const pipeline = openPipeline(root, new AdaptiveFixtureModelClient());
+
+    const results = await pipeline.scanOnce();
+
+    expect(results).toHaveLength(notes.length);
+    expect(results.every(({ status }) => status === "ok")).toBe(true);
+    const documents = pipeline.documents.list("ready");
+    expect(documents).toHaveLength(notes.length);
+    for (const result of results) {
+      if (result.status !== "ok") throw new Error("expected a successful result");
+      const audit = pipeline.audit.findByFilename(path.basename(result.sourcePath))[0]!;
+      expect(pipeline.documents.getByAuditId(audit.id)).toEqual(
+        expect.objectContaining({
+          auditId: audit.id,
+          sourcePath: result.sourcePath,
+          destinationPath: result.destinationPath,
+          categoryId: result.category.id,
+          summary: result.classification.summary,
+          cleanText: expect.any(String),
+          embedding: expect.any(Array),
+          embeddingProvider: pipeline.embeddingProvider.id,
+          embeddingStatus: "ready",
+          embeddingError: null,
+        }),
+      );
+    }
+  });
+
+  it("sorts successfully with a missing embedding and repairs it through backfill", async () => {
+    const root = await temporaryRoot();
+    const inbox = path.join(root, "inbox");
+    const sourcePath = path.join(inbox, "recoverable.md");
+    await writeFile(
+      sourcePath,
+      "# Recoverable document\nA roadmap requirement that must still be sorted.",
+      "utf8",
+    );
+    let failDocumentEmbedding = true;
+    const embeddingProvider: EmbeddingProvider = {
+      id: "recoverable-fixture-v1",
+      dimensions: 2,
+      async embed(text: string): Promise<number[]> {
+        if (failDocumentEmbedding && text.includes("Recoverable document")) {
+          throw new Error("temporary embedding failure");
+        }
+        return [1, 0];
+      },
+    };
+    const pipeline = openPipeline(root, new AdaptiveFixtureModelClient(), {
+      embeddingProvider,
+    });
+
+    const results = await pipeline.scanOnce();
+
+    expect(results).toEqual([
+      expect.objectContaining({ status: "ok", sourcePath }),
+    ]);
+    const missing = pipeline.documents.list("missing");
+    expect(missing).toEqual([
+      expect.objectContaining({
+        sourcePath,
+        embedding: null,
+        embeddingProvider: null,
+        embeddingStatus: "missing",
+        embeddingError: "temporary embedding failure",
+      }),
+    ]);
+    await expect(access(results[0]!.status === "ok" ? results[0]!.destinationPath : ""))
+      .resolves.toBeUndefined();
+
+    failDocumentEmbedding = false;
+    await expect(
+      backfillDocumentEmbeddings({
+        audit: pipeline.audit,
+        documents: pipeline.documents,
+        embeddingProvider,
+      }),
+    ).resolves.toEqual({ examined: 1, created: 0, repaired: 1, failed: 0 });
+    expect(pipeline.documents.list("missing")).toEqual([]);
+    expect(pipeline.documents.list("ready")).toEqual([
+      expect.objectContaining({
+        auditId: missing[0]!.auditId,
+        embedding: [1, 0],
+        embeddingProvider: "recoverable-fixture-v1",
+        embeddingStatus: "ready",
+        embeddingError: null,
+      }),
+    ]);
+  });
+
+  it("restores the source and removes partial document state when document persistence fails", async () => {
+    const root = await temporaryRoot();
+    const inbox = path.join(root, "inbox");
+    const sourcePath = path.join(inbox, "document-write-failure.md");
+    const original = "# Product requirement\nKeep these original bytes.";
+    await writeFile(sourcePath, original, "utf8");
+    const pipeline = openPipeline(root, new AdaptiveFixtureModelClient());
+    vi.spyOn(pipeline.documents, "upsert").mockImplementationOnce(() => {
+      throw new Error("document database write failed");
+    });
+
+    const results = await pipeline.scanOnce();
+
+    expect(results).toEqual([
+      {
+        status: "failed",
+        sourcePath,
+        error: "document database write failed",
+      },
+    ]);
+    await expect(readFile(sourcePath, "utf8")).resolves.toBe(original);
+    await expectMissing(
+      path.join(pipeline.paths.categories.project_specs, "document-write-failure.md"),
+    );
+    expect(pipeline.documents.list()).toEqual([]);
+    expect(pipeline.audit.list("failed")).toEqual([
+      expect.objectContaining({
+        sourcePath,
+        status: "failed",
+        error: "document database write failed",
+      }),
+    ]);
+  });
+
+  it("injects only the five most recent persisted corrections into adaptive prompts", async () => {
+    const root = await temporaryRoot();
+    const inbox = path.join(root, "inbox");
+    const complete = vi.fn<ModelClient["complete"]>(async (_prompt: string) =>
+      JSON.stringify({
+        action: "existing",
+        category: "project_specs",
+        summary: "A corrected project note.",
+        tags: ["planning"],
+        confidence_score: 0.9,
+        fit_score: 0.9,
+      }),
+    );
+    const pipeline = openPipeline(root, modelClient(complete));
+    for (let index = 1; index <= 7; index += 1) {
+      pipeline.corrections.record({
+        originalPath: `/vault/correction-${index}.md`,
+        wrongCategory: `wrong_${index}`,
+        correctCategory: `correct_${index}`,
+      });
+    }
+    await writeFile(
+      path.join(inbox, "new-note.md"),
+      "# Requirement\nClassify with correction examples.",
+      "utf8",
+    );
+
+    await expect(pipeline.scanOnce()).resolves.toEqual([
+      expect.objectContaining({ status: "ok" }),
+    ]);
+    const prompt = complete.mock.calls[0]?.[0];
+    expect(prompt).toContain("Corrections to learn from:");
+    for (let index = 3; index <= 7; index += 1) {
+      expect(prompt).toContain(`/vault/correction-${index}.md`);
+    }
+    expect(prompt).not.toContain("/vault/correction-2.md");
+    expect(prompt).not.toContain("/vault/correction-1.md");
   });
 });
 

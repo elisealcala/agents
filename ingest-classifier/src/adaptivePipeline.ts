@@ -12,6 +12,7 @@ import {
 } from "./categoryDedup.ts";
 import { LocalHashEmbedding, type EmbeddingProvider } from "./embeddings.ts";
 import { DocumentStore } from "./documents.ts";
+import { CorrectionStore } from "./corrections.ts";
 import { moveWithoutOverwrite, restoreMovedFile } from "./fileMover.ts";
 import { parseMarkdownFile } from "./markdown.ts";
 import type { ModelClient } from "./providers/types.ts";
@@ -43,6 +44,7 @@ export class AdaptiveIngestPipeline {
   readonly audit: AuditStore;
   readonly categories: CategoryStore;
   readonly documents: DocumentStore;
+  readonly corrections: CorrectionStore;
   readonly embeddingProvider: EmbeddingProvider;
   readonly dedupThreshold: number;
   private readonly client: ModelClient;
@@ -60,7 +62,8 @@ export class AdaptiveIngestPipeline {
     this.audit = new AuditStore(this.paths.database);
     this.categories = new CategoryStore(this.paths.database, this.paths.root);
     this.documents = new DocumentStore(this.paths.database);
-    this.examples = options.examples ?? (() => []);
+    this.corrections = new CorrectionStore(this.paths.database);
+    this.examples = options.examples ?? (() => this.corrections.toPromptExamples());
   }
 
   async initialize(): Promise<void> {
@@ -70,6 +73,7 @@ export class AdaptiveIngestPipeline {
   }
 
   close(): void {
+    this.corrections.close();
     this.documents.close();
     this.categories.close();
     this.audit.close();
