@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: M1 Zero-Loss Core Pipeline complete and verified (issues #2–#8). M2 not started.
-Next: M2 tickets, starting with persisted live categories (#10).
+Current: M1 and M2 complete and verified. M3 not started.
+Next: M3 tickets, starting with persisted document embeddings (#16).
 
 ## Checklist
 
@@ -15,7 +15,7 @@ Next: M2 tickets, starting with persisted live categories (#10).
 - [x] Unit tests (no live network)
 - [x] GitHub roadmap: milestones M1–M3, issues #1–#20 (`DEC-003`)
 - [x] M1 Zero-Loss Core Pipeline (issues #2–#8)
-- [ ] M2 Adaptive Memory & Dynamic Taxonomy (issues #10–#14)
+- [x] M2 Adaptive Memory & Dynamic Taxonomy (issues #10–#14)
 - [ ] M3 Offline Re-clustering & Interactive Retrieval (issues #16–#20)
 
 ## Log
@@ -39,3 +39,6 @@ Next: M2 tickets, starting with persisted live categories (#10).
 - Low-confidence schema-valid notes fall back to `reference_material`; invalid replies and invalid UTF-8 fail closed and remain in the inbox.
 - Verification: typecheck passed; 70/70 tests passed; `pnpm eval:m1` passed with 20/20 valid notes sorted, one invalid note retained/failed safely, and 20 complete audit rows.
 - Added `DEC-004` through `DEC-006`. Next work is M2 #10.
+- Completed M2 issues #10–#14: durable category rows and folders, live-taxonomy classification with the strict 0.80 fit rule, persisted local embeddings, configurable semantic deduplication, serialized novel-category creation, and the offline 57-file exit gate.
+- Verification: typecheck passed; 134/134 tests passed; M1 remained green; `pnpm eval:m2` passed with 57/57 notes sorted, 57 complete audit rows, two sensible novel themes, later-note reuse, and zero duplicate category pairs.
+- Added `DEC-007` through `DEC-009`. Next work is M3 #16.

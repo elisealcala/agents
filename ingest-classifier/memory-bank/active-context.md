@@ -2,15 +2,15 @@
 
 ## Current focus
 
-M1 is implemented and verified. The next implementation ticket is [#10 persisted categories](https://github.com/elisealcala/agents/issues/10), beginning M2 dynamic taxonomy.
+M1 and M2 are implemented and verified. The next implementation ticket is [#16 document embeddings](https://github.com/elisealcala/agents/issues/16), beginning M3 retrieval and re-clustering.
 
 ## Recent changes
 
-- M1 added the library contract, polling scanner, clean Markdown parser, structured classifier, safe mover, SQLite audit store, and a reproducible 20-file offline eval.
-- M1 verification passed: typecheck, 70 tests, and the 20/20 zero-loss exit gate.
-- `DEC-004`–`DEC-006` record fallback, move, and recommended-model behavior.
+- M2 persists seeds and novel categories in SQLite, builds prompts from the live table, enforces the 0.80 fit boundary, and serializes semantic dedup/create operations.
+- `local-hash-v1` vectors make the 0.85 duplicate threshold deterministic, private, and provider-independent.
+- M2 verification passed: typecheck, 134 tests, M1 regression eval, and the 57/57 adaptive gate with zero duplicate pairs.
 
 ## Next steps
 
-1. Implement M2 in issue order (#10 → #14). Do not start M3 until #14 passes.
-2. Persist seed categories as first-class SQLite rows, then build dynamic prompting and semantic dedup around the live table.
+1. Implement M3 in issue order (#16 → #20).
+2. Store document vectors/clean text first, then corrections, suggestion-only clustering, and cited retrieval.

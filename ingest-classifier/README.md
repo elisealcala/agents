@@ -22,9 +22,10 @@ cp .env.example .env   # fill the key for the provider you pick
 
 ```bash
 pnpm start                         # provider smoke completion
-pnpm run -- --root ./my-library    # process the inbox once
-pnpm watch -- --root ./my-library  # poll continuously
+pnpm run -- --root ./my-library    # adaptive classification, once
+pnpm watch -- --root ./my-library  # adaptive classification, polling
 pnpm eval:m1                       # offline 20-file zero-loss gate
+pnpm eval:m2                       # offline 57-file adaptive-taxonomy gate
 pnpm test
 ```
 
@@ -49,3 +50,11 @@ The stable category IDs and definitions live in `src/taxonomy.ts`. Files below 0
 Only `.md` files move. Other files remain in the inbox and receive a single `skipped` audit record. UTF-8 parse failures remain in place, receive a failed audit record, and do not stop the rest of a batch.
 
 `pnpm eval:m1` creates an isolated temporary library with 20 valid, diverse Markdown notes plus invalid/ignored inputs. It succeeds only when all 20 valid notes move to seed folders and have complete audit rows; the printed temporary path can be inspected after the run.
+
+## Adaptive taxonomy
+
+The production `run` and `watch` commands load categories from SQLite on every classification. When the model reports an existing-category fit above 0.80, the note uses that category. Otherwise it proposes a name and one-sentence definition without moving the file yet.
+
+Before creation, `local-hash-v1` embeds the proposal and compares it to stored category vectors. Similarity above `INGEST_CATEGORY_DEDUP_THRESHOLD` (default `0.85`) reuses the nearest category. A novel proposal is inserted in SQLite, its matching folder is created, and only then can the checksum-safe move occur.
+
+`pnpm eval:m2` runs 57 notes offline in two waves. It verifies that novel equipment-maintenance and cooking themes create exactly one folder each, later related notes reuse them, an architecture paraphrase merges into the seed category, every note has a complete audit row, and no stored category pair crosses the duplicate threshold. The JSON report includes the human-review theme checklist.

@@ -47,3 +47,27 @@ Status: accepted
 Context: M1 calls for a fast, cost-efficient classifier while preserving the existing multi-provider picker.
 Decision: Recommend `openai` / `gpt-4o-mini` for M1, but keep `INGEST_PROVIDER` and `INGEST_MODEL` mandatory and explicit so Anthropic or xAI remains an environment-only swap.
 Consequences: Production has no hidden provider/model default; offline evals and tests use fixture clients without live network calls.
+
+## DEC-007: Dedicated 80% live-category fit score
+
+Date: 2026-09-04
+Status: accepted
+Context: Dynamic classification needs to distinguish certainty in the response from fit against the current taxonomy.
+Decision: Use a dedicated `fit_score`. Existing categories require `fit_score > 0.80`; proposals require `fit_score <= 0.80`. `confidence_score` continues to describe confidence in the overall classification response.
+Consequences: The rule is schema-enforced and every prompt is built from SQLite category rows rather than a hardcoded category list.
+
+## DEC-008: Local deterministic category embeddings
+
+Date: 2026-09-04
+Status: accepted
+Context: All configured completion vendors must work, Anthropic does not expose a matching embedding API, and CI/evals cannot require live network calls.
+Decision: Use normalized 256-dimensional feature-hash embeddings (`local-hash-v1`) for category deduplication, persisted in SQLite. Default duplicate threshold is strictly greater than 0.85 and is configurable through `INGEST_CATEGORY_DEDUP_THRESHOLD` or the library API.
+Consequences: Dedup is fast, private, vendor-independent, and reproducible. M3 document retrieval will use the same embedding family unless superseded.
+
+## DEC-009: Category row and folder precede file movement
+
+Date: 2026-09-04
+Status: accepted
+Context: SQLite and filesystem operations cannot share a transaction, but a file must never move into a category that is absent from the database.
+Decision: Insert the category row, create the matching folder, and only then use the M1 verified move. Folder-creation failure compensates by deleting the new row; file-move failure leaves the row and its folder valid for retry.
+Consequences: A moved note always has a durable category record, and concurrent proposals are serialized through dedup so they cannot create duplicate themes.
