@@ -149,4 +149,21 @@ describe("AdaptiveFixtureModelClient", () => {
       }),
     );
   });
+
+  it("uses the grounded Q&A response path instead of classification JSON", async () => {
+    const client = new AdaptiveFixtureModelClient();
+
+    const response = await client.complete(`Answer using this context.
+
+Question: What is the Q3 cache strategy?
+
+Grounded excerpts:
+[1] Path: /vault/q3-cache.md
+Excerpt: Measure cache hit rate, choose TTLs, and rehearse invalidation.`);
+
+    expect(response).toBe(
+      "The grounded notes emphasize measuring cache hit rate, choosing explicit TTLs, and rehearsing invalidation before rollout.",
+    );
+    expect(() => JSON.parse(response)).toThrow();
+  });
 });

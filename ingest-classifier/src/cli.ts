@@ -6,6 +6,7 @@ import { CorrectionStore } from "./corrections.ts";
 import { DocumentStore, backfillDocumentEmbeddings } from "./documents.ts";
 import { LocalHashEmbedding } from "./embeddings.ts";
 import { runClusteringJob } from "./clustering.ts";
+import { answerQuestion } from "./retrieval.ts";
 import { getLibraryPaths } from "./taxonomy.ts";
 
 loadEnvFile();
@@ -112,9 +113,29 @@ async function main(): Promise<void> {
     }
     return;
   }
+  if (command === "ask") {
+    const documents = new DocumentStore(paths.database);
+    try {
+      console.log(
+        JSON.stringify(
+          await answerQuestion({
+            question: requireOption(args, "--question"),
+            documents,
+            embeddingProvider: new LocalHashEmbedding(),
+            model: createModelClient(),
+          }),
+          null,
+          2,
+        ),
+      );
+    } finally {
+      documents.close();
+    }
+    return;
+  }
   if (command !== "smoke") {
     throw new Error(
-      `Unknown command "${command}". Use smoke, run, watch, backfill, correct, or cluster.`,
+      `Unknown command "${command}". Use smoke, run, watch, backfill, correct, cluster, or ask.`,
     );
   }
   const client = createModelClient();

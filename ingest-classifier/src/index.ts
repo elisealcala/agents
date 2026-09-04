@@ -51,6 +51,13 @@ export {
   type TaxonomySplitSuggestion,
 } from "./clustering.ts";
 export {
+  answerQuestion,
+  buildGroundedAnswerPrompt,
+  retrieveDocuments,
+  type GroundedAnswer,
+  type RetrievalHit,
+} from "./retrieval.ts";
+export {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
   SEED_CATEGORIES,

@@ -14,6 +14,9 @@ export class AdaptiveFixtureModelClient implements ModelClient {
   readonly model = "offline-adaptive-fixture-model";
 
   async complete(prompt: string): Promise<string> {
+    if (prompt.includes("Grounded excerpts:")) {
+      return "The grounded notes emphasize measuring cache hit rate, choosing explicit TTLs, and rehearsing invalidation before rollout.";
+    }
     const note = extractNote(prompt).toLowerCase();
     if (note.includes("dedup candidate")) {
       return proposed(

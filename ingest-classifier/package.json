@@ -11,6 +11,7 @@
     "backfill": "tsx src/cli.ts backfill",
     "correct": "tsx src/cli.ts correct",
     "cluster": "tsx src/cli.ts cluster",
+    "ask": "tsx src/cli.ts ask",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
