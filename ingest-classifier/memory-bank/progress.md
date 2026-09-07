@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: M1–M3 complete and verified. All roadmap implementation and exit gates pass.
-Next: maintain quality, review the branch, and choose merge/release timing.
+Current: M1–M3 complete, verified, and fast-forwarded onto `main`.
+Next: maintain quality and keep all three exit gates green.
 
 ## Checklist
 
@@ -45,3 +45,9 @@ Next: maintain quality, review the branch, and choose merge/release timing.
 - Completed M3 issues #16–#20: stored document clean text/summaries/vectors, legacy backfill, durable five-example correction memory, suggestion-only deterministic clustering, stored-vector grounded retrieval, and the end-to-end M3 gate.
 - Verification: typecheck passed; 174/174 tests passed; M1 and M2 regression evals remained green; `pnpm eval:m3` passed with 12/12 embeddings ready, an actionable architecture split, cited caching Q&A, a persisted correction, and no clustering file moves.
 - Added `DEC-010` and `DEC-011`. The complete GitHub roadmap is ready to close.
+
+### 2026-09-07
+
+- Fast-forwarded the completed 19-commit roadmap history from `cursor/ingest-classifier-model-picker` onto local `main` after confirming `origin/main` had no divergent commits.
+- All 20 GitHub issues and milestones M1–M3 were already closed; final pre-merge verification remained typecheck, 174/174 tests, and all three evals passing.
+- Next step is pushing the updated `main` branch to GitHub.
