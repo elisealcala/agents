@@ -2,7 +2,7 @@
 
 ## Status
 
-Current: `ingest-classifier` exists (model-picker done; GitHub milestones exist).
+Current: root README introduces the implemented `ingest-classifier` product before the coding-agent workflow.
 Next: product work stays in `ingest-classifier/memory-bank/`.
 
 ## Checklist
@@ -13,7 +13,8 @@ Next: product work stays in `ingest-classifier/memory-bank/`.
 - [x] `_collection` memory-bank
 - [x] `_template` for new agents
 - [x] Root `README.md`
-- [x] `ingest-classifier` folder created from `_template` (model picker done)
+- [x] `ingest-classifier` folder created from `_template`
+- [x] Root README updated to present the current product before contributor workflow
 
 ## Log
 
@@ -32,3 +33,10 @@ Next: product work stays in `ingest-classifier/memory-bank/`.
 ### 2026-09-03
 
 - ingest-classifier now has GitHub milestones/issues. Product detail stays in that agent's bank, not here.
+
+### 2026-09-08
+
+- Reworked the root README so a visitor first sees what `ingest-classifier` does, its major capabilities, quick-start commands, and the link to product documentation.
+- Removed the stale statement that classification had not started.
+- Kept detailed product history in `ingest-classifier/memory-bank/`; this collection bank records only the repo-level documentation change.
+- Added `DEC-006` for the product-first root README structure.

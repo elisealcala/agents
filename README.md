@@ -1,6 +1,36 @@
 # Agents
 
-A collection of independent, runnable agents. Each agent can use a different stack (LangGraph, custom orchestration, or anything else). What they share is a **memory-bank process**, not a runtime.
+This repository currently ships [`ingest-classifier`](ingest-classifier/), a local Markdown intake agent that turns an inbox of notes into an organized, searchable library.
+
+## ingest-classifier
+
+`ingest-classifier` watches or scans an `inbox/`, reads Markdown without modifying the source during classification, and files each note into a category with a SQLite audit trail. Its taxonomy can grow when a note does not fit an existing category, while semantic deduplication prevents near-duplicate folders.
+
+The agent also stores document summaries, clean text, and embeddings so it can:
+
+- remember classification corrections;
+- suggest splits for crowded categories without moving files automatically;
+- answer natural-language questions with citations to the source files.
+
+OpenAI, Anthropic, and xAI models are selectable through environment variables. Offline evaluation commands cover the zero-loss pipeline, adaptive taxonomy, clustering suggestions, and grounded retrieval.
+
+```bash
+cd ingest-classifier
+pnpm install
+cp .env.example .env
+
+pnpm run -- --root ./my-library
+pnpm watch -- --root ./my-library
+pnpm eval:m1
+pnpm eval:m2
+pnpm eval:m3
+```
+
+See the [`ingest-classifier` README](ingest-classifier/README.md) for setup, the library layout, available commands, and configuration.
+
+## Coding-agent collection
+
+The repository is also structured as a collection of independent, runnable agents. Each agent can use a different stack (LangGraph, custom orchestration, or anything else). What they share is a **memory-bank process**, not a runtime.
 
 Repo: [github.com/elisealcala/agents](https://github.com/elisealcala/agents)
 
@@ -52,4 +82,4 @@ Full loop: [`AGENTS.md`](AGENTS.md).
 
 ## Status
 
-Memory-bank protocol is in place. Product agent: [`ingest-classifier/`](ingest-classifier/) (model picker done; classification not started).
+The memory-bank protocol is in place, and [`ingest-classifier/`](ingest-classifier/) is the current product agent. Its classification, adaptive-taxonomy, clustering, and retrieval milestones are represented in the implementation and nested documentation.

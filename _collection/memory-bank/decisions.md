@@ -39,3 +39,11 @@ Status: accepted
 Context: The collection exists to try different agent architectures.
 Decision: Shared process only (memory bank + rules). Each agent brings its own stack.
 Consequences: `_template` must not assume LangGraph, Cursor SDK, or Python. Product agents choose a runtime when they are created.
+
+## DEC-006: Product-first root README
+
+Date: 2026-09-08
+Status: accepted
+Context: The root README led with the coding-agent workflow and retained a stale statement that classification had not started, while the product documentation described classification and retrieval.
+Decision: Introduce the current product and its visitor-facing capabilities before documenting the collection layout and memory-bank workflow.
+Consequences: Visitors can understand what the repository does immediately; repo-maintainer instructions remain available later in the same README.
