@@ -1,13 +1,16 @@
 import { config as loadEnvFile } from "dotenv";
 import { createModelClient } from "./providers/createClient.ts";
-import { AdaptiveIngestPipeline } from "./adaptivePipeline.ts";
-import { AuditStore } from "./audit.ts";
-import { CorrectionStore } from "./corrections.ts";
-import { DocumentStore, backfillDocumentEmbeddings } from "./documents.ts";
-import { LocalHashEmbedding } from "./embeddings.ts";
-import { runClusteringJob } from "./clustering.ts";
-import { answerQuestion } from "./retrieval.ts";
-import { getLibraryPaths } from "./taxonomy.ts";
+import { AdaptiveIngestPipeline } from "./pipelines/adaptivePipeline.ts";
+import { AuditStore } from "./storage/audit.ts";
+import { CorrectionStore } from "./storage/corrections.ts";
+import {
+  DocumentStore,
+  backfillDocumentEmbeddings,
+} from "./storage/documents.ts";
+import { LocalHashEmbedding } from "./search/embeddings.ts";
+import { runClusteringJob } from "./search/clustering.ts";
+import { answerQuestion } from "./search/retrieval.ts";
+import { getLibraryPaths } from "./taxonomy/taxonomy.ts";
 
 loadEnvFile();
 
@@ -37,7 +40,9 @@ async function main(): Promise<void> {
     const pipeline = new AdaptiveIngestPipeline({
       root: readRoot(args),
       client,
-      dedupThreshold: configuredThreshold ? Number(configuredThreshold) : undefined,
+      dedupThreshold: configuredThreshold
+        ? Number(configuredThreshold)
+        : undefined,
     });
     try {
       if (command === "run") {
@@ -99,7 +104,8 @@ async function main(): Promise<void> {
   }
   if (command === "cluster") {
     const documents = new DocumentStore(paths.database);
-    const outputPath = readOption(args, "--output") ?? `${paths.root}/cluster-suggestions.json`;
+    const outputPath =
+      readOption(args, "--output") ?? `${paths.root}/cluster-suggestions.json`;
     try {
       console.log(
         JSON.stringify(

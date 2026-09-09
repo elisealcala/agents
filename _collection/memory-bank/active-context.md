@@ -2,13 +2,17 @@
 
 ## Current focus
 
-The root README now introduces the current `ingest-classifier` product before explaining the coding-agent collection protocol. Collection protocol remains stable; product details stay in the product folder.
+The template now documents source organization and provides an optional, independently installable TypeScript preset with local checks and GitHub Actions coverage.
 
 ## Recent changes
 
-- Reordered and refreshed the root README to remove stale product status and lead with the working product.
+- Documented responsibility folders, colocated tests, and separate evaluation runners.
+- Added a minimal TypeScript CLI, smoke test, local ESLint/Biome/tsc commands, and a lockfile.
+- Added separate GitHub Actions jobs for the existing agent and a newly assembled TypeScript starter.
+
+Local verification passes for both the preset and an independently assembled starter, including frozen installs, all quality checks, the smoke test, and deliberate-error detection. Workflow configuration is validated; it has not run on GitHub yet.
 
 ## Next steps
 
-1. Keep the root README's product summary aligned with the current agent-level documentation.
-2. Keep detailed product work in `ingest-classifier/memory-bank/` only.
+1. Publish the verified changes to `main` as requested, then inspect the configured GitHub checks. Unrelated `.cursor/plans/` files stay local.
+2. Keep runtime-specific implementation details in each product memory bank.

@@ -1,66 +1,74 @@
 export { loadConfig, type ModelConfig, type Provider } from "./config.ts";
 export { createModelClient } from "./providers/createClient.ts";
 export type { ModelClient } from "./providers/types.ts";
-export { AuditStore, type AuditRecord, type AuditStatus } from "./audit.ts";
+export {
+  AuditStore,
+  type AuditRecord,
+  type AuditStatus,
+} from "./storage/audit.ts";
 export {
   buildClassificationPrompt,
   classifyFile,
   parseClassification,
   type Classification,
-} from "./classifier.ts";
-export { moveWithoutOverwrite, restoreMovedFile } from "./fileMover.ts";
-export { markdownToText, parseMarkdownFile } from "./markdown.ts";
-export { IngestPipeline, type ProcessResult } from "./pipeline.ts";
+} from "./classification/classifier.ts";
+export { moveWithoutOverwrite, restoreMovedFile } from "./files/fileMover.ts";
+export { markdownToText, parseMarkdownFile } from "./files/markdown.ts";
+export { IngestPipeline, type ProcessResult } from "./pipelines/pipeline.ts";
 export {
   AdaptiveIngestPipeline,
   type AdaptiveProcessResult,
-} from "./adaptivePipeline.ts";
+} from "./pipelines/adaptivePipeline.ts";
 export {
   buildAdaptiveClassificationPrompt,
   classifyWithLiveTaxonomy,
   parseAdaptiveClassification,
   EXISTING_CATEGORY_FIT_THRESHOLD,
   type AdaptiveClassification,
-} from "./adaptiveClassifier.ts";
-export { CategoryStore, type StoredCategory, type CategoryProposal } from "./categories.ts";
+} from "./classification/adaptiveClassifier.ts";
+export {
+  CategoryStore,
+  type StoredCategory,
+  type CategoryProposal,
+} from "./storage/categories.ts";
 export {
   DEFAULT_CATEGORY_DEDUP_THRESHOLD,
   resolveCategoryProposal,
-} from "./categoryDedup.ts";
+} from "./taxonomy/categoryDedup.ts";
 export {
   LocalHashEmbedding,
   cosineSimilarity,
   type EmbeddingProvider,
-} from "./embeddings.ts";
+} from "./search/embeddings.ts";
 export {
   DocumentStore,
   backfillDocumentEmbeddings,
   type StoredDocument,
   type EmbeddingStatus,
   type BackfillReport,
-} from "./documents.ts";
+} from "./storage/documents.ts";
 export {
   CorrectionStore,
   DEFAULT_CORRECTION_EXAMPLE_LIMIT,
   type Correction,
-} from "./corrections.ts";
+} from "./storage/corrections.ts";
 export {
   runClusteringJob,
   suggestTaxonomySplits,
   type ClusteringReport,
   type TaxonomySplitSuggestion,
-} from "./clustering.ts";
+} from "./search/clustering.ts";
 export {
   answerQuestion,
   buildGroundedAnswerPrompt,
   retrieveDocuments,
   type GroundedAnswer,
   type RetrievalHit,
-} from "./retrieval.ts";
+} from "./search/retrieval.ts";
 export {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
   SEED_CATEGORIES,
   ensureLibraryLayout,
   getLibraryPaths,
-} from "./taxonomy.ts";
+} from "./taxonomy/taxonomy.ts";

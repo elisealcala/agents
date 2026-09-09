@@ -47,3 +47,19 @@ Status: accepted
 Context: The root README led with the coding-agent workflow and retained a stale statement that classification had not started, while the product documentation described classification and retrieval.
 Decision: Introduce the current product and its visitor-facing capabilities before documenting the collection layout and memory-bank workflow.
 Consequences: Visitors can understand what the repository does immediately; repo-maintainer instructions remain available later in the same README.
+
+## DEC-007: Agent READMEs include examples and evidence
+
+Date: 2026-09-08
+Status: accepted
+Context: Each agent needs a concrete way for visitors to understand its behavior and inspect demonstrated results.
+Decision: The stack-neutral README template includes setup, a reproducible input/run/output example, and at least one of a recorded demo or evaluation results. Evidence includes a date and revision; evaluation results also include a reproduction command, dataset, metrics, and limitations.
+Consequences: New agents replace placeholders with actual observed output and linked evidence before being presented as ready to use. Template text must not imply an evaluation has already run. Existing agents remain responsible for their own documentation and memory banks.
+
+## DEC-008: Optional TypeScript preset and responsibility-based layout
+
+Date: 2026-09-08
+Status: accepted
+Context: New agents need a consistent source layout and ready-to-use quality tools without imposing a language on the collection.
+Decision: Keep the general template language-neutral and ship a self-contained TypeScript preset. Group source by responsibility, colocate tests, and place evaluation runners/fixtures in evals/. Use ESLint for code rules, Biome only for formatting, and TypeScript 6.0 for compatible type checks. Every TypeScript agent owns its dependencies and lockfile; GitHub Actions verifies the existing product and an assembled starter separately.
+Consequences: New agents can opt into the preset, replace its package name, and remove copied presets. Adding a product also requires adding its own CI job. The collection has no root runtime package or shared product memory.

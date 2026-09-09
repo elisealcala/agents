@@ -1,0 +1,76 @@
+name: Agent quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ingest-classifier:
+    name: ingest-classifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ingest-classifier
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          version: 10.9.0
+          run_install: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22.22.0
+          cache: pnpm
+          cache-dependency-path: ingest-classifier/pnpm-lock.yaml
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Types, lint, and formatting
+        run: pnpm check
+      - name: Tests
+        run: pnpm test
+      - name: Zero-loss evaluation
+        run: pnpm eval:m1
+      - name: Adaptive taxonomy evaluation
+        run: pnpm eval:m2
+      - name: Retrieval and clustering evaluation
+        run: pnpm eval:m3
+
+  typescript-starter:
+    name: TypeScript starter
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          version: 10.9.0
+          run_install: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22.22.0
+          cache: pnpm
+          cache-dependency-path: _template/presets/typescript/pnpm-lock.yaml
+      - name: Assemble a standalone agent from the template
+        env:
+          STARTER_DIR: ${{ runner.temp }}/agent-template-smoke
+        run: |
+          mkdir -p "$STARTER_DIR"
+          rsync -a --exclude=node_modules --exclude=dist --exclude=coverage _template/ "$STARTER_DIR/"
+          rsync -a --exclude=node_modules --exclude=dist --exclude=coverage _template/presets/typescript/ "$STARTER_DIR/"
+          rm -rf "$STARTER_DIR/presets"
+          cd "$STARTER_DIR"
+          npm pkg set name=agent-template-smoke
+      - name: Install locked dependencies
+        working-directory: ${{ runner.temp }}/agent-template-smoke
+        run: pnpm install --frozen-lockfile
+      - name: Types, lint, and formatting
+        working-directory: ${{ runner.temp }}/agent-template-smoke
+        run: pnpm check
+      - name: CLI smoke test
+        working-directory: ${{ runner.temp }}/agent-template-smoke
+        run: pnpm test

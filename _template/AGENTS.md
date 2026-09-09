@@ -11,3 +11,5 @@ This agent follows the collection protocol in the repo-root `AGENTS.md`. Use **t
 3. Lasting decisions: add `DEC-NNN` to `decisions.md`.
 
 Plug in whatever runtime this agent needs (LangGraph, custom orchestration, etc.). The template does not assume a stack.
+
+Follow the project structure in `README.md`: group source by responsibility, keep tests beside modules, and keep evaluation runners and fixtures in `evals/`. If using the optional TypeScript preset, run its documented quality checks and tests after implementation; keep configuration and dependencies local to this agent.

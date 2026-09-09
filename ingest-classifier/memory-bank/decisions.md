@@ -95,3 +95,11 @@ Status: accepted
 Context: Natural-language answers must reuse stored embeddings, cite real files, and fail honestly when the library has no grounding.
 Decision: Embed only the query, retrieve up to five documents above cosine 0.20 by default, and send only their summaries/snippets/paths to the selected completion model. Attach citations from retrieved records in deterministic code.
 Consequences: A model cannot add unverified paths to the returned citation list; empty and irrelevant questions return no sources.
+
+## DEC-013: Responsibility folders and independent quality gates
+
+Date: 2026-09-08
+Status: accepted
+Context: The flat source folder became difficult to navigate, and the project had type checking but no lint or formatting gates.
+Decision: Group modules and colocated tests into classification, pipelines, files, storage, taxonomy, search, and providers; move evals out of src. Preserve CLI commands and src/index.ts exports. Pin TypeScript 6.0.3 for typescript-eslint compatibility, ESLint for recommended code rules, and Biome for formatting only. Run checks, tests, and M1-M3 evaluations locally and in GitHub Actions.
+Consequences: Internal import paths change, but runtime behavior and database formats do not. Code, tests, evaluation runners, and TypeScript tool configuration are type checked. Dependency and formatting changes remain local to this package.

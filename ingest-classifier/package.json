@@ -6,19 +6,24 @@
     "start": "tsx src/cli.ts",
     "run": "tsx src/cli.ts run",
     "watch": "tsx src/cli.ts watch",
-    "eval:m1": "tsx src/evals/m1.ts",
-    "eval:m2": "tsx src/evals/m2.ts",
-    "eval:m3": "tsx src/evals/m3.ts",
+    "eval:m1": "tsx evals/m1.ts",
+    "eval:m2": "tsx evals/m2.ts",
+    "eval:m3": "tsx evals/m3.ts",
     "backfill": "tsx src/cli.ts backfill",
     "correct": "tsx src/cli.ts correct",
     "cluster": "tsx src/cli.ts cluster",
     "ask": "tsx src/cli.ts ask",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix --max-warnings 0",
+    "format:check": "biome format .",
+    "format": "biome format --write .",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.22.0"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",
@@ -28,7 +33,13 @@
   "devDependencies": {
     "@types/node": "^26.4.1",
     "tsx": "^4.23.13",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
-  }
+    "typescript": "6.0.3",
+    "vitest": "^4.1.11",
+    "@biomejs/biome": "2.5.12",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.10.0",
+    "globals": "17.12.0",
+    "typescript-eslint": "8.70.0"
+  },
+  "packageManager": "pnpm@10.9.0"
 }

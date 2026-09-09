@@ -4,6 +4,8 @@ TypeScript agent that watches a Markdown inbox, classifies notes, moves them wit
 
 ## Setup
 
+Requires Node 22.22 or newer and pnpm 10.9.0 (pinned in `package.json`).
+
 ```bash
 cd ingest-classifier
 pnpm install
@@ -30,6 +32,41 @@ pnpm eval:m3                       # offline split-suggestion and grounded-Q&A g
 pnpm test
 ```
 
+## Source layout
+
+```text
+src/
+  index.ts          # public exports
+  cli.ts            # command entry point
+  config.ts         # environment configuration
+  classification/   # fixed and adaptive classifiers
+  pipelines/        # orchestration of intake and classification
+  files/            # Markdown parsing and lossless file movement
+  storage/          # SQLite audit, category, document, correction stores
+  taxonomy/         # category definitions and proposal deduplication
+  search/           # embeddings, clustering, grounded retrieval
+  providers/        # model clients and provider contracts
+evals/              # offline milestone runners and fixture clients
+memory-bank/        # development memory for this agent
+```
+
+Tests live beside the modules they exercise. Import the library through `src/index.ts`; internal module paths may change as responsibilities evolve. CLI commands and library data formats remain stable across this folder reorganization.
+
+## Development checks
+
+| Command | Purpose |
+|---|---|
+| `pnpm typecheck` | TypeScript checks for source, tests, evaluations, and TypeScript tool configuration |
+| `pnpm lint` | Recommended ESLint rules, with warnings treated as failures |
+| `pnpm lint:fix` | Apply supported lint fixes |
+| `pnpm format:check` | Check Biome formatting without writing files |
+| `pnpm format` | Apply Biome formatting |
+| `pnpm check` | Run type, lint, and formatting checks |
+
+Use `pnpm install --frozen-lockfile` to reproduce the locked dependencies. ESLint handles code rules; Biome handles formatting with two spaces, double quotes, and semicolons. TypeScript 6.0.3 is pinned to match the ESLint TypeScript integration's supported compiler range.
+
+GitHub Actions runs `pnpm check`, `pnpm test`, and `pnpm eval:m1`, `pnpm eval:m2`, and `pnpm eval:m3` on pull requests and pushes to `main`. These checks use offline fixtures and need no model credentials. Generated dependencies, build output, coverage, and development memory are excluded from formatting/linting.
+
 ## Library contract
 
 The `--root` folder is created when necessary and contains:
@@ -46,7 +83,7 @@ The `--root` folder is created when necessary and contains:
   ingest-classifier.sqlite
 ```
 
-The stable category IDs and definitions live in `src/taxonomy.ts`. Files below 0.50 confidence are safely filed under `reference_material`; invalid model responses are retried, audited as failed, and left in the inbox. Destination collisions use `name-2.md`, `name-3.md`, and so on, and never overwrite an existing file.
+The stable category IDs and definitions live in `src/taxonomy/taxonomy.ts`. Files below 0.50 confidence are safely filed under `reference_material`; invalid model responses are retried, audited as failed, and left in the inbox. Destination collisions use `name-2.md`, `name-3.md`, and so on, and never overwrite an existing file.
 
 Only `.md` files move. Other files remain in the inbox and receive a single `skipped` audit record. UTF-8 parse failures remain in place, receive a failed audit record, and do not stop the rest of a batch.
 

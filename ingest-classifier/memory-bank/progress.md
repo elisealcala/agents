@@ -2,7 +2,7 @@
 
 ## Status
 
-Current: M1–M3 complete, verified, and fast-forwarded onto `main`.
+Current: M1-M3 remain implemented. Source organization and local/CI quality gates are implemented and locally verified.
 Next: maintain quality and keep all three exit gates green.
 
 ## Checklist
@@ -17,6 +17,9 @@ Next: maintain quality and keep all three exit gates green.
 - [x] M1 Zero-Loss Core Pipeline (issues #2–#8)
 - [x] M2 Adaptive Memory & Dynamic Taxonomy (issues #10–#14)
 - [x] M3 Offline Re-clustering & Interactive Retrieval (issues #16–#20)
+
+- [x] Document and implement project structure and quality tooling
+- [x] Verify project structure and quality tooling
 
 ## Log
 
@@ -51,3 +54,12 @@ Next: maintain quality and keep all three exit gates green.
 - Fast-forwarded the completed 19-commit roadmap history from `cursor/ingest-classifier-model-picker` onto local `main` after confirming `origin/main` had no divergent commits.
 - All 20 GitHub issues and milestones M1–M3 were already closed; final pre-merge verification remained typecheck, 174/174 tests, and all three evals passing.
 - Next step is pushing the updated `main` branch to GitHub.
+
+### 2026-09-08 — Project structure and quality tooling
+
+- Moved modules and tests into responsibility folders and evaluation code to top-level evals/.
+- Updated imports and command paths while preserving public exports and command names.
+- Added ESLint, Biome, broader tsc coverage, compatible TypeScript 6.0.3, and GitHub Actions checks.
+- Added `DEC-013`. Verification is pending; existing documentation edits are preserved.
+
+- Verification completed: typecheck, ESLint, Biome, and 174 tests across 21 files pass. M1, M2, and M3 offline evaluations pass; all 35 runtime and 20 type exports are preserved. Deliberate type/lint/format violations fail as expected. Removed seven unused mock parameters and normalized one method signature formatting after the first verification batch.

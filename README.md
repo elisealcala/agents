@@ -1,5 +1,7 @@
 # Agents
 
+A collection of independent AI agents for document intake, classification, and retrieval, with per-agent runtimes and memory banks.
+
 This repository currently ships [`ingest-classifier`](ingest-classifier/), a local Markdown intake agent that turns an inbox of notes into an organized, searchable library.
 
 ## ingest-classifier
@@ -69,7 +71,7 @@ Never merge banks.
 ## Add an agent
 
 ```bash
-cp -R _template ingest-classifier
+rsync -a --exclude=node_modules --exclude=dist --exclude=coverage _template/ my-agent/
 # then replace AGENT_NAME in that folder
 ```
 
@@ -77,6 +79,11 @@ cp -R _template ingest-classifier
 2. Register the agent in `_collection/memory-bank/progress.md`.
 3. Record this agent's runtime as `DEC-001` in **its** `decisions.md`.
 4. Do product work only in that agent's bank.
+5. Complete the agent README with a runnable example input/output and either a recorded demo or evaluation results. Replace the template placeholders with evidence from the implemented agent before presenting it as ready to use.
+
+Follow the [template's project structure and optional TypeScript starter](_template/README.md#project-structure). Keep code grouped by responsibility, tests beside their modules, and evaluations in `evals/`. The TypeScript preset includes ESLint, Biome formatting, type checking, and tests without imposing TypeScript on other agents.
+
+GitHub Actions checks the current agent and a newly assembled TypeScript starter on pull requests and pushes to `main`. Run `pnpm check` and `pnpm test` inside either TypeScript package to reproduce the quality gates; `ingest-classifier` also has its three offline milestone evaluations.
 
 Full loop: [`AGENTS.md`](AGENTS.md).
 

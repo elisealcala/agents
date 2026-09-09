@@ -2,16 +2,17 @@
 
 ## Current focus
 
-M1, M2, and M3 are implemented, verified, committed per child ticket, and fast-forwarded onto local `main`.
+M1-M3 remain implemented. Source organization and local/CI quality gates are implemented and locally verified.
 
 ## Recent changes
 
-- M3 stores document vectors/clean text/summaries, backfills legacy audit rows, and exposes correction, clustering, and grounded-Q&A commands.
-- Clustering is suggestion-only and retrieval reuses stored vectors with explicit file citations.
-- Full verification passed: typecheck, 174 tests, and all three milestone evals.
-- Local `main` now contains the complete roadmap history without a merge commit or conflict.
+- Moved modules and tests into responsibility folders and evaluation code to top-level evals/.
+- Updated imports and command paths while preserving public exports and command names.
+- Added ESLint, Biome, broader tsc coverage, compatible TypeScript 6.0.3, and GitHub Actions checks.
+
+Verification passes: typecheck, ESLint, Biome, 174 tests, and all three offline evaluations. All 55 public exports are preserved, and deliberate type/lint/format failures are detected. GitHub execution awaits a push.
 
 ## Next steps
 
-1. Push `main` to GitHub.
-2. Keep M1–M3 regression evals green as the branch evolves.
+1. Review and commit the local changes; keep all quality checks and M1-M3 evaluations green.
+2. Keep future source changes within the documented responsibility folders.
