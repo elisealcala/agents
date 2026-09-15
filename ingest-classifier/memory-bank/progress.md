@@ -2,7 +2,7 @@
 
 ## Status
 
-Current: M1-M3 remain implemented. Source organization and local/CI quality gates are implemented and locally verified.
+Current: M1-M3 and the project reorganization are delivered; the README now diagrams collaborating concerns aligned with source folders, keeping paths outside the image.
 Next: maintain quality and keep all three exit gates green.
 
 ## Checklist
@@ -20,6 +20,7 @@ Next: maintain quality and keep all three exit gates green.
 
 - [x] Document and implement project structure and quality tooling
 - [x] Verify project structure and quality tooling
+- [x] Document the runtime flow and pieces with a Mermaid diagram
 
 ## Log
 
@@ -63,3 +64,76 @@ Next: maintain quality and keep all three exit gates green.
 - Added `DEC-013`. Verification is pending; existing documentation edits are preserved.
 
 - Verification completed: typecheck, ESLint, Biome, and 174 tests across 21 files pass. M1, M2, and M3 offline evaluations pass; all 35 runtime and 20 type exports are preserved. Deliberate type/lint/format violations fail as expected. Removed seven unused mock parameters and normalized one method signature formatting after the first verification batch.
+
+### 2026-09-08 — Architecture diagram
+
+- Added a Mermaid overview of adaptive intake, provider calls, SQLite memory, corrections, retrieval, and suggestion-only clustering to the README.
+- Added a component-to-code table and explained failure handling, local embeddings, and the distinction between runtime SQLite memory and the development memory bank.
+- Clarified that the 0.50 confidence fallback belongs to the fixed-taxonomy M1 pipeline; the production adaptive pipeline uses category fit.
+- No runtime code changed. The prior structure/tooling work was pushed in `04d0137`; this documentation addition is local pending review.
+- Documentation review confirmed component links, code alignment, and whitespace. Clarified that retry applies to classification and missing-vector repair applies to document embeddings. Mermaid syntax was reviewed statically; no renderer is installed.
+
+### 2026-09-08 — Diagram aligned with source folders
+
+- Replaced the process-flow diagram with a source containment map: root entry files plus all seven src folders, showing actual implementation filenames and responsibilities.
+- Kept the command flow in concise prose below the diagram and separated classifier/provider rows in the component table.
+- Explicitly placed evals/ and memory-bank/ outside the src map; colocated tests are omitted for readability.
+- Recorded the source-map presentation convention in DEC-014. Documentation-only changes remain local.
+
+### 2026-09-09 — Diagram separated by concern
+
+- Replaced the file-tree graphic with responsibility boxes and their main calls: orchestration, classification, taxonomy, file handling, storage, search, and model providers.
+- Removed src and implementation filenames from the diagram while retaining the component-to-code table.
+- Recorded the clarified preference in DEC-015, superseding DEC-014. Runtime code is unchanged; documentation changes remain local.
+
+### 2026-09-09 — Supervisor interface discussion
+
+- Explained how a supervisor can call the existing CLI or reusable TypeScript exports, and when HTTP, MCP, or queued jobs would be useful alternatives.
+- Identified adapter requirements: structured output, per-file failure inspection, timeouts, and lifecycle ownership for watch; no supervisor or interface changes were implemented.
+- Recommended starting with a small named-operation interface and choosing direct calls or a local CLI adapter based on the supervisor runtime. This is a proposal, not an accepted architecture decision.
+- Saved the broader explanation and adapter canvas in the existing Obsidian architecture note.
+
+### 2026-09-09 — Current CLI contract versus MCP
+
+- Confirmed the CLI prints command-specific JSON and exposes per-file statuses, but has no uniform result/error envelope, guaranteed JSON-only stdout, advertised input/output schemas, or MCP server.
+- Explained that MCP offers discovery and schema-defined tool calls, while application code still owns result validation and partial-failure semantics.
+- Recommendation remains conditional: keep the CLI; add a thin MCP adapter over shared operations when interoperability with an MCP-capable supervisor is needed. No interface changes were requested or implemented.
+
+### 2026-09-10 — Multi-agent architecture review
+
+- Validated supervisor-worker, handoff, and blackboard as useful, combinable patterns rather than an exhaustive industry taxonomy; distinguished coordination from invocation protocols and durable execution.
+- Corrected handoff context assumptions, Redis Pub/Sub delivery guarantees, and Temporal's role as a durable workflow runtime rather than an event broker.
+- Recommended supervisor-worker with validated native TypeScript operations for an owned supervisor in the same runtime/deployment. Keep the CLI; consider MCP for compatible external clients, or HTTP/RPC for independent services. Recommendation only, with no new DEC entry.
+- Identified integration requirements from the existing implementation: retain classifier data ownership, separate supervisor conversation state, serialize ingestion runs per library, inspect partial failures, and use bounded calls instead of watch.
+- No runtime changes, dependency additions, model calls, or verification commands were needed for this advisory review.
+
+### 2026-09-14 — Standalone and supervised operation goal
+
+- User confirmed orchestrator-worker as the target while preserving independent classifier use; recorded DEC-016.
+- Rechecked CLI, public exports, package metadata, and adaptive pipeline guards. Existing exports permit direct supervisor calls, but setup/cleanup remains in CLI branches and there is no unified validated operation contract.
+- Explained the proposed shared application interface, explicit configuration/dependencies, structured partial-failure results, and lifecycle/concurrency boundaries. Supporting simultaneous CLI/watch and supervisor ingestion needs coordination beyond per-instance guards.
+- No runtime implementation was requested in this clarification; code and existing local README changes are preserved.
+
+
+### 2026-09-15 — Standalone CLI and MCP worker implementation
+
+- User approved the local, single-library MCP plan with immediate rejection of competing ingestion; recorded DEC-017 and DEC-018.
+- Added shared application operations and Zod input/output contracts, a lazy model factory, structured reports, and resource lifecycle ownership. Reused the existing CLI presentation and all public exports.
+- Added the official MCP SDK v2 stdio adapter with six tools and an offline client evaluation; CI now includes the MCP evaluation.
+- Added a canonical-root filesystem lock and graceful draining. Hardened storage-constructor cleanup and adaptive batch settling so failed files cannot cause premature database closure while other files are active.
+- README now documents standalone and supervised usage, concrete inputs/results, connection configuration, and manual recovery of abandoned ingestion locks.
+- Test-writer coverage and verifier checks are pending; no live model calls have been made.
+
+- Verification completed after batched fixes: frozen install, typecheck, ESLint, Biome, and 198 tests across 24 files pass. All four canonical evaluations pass (M1, M2, M3, MCP), with zero live model calls.
+- Fixed the SDK client versionNegotiation option, response-ID narrowing, and cleanup error propagation; corrected retry-message test expectations and made the offline CLI provider loader compose asynchronously with tsx.
+- Independent probes confirmed modern/legacy negotiation, protocol-only stdout from direct Node and pnpm launches, response delivery and lock release during EOF/SIGTERM, and side-effect-free public imports (50 runtime exports, preserving existing exports).
+- Tests also cover real standalone run/ask results, partial batches retaining the original raw-array/exit-zero behavior, watch locking, symlink roots, and conservative abandoned-lock handling. No lingering test/MCP child processes remained after verification.
+- Verifier used escalation for canonical pnpm evaluation commands because the local sandbox restricts tsx IPC. No code, model, or data failures remain. Changes remain local; no commit or push was requested.
+
+
+### 2026-09-15 — Publish the verified MCP worker release
+
+- User requested committing and pushing the verified implementation and pending classifier documentation to main.
+- Release includes the shared operations, six-tool local MCP server, CLI compatibility, ingestion lock/lifecycle behavior, offline evaluations, tests, and CI update.
+- Retained the completed verification: 198 tests, quality checks, frozen installation, and all four offline evaluations pass; no runtime changes were made during publication.
+- Excluded the unrelated untracked .cursor/plans/ directory.

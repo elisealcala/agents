@@ -39,8 +39,13 @@ export class DocumentStore {
 
   constructor(databasePath: string) {
     this.db = new DatabaseSync(path.resolve(databasePath));
-    this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
-    this.migrate();
+    try {
+      this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+      this.migrate();
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
   }
 
   close(): void {

@@ -23,9 +23,14 @@ export class CategoryStore {
   constructor(databasePath: string, libraryRoot: string) {
     this.db = new DatabaseSync(path.resolve(databasePath));
     this.libraryFolder = path.join(path.resolve(libraryRoot), "library");
-    this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
-    this.migrate();
-    this.seed();
+    try {
+      this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+      this.migrate();
+      this.seed();
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
   }
 
   close(): void {

@@ -39,6 +39,8 @@ jobs:
         run: pnpm eval:m2
       - name: Retrieval and clustering evaluation
         run: pnpm eval:m3
+      - name: Local MCP worker evaluation
+        run: pnpm eval:mcp
 
   typescript-starter:
     name: TypeScript starter

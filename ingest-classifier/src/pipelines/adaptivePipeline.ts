@@ -72,10 +72,25 @@ export class AdaptiveIngestPipeline {
     this.dedupThreshold =
       options.dedupThreshold ?? DEFAULT_CATEGORY_DEDUP_THRESHOLD;
     this.pollIntervalMs = options.pollIntervalMs ?? 1_000;
-    this.audit = new AuditStore(this.paths.database);
-    this.categories = new CategoryStore(this.paths.database, this.paths.root);
-    this.documents = new DocumentStore(this.paths.database);
-    this.corrections = new CorrectionStore(this.paths.database);
+    const opened: Array<{ close(): void }> = [];
+    try {
+      this.audit = new AuditStore(this.paths.database);
+      opened.push(this.audit);
+      this.categories = new CategoryStore(this.paths.database, this.paths.root);
+      opened.push(this.categories);
+      this.documents = new DocumentStore(this.paths.database);
+      opened.push(this.documents);
+      this.corrections = new CorrectionStore(this.paths.database);
+    } catch (error) {
+      for (const store of opened.reverse()) {
+        try {
+          store.close();
+        } catch {
+          /* Continue closing the other stores. */
+        }
+      }
+      throw error;
+    }
     this.examples =
       options.examples ?? (() => this.corrections.toPromptExamples());
   }
@@ -87,21 +102,44 @@ export class AdaptiveIngestPipeline {
   }
 
   close(): void {
-    this.corrections.close();
-    this.documents.close();
-    this.categories.close();
-    this.audit.close();
+    const errors: unknown[] = [];
+    for (const store of [
+      this.corrections,
+      this.documents,
+      this.categories,
+      this.audit,
+    ]) {
+      try {
+        store.close();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length)
+      throw new AggregateError(errors, "Pipeline cleanup failed");
   }
 
   async scanOnce(): Promise<AdaptiveProcessResult[]> {
     await this.initialize();
     const entries = await readdir(this.paths.inbox, { withFileTypes: true });
-    return Promise.all(
-      entries
-        .filter((entry) => entry.isFile())
-        .map((entry) =>
-          this.processDetectedPath(path.join(this.paths.inbox, entry.name)),
-        ),
+    const sources = entries
+      .filter((entry) => entry.isFile())
+      .map((entry) => path.join(this.paths.inbox, entry.name));
+    // Settle every file before callers close stores or release the ingestion lock.
+    const results = await Promise.allSettled(
+      sources.map((source) => this.processDetectedPath(source)),
+    );
+    return results.map((result, index) =>
+      result.status === "fulfilled"
+        ? result.value
+        : {
+            status: "failed" as const,
+            sourcePath: sources[index]!,
+            error:
+              result.reason instanceof Error
+                ? result.reason.message
+                : String(result.reason),
+          },
     );
   }
 

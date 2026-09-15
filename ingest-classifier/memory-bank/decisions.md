@@ -103,3 +103,44 @@ Status: accepted
 Context: The flat source folder became difficult to navigate, and the project had type checking but no lint or formatting gates.
 Decision: Group modules and colocated tests into classification, pipelines, files, storage, taxonomy, search, and providers; move evals out of src. Preserve CLI commands and src/index.ts exports. Pin TypeScript 6.0.3 for typescript-eslint compatibility, ESLint for recommended code rules, and Biome for formatting only. Run checks, tests, and M1-M3 evaluations locally and in GitHub Actions.
 Consequences: Internal import paths change, but runtime behavior and database formats do not. Code, tests, evaluation runners, and TypeScript tool configuration are type checked. Dependency and formatting changes remain local to this package.
+
+## DEC-014: README architecture diagram mirrors source layout
+
+Date: 2026-09-08
+Status: superseded (DEC-015)
+Context: The process-flow diagram did not help the user connect the architecture to the reorganized src folders.
+Decision: Use a Mermaid containment map with one box per src folder, actual implementation filenames, and responsibilities; show root entry files together. Explain execution and cross-folder collaboration in the accompanying prose.
+Consequences: Diagram arrows mean containment, not runtime order or dependency. Keep the map synchronized with source organization; omit colocated tests for readability and keep evals/ and memory-bank/ outside src.
+
+## DEC-015: Architecture diagram shows collaborating concerns
+
+Date: 2026-09-09
+Status: accepted
+Context: The user clarified that folders should inform the separation of concerns, without showing src or a file tree in the image.
+Decision: Show orchestration, classification, taxonomy, file handling, storage, search, and model providers as responsibility boxes, connected by their main calls. Keep paths and filenames in the component table and source-layout section.
+Consequences: Supersedes DEC-014. Diagram arrows represent collaboration rather than containment or strict execution order; no src root or implementation filenames appear in the diagram.
+
+## DEC-016: Standalone agent and orchestrator worker
+
+Date: 2026-09-14
+Status: accepted
+Context: The user wants ingest-classifier to operate independently and beneath a supervisor using the orchestrator-worker pattern.
+Decision: Preserve standalone CLI operation and support a supervisor invoking the same classifier capabilities as bounded worker operations. The classifier retains ownership of classification, taxonomy, library files, and domain storage; the supervisor owns overall task planning and conversation state.
+Consequences: Share application behavior between entry points and preserve existing commands/exports. A validated operations interface, lifecycle handling, and per-library ingestion coordination are proposed integration work. This decision selects the pattern and dual-use goal, not MCP, a framework, or a deployment topology. No runtime changes are implemented yet.
+
+
+## DEC-017: Local MCP over shared application operations
+
+Date: 2026-09-15
+Status: accepted
+Context: The user approved preparing the classifier as an orchestrator worker with MCP, while retaining its standalone CLI; the supervisor itself is separate work.
+Decision: Serve six schema-defined tools over local stdio for one startup-configured library, using the official TypeScript MCP SDK v2 and Zod. Share application operations and resource lifecycle with the CLI. Return success/partial/error envelopes and coded failures to MCP, while retaining command-specific CLI output. Keep configured model calls inside the worker, and permit discovery/local-only operations without model credentials.
+Consequences: A new application layer and MCP adapter wrap existing classification/storage behavior. MCP does not expose watch, arbitrary roots, provider credentials, or report output paths as tool arguments. No remote transport, database migration, or supervisor implementation is included.
+
+## DEC-018: Reject competing ingestion with a conservative local lock
+
+Date: 2026-09-15
+Status: accepted
+Context: Per-pipeline guards cannot coordinate a standalone watcher and a supervisor process using the same library. The user chose rejection rather than queuing.
+Decision: Acquire an atomic lock directory under the canonical library root before opening ingestion resources; hold it through one run or the full watch lifetime. Return LIBRARY_BUSY on contention. Wait for active processing before cleanup and release the lock normally; do not automatically expire abandoned locks.
+Consequences: Symlink aliases coordinate and different libraries remain independent. After a crash, an operator must confirm no ingestion is active before removing the stale lock. This guards ingestion through application/CLI/MCP entry points, not direct low-level pipeline usage or every other SQLite operation; no durable job or crash-recovery guarantee is added.

@@ -72,3 +72,30 @@ export {
   ensureLibraryLayout,
   getLibraryPaths,
 } from "./taxonomy/taxonomy.ts";
+export {
+  createIngestAgent,
+  IngestAgent,
+  type IngestAgentOptions,
+} from "./application/agent.ts";
+export {
+  type OperationResult,
+  type OperationError,
+  type IngestReport,
+  type QuestionInput,
+  type CorrectionInput,
+  type ClusterInput,
+  type SearchReport,
+  OperationFailure,
+  resultSchema,
+  ingestReportSchema,
+  searchReportSchema,
+  answerSchema,
+  correctionSchema,
+  clusteringReportSchema,
+  backfillReportSchema,
+  emptyInputSchema,
+  questionInputSchema,
+  correctionInputSchema,
+  clusterInputSchema,
+} from "./application/contracts.ts";
+export { createClassifierServer } from "./mcp/server.ts";

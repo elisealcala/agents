@@ -37,8 +37,13 @@ export class AuditStore {
     this.databasePath = path.resolve(databasePath);
     mkdirSync(path.dirname(this.databasePath), { recursive: true });
     this.db = new DatabaseSync(this.databasePath);
-    this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
-    this.migrate();
+    try {
+      this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+      this.migrate();
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
   }
 
   close(): void {

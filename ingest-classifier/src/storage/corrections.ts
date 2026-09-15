@@ -20,8 +20,13 @@ export class CorrectionStore {
     const absolutePath = path.resolve(databasePath);
     mkdirSync(path.dirname(absolutePath), { recursive: true });
     this.db = new DatabaseSync(absolutePath);
-    this.db.exec("PRAGMA journal_mode = WAL;");
-    this.migrate();
+    try {
+      this.db.exec("PRAGMA journal_mode = WAL;");
+      this.migrate();
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
   }
 
   close(): void {
