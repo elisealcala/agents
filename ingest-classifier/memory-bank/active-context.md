@@ -2,6 +2,10 @@
 
 ## Current focus
 
+System-message clarification (2026-09-18): the worker does not manage conversational model turns or translate system messages between providers. Each call sends instructions and input together in a single user message; retries do not carry message history. Supporting separate system instructions/history would require extending ModelClient and the adapters.
+
+Latest lookup (2026-09-18): provider selection is in `src/providers/createClient.ts:23`; OpenAI and Anthropic request/response shapes are handled by their individual adapters. Both forward the same prompt string without provider-specific sanitization. Ingestion performs shared UTF-8 validation and Markdown cleanup (`src/files/markdown.ts`); classification validates and normalizes responses centrally. These steps do not provide sensitive-data redaction or prompt-injection sanitization. No runtime changes were requested.
+
 The approved standalone CLI and local MCP worker interface is implemented and verified (DEC-016–DEC-018). Both entry points share validated application operations. MCP serves six tools for one configured library, with structured success/partial/error results. The user approved publishing this verified release to main. It includes the shared operations, local MCP server, standalone CLI compatibility, tests, evaluations, and documentation.
 
 ## Verified status — 2026-09-15

@@ -137,3 +137,21 @@ Next: maintain quality and keep all three exit gates green.
 - Release includes the shared operations, six-tool local MCP server, CLI compatibility, ingestion lock/lifecycle behavior, offline evaluations, tests, and CI update.
 - Retained the completed verification: 198 tests, quality checks, frozen installation, and all four offline evaluations pass; no runtime changes were made during publication.
 - Excluded the unrelated untracked .cursor/plans/ directory.
+
+### 2026-09-18 — Provider message format lookup
+
+- Located provider selection in `src/providers/createClient.ts` and request/response adaptation in `openai.ts` and `anthropic.ts`; xAI reuses the OpenAI adapter.
+- Confirmed both adapters currently send one user message with string content. Differences are SDK endpoint, Anthropic's max_tokens, and response text extraction. The shared contract remains `complete(prompt: string): Promise<string>`.
+- No runtime changes or checks were needed; this was a source lookup.
+
+### 2026-09-18 — Provider sanitization lookup
+
+- Confirmed there is no provider-specific input sanitization: adapters forward the prompt string directly. The ingestion path performs shared UTF-8 validation and Markdown-to-text cleanup before prompt construction.
+- Classification responses receive shared JSON/field validation and normalization after provider text extraction. No explicit sensitive-data redaction or prompt-injection sanitization was found in the traced completion paths; retrieval interpolates questions and stored context into its prompt.
+- No runtime changes or verification commands were needed.
+
+### 2026-09-18 — System messages and turns clarification
+
+- Clarified that the question concerns system instructions and conversational turns, not content sanitization. Source search confirmed no system-message conversion or conversation-history layer in classifier model calls.
+- Each completion sends one user message containing instructions plus input. ModelClient accepts only a prompt string; classification retries construct a fresh request without prior assistant messages.
+- No implementation changes were requested.
