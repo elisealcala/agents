@@ -219,6 +219,67 @@ describe("CategoryStore dynamic categories", () => {
     ).rejects.toThrow(/must contain letters or numbers/);
     expect(store.list()).toHaveLength(SEED_CATEGORIES.length);
   });
+
+  it("nests a child and grandchild under the closest parent", async () => {
+    const root = await temporaryRoot();
+    const store = openStore(root);
+    await store.initialize();
+
+    const caching = await store.create(
+      { name: "Caching", definition: "Cache design notes." },
+      [1, 0],
+      "fixture-v1",
+      "architecture_code",
+    );
+    const redis = await store.create(
+      { name: "Redis", definition: "Redis cache notes." },
+      [1, 0],
+      "fixture-v1",
+      caching.id,
+    );
+
+    expect(caching.parentId).toBe("architecture_code");
+    expect(redis.parentId).toBe(caching.id);
+    expect(store.folderPath(caching)).toBe(
+      path.join(root, "library", "architecture-code", "caching"),
+    );
+    expect(store.folderPath(redis)).toBe(
+      path.join(root, "library", "architecture-code", "caching", "redis"),
+    );
+    await expectDirectory(store.folderPath(redis));
+  });
+
+  it("migrates a flat category table without moving existing root folders", async () => {
+    const root = await temporaryRoot();
+    const databasePath = path.join(root, "ingest-classifier.sqlite");
+    const legacy = new DatabaseSync(databasePath);
+    legacy.exec(`
+      CREATE TABLE categories (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        definition TEXT NOT NULL,
+        folder TEXT NOT NULL UNIQUE,
+        embedding_json TEXT,
+        embedding_provider TEXT,
+        is_seed INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      INSERT INTO categories (id, name, definition, folder, is_seed)
+      VALUES ('project_specs', 'Project Specs', 'Plans.', 'project-specs', 1);
+    `);
+    legacy.close();
+
+    const store = openStore(root);
+    const project = store.get("project_specs");
+
+    expect(project?.parentId).toBeNull();
+    expect(store.folderPath(project!)).toBe(
+      path.join(root, "library", "project-specs"),
+    );
+    expect(store.list().filter(({ isSeed }) => isSeed)).toHaveLength(
+      SEED_CATEGORIES.length,
+    );
+  });
 });
 
 describe("CategoryStore embeddings", () => {

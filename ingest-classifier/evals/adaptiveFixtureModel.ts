@@ -35,16 +35,13 @@ export class AdaptiveFixtureModelClient implements ModelClient {
     }
     const note = extractNote(prompt).toLowerCase();
     if (note.includes("dedup candidate")) {
-      return proposed(
-        "Architecture and Code",
-        "Technical designs, API definitions, system architecture, and code notes.",
-        ["engineering"],
-      );
+      return existing("architecture_code", ["engineering"]);
     }
     if (note.includes("bicycle") || note.includes("bike")) {
       return hasCategory(prompt, "equipment_maintenance")
         ? existing("equipment_maintenance", ["maintenance"])
         : proposed(
+            "personal_ideas",
             "Equipment Maintenance",
             "Guides and notes about maintaining and repairing bicycles and equipment.",
             ["maintenance"],
@@ -54,6 +51,7 @@ export class AdaptiveFixtureModelClient implements ModelClient {
       return hasCategory(prompt, "recipes_cooking")
         ? existing("recipes_cooking", ["cooking"])
         : proposed(
+            "personal_ideas",
             "Recipes Cooking",
             "Recipes, cooking techniques, ingredients, and meal preparation notes.",
             ["cooking"],
@@ -90,9 +88,15 @@ function existing(category: string, tags: string[]): string {
   });
 }
 
-function proposed(name: string, definition: string, tags: string[]): string {
+function proposed(
+  parent: string,
+  name: string,
+  definition: string,
+  tags: string[],
+): string {
   return JSON.stringify({
     action: "propose",
+    parent,
     proposal: { name, definition },
     summary: `Offline fixture summary for ${name}.`,
     tags,

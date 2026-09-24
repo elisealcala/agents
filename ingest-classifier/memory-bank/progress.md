@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: M1-M3 and the project reorganization are delivered; the README now diagrams collaborating concerns aligned with source folders, keeping paths outside the image.
-Next: maintain quality and keep all three exit gates green.
+Current: Adaptive classification files notes in a category tree (DEC-019). M1 stays a flat seed taxonomy.
+Next: Try a live library run with narrower technical notes and confirm children land under the closest parent.
 
 ## Checklist
 
@@ -155,3 +155,13 @@ Next: maintain quality and keep all three exit gates green.
 - Clarified that the question concerns system instructions and conversational turns, not content sanitization. Source search confirmed no system-message conversion or conversation-history layer in classifier model calls.
 - Each completion sends one user message containing instructions plus input. ModelClient accepts only a prompt string; classification retries construct a fresh request without prior assistant messages.
 - No implementation changes were requested.
+
+### 2026-09-24 — Nested category classification
+
+- Categories store `parent_id`. A flat library migrates in place: existing rows, including the five seeds, keep `parent_id` null so their folders stay at `library/<folder>/`.
+- `run` and `watch` file a note in the most specific existing category when that category matches as a whole. A narrower note creates one child under the closest existing category and moves the file there. A later note can add one more level under that child.
+- Dedup compares a proposal only with that parent's children. Similarity to the parent does not cancel the child. The 0.85 threshold still reuses a near-duplicate sibling.
+- A proposal may have `fit_score` above 0.80. That replaces the proposal half of DEC-007 for the adaptive path only. The fixed M1 classifier is unchanged.
+- Notes already sitting in a parent are not moved when a child appears later. Clustering remains suggestion-only (DEC-011).
+- Recorded DEC-019. README library contract shows the nested layout.
+- Verification: `pnpm check` passed. 202 tests across 24 files passed. `pnpm eval:m2` passed with 57 sorted notes, equipment maintenance and recipes nested under `personal_ideas`, and no duplicate sibling pairs. No live model calls.

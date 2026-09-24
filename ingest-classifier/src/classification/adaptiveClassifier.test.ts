@@ -39,6 +39,7 @@ function storedCategory(
     name,
     definition,
     folder: id.replaceAll("_", "-"),
+    parentId: null,
     embedding: null,
     embeddingProvider: null,
     isSeed: true,
@@ -74,6 +75,7 @@ function existing(overrides: Record<string, unknown> = {}): string {
 function proposed(overrides: Record<string, unknown> = {}): string {
   return JSON.stringify({
     action: "propose",
+    parent: "project_specs",
     proposal: {
       name: "Equipment Maintenance",
       definition: "Repair and maintenance notes for equipment.",
@@ -198,19 +200,19 @@ ${existing({
     );
   });
 
-  it("enforces the inclusive proposal side of the 0.80 boundary", () => {
+  it("allows a child proposal when the parent fit is above 0.80", () => {
     expect(
       parseAdaptiveClassification(
-        proposed({ fit_score: 0.8 }),
+        proposed({ fit_score: 0.91 }),
         LIVE_CATEGORIES,
       ),
-    ).toEqual(expect.objectContaining({ action: "propose", fit_score: 0.8 }));
-    expect(() =>
-      parseAdaptiveClassification(
-        proposed({ fit_score: 0.800001 }),
-        LIVE_CATEGORIES,
-      ),
-    ).toThrow(/at most 0.80/);
+    ).toEqual(
+      expect.objectContaining({
+        action: "propose",
+        parent: "project_specs",
+        fit_score: 0.91,
+      }),
+    );
   });
 
   it("trims a valid proposal and deduplicates its tags", () => {
@@ -228,6 +230,7 @@ ${existing({
       ),
     ).toEqual({
       action: "propose",
+      parent: "project_specs",
       proposal: {
         name: "Recipes and Cooking",
         definition: "Recipes, ingredients, and cooking techniques.",
@@ -274,6 +277,11 @@ ${existing({
     ],
     ["non-numeric fit", existing({ fit_score: "0.9" }), /fit_score/],
     ["an unknown action", existing({ action: "reuse" }), /existing or propose/],
+    [
+      "a missing parent",
+      proposed({ parent: "missing_parent" }),
+      /proposal parent must be a live category id/,
+    ],
     [
       "a missing proposal",
       proposed({ proposal: undefined }),

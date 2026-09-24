@@ -71,6 +71,7 @@ function modelClient(complete: ModelClient["complete"]): ModelClient {
 function proposal(name: string, definition: string, tags = ["topic"]): string {
   return JSON.stringify({
     action: "propose",
+    parent: "personal_ideas",
     proposal: { name, definition },
     summary: `Summary for ${name}.`,
     tags,
@@ -201,7 +202,7 @@ describe("AdaptiveIngestPipeline category lifecycle", () => {
         .filter(({ id }) => id.startsWith("garden_logs")),
     ).toEqual([expect.objectContaining({ id: "garden_logs", isSeed: false })]);
     await expect(
-      readdir(path.join(root, "library", "garden-logs")),
+      readdir(path.join(root, "library", "personal-ideas", "garden-logs")),
     ).resolves.toEqual(expect.arrayContaining(["garden-a.md", "garden-b.md"]));
     expect(complete).toHaveBeenCalledTimes(2);
     expect(pipeline.audit.list("ok")).toHaveLength(2);
@@ -548,7 +549,13 @@ describe("M2 adaptive exit gate", () => {
       firstResults
         .filter((result) => result.status === "ok")
         .filter(({ categoryAction }) => categoryAction === "merged"),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
+    expect(pipeline.categories.get("equipment_maintenance")?.parentId).toBe(
+      "personal_ideas",
+    );
+    expect(pipeline.categories.get("recipes_cooking")?.parentId).toBe(
+      "personal_ideas",
+    );
     expect(
       secondResults.every(
         (result) =>
@@ -572,6 +579,7 @@ describe("M2 adaptive exit gate", () => {
       for (let right = left + 1; right < categories.length; right += 1) {
         const a = categories[left]!;
         const b = categories[right]!;
+        if (a.parentId !== b.parentId) continue;
         expect(a.embedding).not.toBeNull();
         expect(b.embedding).not.toBeNull();
         expect(

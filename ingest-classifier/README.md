@@ -252,7 +252,7 @@ GitHub Actions runs `pnpm check`, `pnpm test`, and `pnpm eval:m1`, `pnpm eval:m2
 
 ## Library contract
 
-The `--root` folder is created when necessary and contains:
+The `--root` folder is created when necessary and contains the five seed categories as top-level folders. A narrower note adds one child folder under the closest existing category. A later note can add another child under that new category.
 
 ```text
 <root>/
@@ -260,6 +260,8 @@ The `--root` folder is created when necessary and contains:
   library/
     project-specs/
     architecture-code/
+      caching/
+        redis/
     meeting-notes/
     personal-ideas/
     reference-material/
@@ -274,9 +276,9 @@ Only `.md` files move. Other files remain in the inbox and receive a single `ski
 
 ## Adaptive taxonomy
 
-The production `run` and `watch` commands load categories from SQLite on every classification. When the model reports an existing-category fit above 0.80, the note uses that category. Otherwise it proposes a name and one-sentence definition without moving the file yet.
+The production `run` and `watch` commands load the category tree from SQLite on every classification. When the note matches an existing category as a whole with fit above 0.80, the note uses that category, even if the category already has children. When the note is a narrower subtopic, the model proposes one child under the closest existing category. A high fit against a broad parent does not block that child.
 
-Before creation, `local-hash-v1` embeds the proposal and compares it to stored category vectors. Similarity above `INGEST_CATEGORY_DEDUP_THRESHOLD` (default `0.85`) reuses the nearest category. A novel proposal is inserted in SQLite, its matching folder is created, and only then can the checksum-safe move occur.
+Before creation, `local-hash-v1` embeds the proposal and compares it only with that parent's existing children. Similarity above `INGEST_CATEGORY_DEDUP_THRESHOLD` (default `0.85`) reuses the nearest sibling. Similarity to the parent does not cancel the child. A novel child is inserted in SQLite, its nested folder is created, and only then can the checksum-safe move occur. Notes already filed in a parent stay there.
 
 `pnpm eval:m2` runs 57 notes offline in two waves. It verifies that novel equipment-maintenance and cooking themes create exactly one folder each, later related notes reuse them, an architecture paraphrase merges into the seed category, every note has a complete audit row, and no stored category pair crosses the duplicate threshold. The JSON report includes the human-review theme checklist.
 

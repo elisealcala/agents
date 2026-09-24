@@ -94,6 +94,7 @@ async function main(): Promise<void> {
       for (let right = left + 1; right < categories.length; right += 1) {
         const a = categories[left]!;
         const b = categories[right]!;
+        if (a.parentId !== b.parentId) continue;
         if (!a.embedding || !b.embedding) continue;
         const similarity = cosineSimilarity(a.embedding, b.embedding);
         if (similarity > pipeline.dedupThreshold) {
@@ -118,6 +119,17 @@ async function main(): Promise<void> {
       (result) =>
         result.status === "ok" && result.categoryAction === "existing",
     );
+    const equipment = categories.find(
+      ({ id }) => id === "equipment_maintenance",
+    );
+    const recipes = categories.find(({ id }) => id === "recipes_cooking");
+    const nested =
+      equipment?.parentId === "personal_ideas" &&
+      recipes?.parentId === "personal_ideas" &&
+      pipeline.categories.folderPath(equipment!) ===
+        path.join(root, "library", "personal-ideas", "equipment-maintenance") &&
+      pipeline.categories.folderPath(recipes!) ===
+        path.join(root, "library", "personal-ideas", "recipes-cooking");
     const pass =
       allResults.length === 57 &&
       allResults.every((result) => result.status === "ok") &&
@@ -125,7 +137,8 @@ async function main(): Promise<void> {
       JSON.stringify(actualCategoryIds) ===
         JSON.stringify(expectedCategoryIds) &&
       duplicatePairs.length === 0 &&
-      secondWaveReused;
+      secondWaveReused &&
+      nested;
     console.log(
       JSON.stringify(
         {

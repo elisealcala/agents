@@ -20,6 +20,7 @@ export type ExistingCategoryClassification = ClassificationDetails & {
 
 export type ProposedCategoryClassification = ClassificationDetails & {
   action: "propose";
+  parent: string;
   proposal: CategoryProposal;
 };
 
@@ -59,26 +60,43 @@ export function buildAdaptiveClassificationPrompt(
   categories: StoredCategory[],
   examples: string[] = [],
 ): string {
-  const current = categories
-    .map(({ id, name, definition }) => `- ${id} (${name}): ${definition}`)
-    .join("\n");
   const fewShot = examples.length
     ? `\nCorrections to learn from:\n${examples.map((example) => `- ${example}`).join("\n")}\n`
     : "";
-  return `Classify one note using the current live taxonomy.
+  return `Classify one note into the most specific category in the live taxonomy.
 
 Existing Categories:
-${current}
+${formatTaxonomy(categories)}
 
-Rule: If the note matches an existing category with fit_score > 0.80, return:
+If the note is about an existing category as a whole, and that category is the most specific match, return:
 {"action":"existing","category":"category_id","summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
 
-Otherwise return a proposed category without moving the file:
-{"action":"propose","proposal":{"name":"Specific Category","definition":"One sentence defining the category."},"summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
+If the note is a narrower subtopic, propose exactly one new child under the closest existing category:
+{"action":"propose","parent":"parent_category_id","proposal":{"name":"Specific Category","definition":"One sentence defining the category."},"summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
 
-Return JSON only. Scores must be between 0 and 1.${fewShot}
+An existing match requires fit_score > 0.80. A child proposal may also have fit_score > 0.80 when the parent fits but is too broad. Return JSON only. Scores must be between 0 and 1.${fewShot}
 Note:
 ${cleanText}`;
+}
+
+function formatTaxonomy(categories: StoredCategory[]): string {
+  const byParent = new Map<string | null, StoredCategory[]>();
+  for (const category of categories) {
+    const group = byParent.get(category.parentId) ?? [];
+    group.push(category);
+    byParent.set(category.parentId, group);
+  }
+  const lines: string[] = [];
+  const walk = (parentId: string | null, depth: number) => {
+    for (const category of byParent.get(parentId) ?? []) {
+      lines.push(
+        `${"  ".repeat(depth)}- ${category.id} (${category.name}): ${category.definition}`,
+      );
+      walk(category.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  return lines.join("\n");
 }
 
 export function parseAdaptiveClassification(
@@ -113,8 +131,11 @@ export function parseAdaptiveClassification(
     return { action: "existing", category: record.category, ...details };
   }
   if (record.action === "propose") {
-    if (details.fit_score > EXISTING_CATEGORY_FIT_THRESHOLD) {
-      throw new Error("proposal fit_score must be at most 0.80");
+    if (
+      typeof record.parent !== "string" ||
+      !categories.some(({ id }) => id === record.parent)
+    ) {
+      throw new Error("proposal parent must be a live category id");
     }
     if (
       !record.proposal ||
@@ -135,6 +156,7 @@ export function parseAdaptiveClassification(
     }
     return {
       action: "propose",
+      parent: record.parent,
       proposal: {
         name: proposal.name.trim(),
         definition: proposal.definition.trim(),

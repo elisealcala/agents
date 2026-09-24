@@ -24,6 +24,7 @@ export async function resolveCategoryProposal(
   categories: StoredCategory[],
   provider: EmbeddingProvider,
   threshold = DEFAULT_CATEGORY_DEDUP_THRESHOLD,
+  parentId: string | null = null,
 ): Promise<CategoryResolution> {
   if (!Number.isFinite(threshold) || threshold < -1 || threshold > 1) {
     throw new Error("dedup threshold must be between -1 and 1");
@@ -32,6 +33,7 @@ export async function resolveCategoryProposal(
   let nearest: StoredCategory | null = null;
   let similarity = -1;
   for (const category of categories) {
+    if (category.parentId !== parentId) continue;
     if (!category.embedding || category.embedding.length !== embedding.length)
       continue;
     const score = cosineSimilarity(embedding, category.embedding);

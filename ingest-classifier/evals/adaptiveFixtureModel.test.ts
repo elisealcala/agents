@@ -10,6 +10,7 @@ import { AdaptiveFixtureModelClient } from "./adaptiveFixtureModel.ts";
 function storedCategories(): StoredCategory[] {
   return SEED_CATEGORIES.map((category) => ({
     ...category,
+    parentId: null,
     embedding: null,
     embeddingProvider: null,
     isSeed: true,
@@ -27,6 +28,7 @@ function dynamicCategory(
     name,
     definition,
     folder: id.replaceAll("_", "-"),
+    parentId: "personal_ideas",
     embedding: [1, 0],
     embeddingProvider: "fixture-v1",
     isSeed: false,
@@ -87,6 +89,7 @@ describe("AdaptiveFixtureModelClient", () => {
     expect(first).toEqual(
       expect.objectContaining({
         action: "propose",
+        parent: "personal_ideas",
         proposal: {
           name: "Equipment Maintenance",
           definition:
@@ -124,6 +127,7 @@ describe("AdaptiveFixtureModelClient", () => {
     expect(parseAdaptiveClassification(proposedRaw, seeds)).toEqual(
       expect.objectContaining({
         action: "propose",
+        parent: "personal_ideas",
         proposal: expect.objectContaining({ name: "Recipes Cooking" }),
       }),
     );
@@ -145,7 +149,7 @@ describe("AdaptiveFixtureModelClient", () => {
     );
   });
 
-  it("returns the known architecture paraphrase proposal used by dedup evaluation", async () => {
+  it("keeps an architecture paraphrase on the existing architecture category", async () => {
     const categories = storedCategories();
     const client = new AdaptiveFixtureModelClient();
 
@@ -158,12 +162,8 @@ describe("AdaptiveFixtureModelClient", () => {
 
     expect(parseAdaptiveClassification(raw, categories)).toEqual(
       expect.objectContaining({
-        action: "propose",
-        proposal: {
-          name: "Architecture and Code",
-          definition:
-            "Technical designs, API definitions, system architecture, and code notes.",
-        },
+        action: "existing",
+        category: "architecture_code",
       }),
     );
   });

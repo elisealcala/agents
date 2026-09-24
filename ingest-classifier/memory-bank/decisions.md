@@ -144,3 +144,11 @@ Status: accepted
 Context: Per-pipeline guards cannot coordinate a standalone watcher and a supervisor process using the same library. The user chose rejection rather than queuing.
 Decision: Acquire an atomic lock directory under the canonical library root before opening ingestion resources; hold it through one run or the full watch lifetime. Return LIBRARY_BUSY on contention. Wait for active processing before cleanup and release the lock normally; do not automatically expire abandoned locks.
 Consequences: Symlink aliases coordinate and different libraries remain independent. After a crash, an operator must confirm no ingestion is active before removing the stale lock. This guards ingestion through application/CLI/MCP entry points, not direct low-level pipeline usage or every other SQLite operation; no durable job or crash-recovery guarantee is added.
+
+## DEC-019: Nested categories during classification
+
+Date: 2026-09-24
+Status: accepted
+Context: Broad seed categories, especially Architecture & Code, absorb narrower technical notes because a fit above 0.80 blocks a new category. Split suggestions stay a report and do not create folders.
+Decision: Store `parent_id` on categories. Seeds remain roots. Adaptive classification files a note in the most specific existing category when that category matches as a whole. A narrower note creates one child under the closest existing category. Sibling dedup still uses the 0.85 threshold. A high fit against the parent does not block the child. This replaces the proposal half of DEC-007 for the adaptive path only. The fixed M1 classifier stays flat. Existing files are not moved when a later child appears. Clustering remains suggestion-only (DEC-011).
+Consequences: New folders nest under `library/`, for example `library/architecture-code/caching/redis/`. Flat libraries migrate with `parent_id` null so current seed paths stay valid. Folder names are unique among siblings.

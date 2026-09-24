@@ -217,7 +217,10 @@ export class AdaptiveIngestPipeline {
               category: this.requireCategory(classification.category),
               categoryAction: "existing" as const,
             }
-          : await this.resolveProposal(classification.proposal);
+          : await this.resolveProposal(
+              classification.proposal,
+              classification.parent,
+            );
       this.audit.setClassification(auditId, {
         category: resolution.category.id,
         summary: classification.summary,
@@ -298,7 +301,10 @@ export class AdaptiveIngestPipeline {
     return category;
   }
 
-  private async resolveProposal(proposal: CategoryProposal): Promise<{
+  private async resolveProposal(
+    proposal: CategoryProposal,
+    parentId: string,
+  ): Promise<{
     category: StoredCategory;
     categoryAction: "merged" | "created";
   }> {
@@ -312,9 +318,10 @@ export class AdaptiveIngestPipeline {
       await this.categories.ensureEmbeddings(this.embeddingProvider);
       const resolution = await resolveCategoryProposal(
         proposal,
-        this.categories.list(),
+        this.categories.children(parentId),
         this.embeddingProvider,
         this.dedupThreshold,
+        parentId,
       );
       if (resolution.action === "merge") {
         return { category: resolution.category, categoryAction: "merged" };
@@ -323,6 +330,7 @@ export class AdaptiveIngestPipeline {
         proposal,
         resolution.embedding,
         this.embeddingProvider.id,
+        parentId,
       );
       return { category, categoryAction: "created" };
     } finally {

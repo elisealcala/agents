@@ -25,6 +25,7 @@ function storedCategory(
     name: id.replaceAll("_", " "),
     definition,
     folder: id.replaceAll("_", "-"),
+    parentId: null,
     embedding,
     embeddingProvider: embedding ? "fixture-v1" : null,
     isSeed: false,
@@ -170,6 +171,7 @@ describe("resolveCategoryProposal", () => {
     const categories: StoredCategory[] = await Promise.all(
       SEED_CATEGORIES.map(async (category) => ({
         ...category,
+        parentId: null,
         embedding: await provider.embed(categoryText(category)),
         embeddingProvider: provider.id,
         isSeed: true,
@@ -207,5 +209,33 @@ describe("resolveCategoryProposal", () => {
       }),
     );
     expect(novel).toEqual(expect.objectContaining({ action: "create" }));
+  });
+
+  it("reuses a similar sibling and still creates when only the parent matches", async () => {
+    const parent = storedCategory("architecture_code", [1, 0]);
+    const sibling = {
+      ...storedCategory("caching", [1, 0]),
+      parentId: "architecture_code",
+    };
+
+    const merged = await resolveCategoryProposal(
+      PROPOSAL,
+      [parent, sibling],
+      fixtureProvider([1, 0]),
+      0.85,
+      "architecture_code",
+    );
+    const created = await resolveCategoryProposal(
+      PROPOSAL,
+      [parent],
+      fixtureProvider([1, 0]),
+      0.85,
+      "architecture_code",
+    );
+
+    expect(merged).toEqual(
+      expect.objectContaining({ action: "merge", category: sibling }),
+    );
+    expect(created.action).toBe("create");
   });
 });
