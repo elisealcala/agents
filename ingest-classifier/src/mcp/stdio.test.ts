@@ -14,7 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
-import { acquireIngestionLock } from "../application/ingestionLock.ts";
+import { acquireIngestionLock } from "../application/ingestion-lock.ts";
 import {
   ingestReportSchema,
   resultSchema,
@@ -27,7 +27,7 @@ const execute = promisify(execFile);
 const loader = fileURLToPath(import.meta.resolve("tsx"));
 const productionEntry = fileURLToPath(new URL("./main.ts", import.meta.url));
 const fixtureEntry = fileURLToPath(
-  new URL("../../evals/mcpFixtureServer.ts", import.meta.url),
+  new URL("../../evals/mcp-fixture-server.ts", import.meta.url),
 );
 const cliEntry = fileURLToPath(new URL("../cli.ts", import.meta.url));
 const offlineEnv = {
@@ -85,10 +85,10 @@ async function cli(directory: string, args: string[]) {
 
 async function fixtureCli(directory: string, args: string[]) {
   const preload = path.join(directory, "offline-provider-preload.mjs");
-  const providerUrl = new URL("../providers/createClient.ts", import.meta.url)
+  const providerUrl = new URL("../providers/create-client.ts", import.meta.url)
     .href;
   const fixtureUrl = new URL(
-    "../../evals/adaptiveFixtureModel.ts",
+    "../../evals/adaptive-fixture-model.ts",
     import.meta.url,
   ).href;
   // Replace only the provider factory in this disposable child process. The real
@@ -273,7 +273,7 @@ describe("MCP stdio adapter", () => {
     );
     const stdioModule = new URL("./stdio.ts", import.meta.url).href;
     const fixtureModule = new URL(
-      "../../evals/adaptiveFixtureModel.ts",
+      "../../evals/adaptive-fixture-model.ts",
       import.meta.url,
     ).href;
     const script = `import { startClassifierStdio } from ${JSON.stringify(stdioModule)};

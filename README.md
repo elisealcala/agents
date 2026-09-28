@@ -23,9 +23,9 @@ cp .env.example .env
 
 pnpm run -- --root ./my-library
 pnpm watch -- --root ./my-library
-pnpm eval:m1
-pnpm eval:m2
-pnpm eval:m3
+pnpm eval:fixed-taxonomy
+pnpm eval:adaptive-taxonomy
+pnpm eval:retrieval-and-clustering
 ```
 
 See the [`ingest-classifier` README](ingest-classifier/README.md) for setup, the library layout, available commands, and configuration.
@@ -81,7 +81,7 @@ rsync -a --exclude=node_modules --exclude=dist --exclude=coverage _template/ my-
 4. Do product work only in that agent's bank.
 5. Complete the agent README with a runnable example input/output and either a recorded demo or evaluation results. Replace the template placeholders with evidence from the implemented agent before presenting it as ready to use.
 
-Follow the [template's project structure and optional TypeScript starter](_template/README.md#project-structure). Keep code grouped by responsibility, tests beside their modules, and evaluations in `evals/`. The TypeScript preset includes ESLint, Biome formatting, type checking, and tests without imposing TypeScript on other agents.
+Follow the [template's project structure and optional TypeScript starter](_template/README.md#project-structure). Keep code grouped by responsibility, tests beside their modules, and evaluations in `evals/`. The TypeScript preset includes Biome linting and formatting, type checking, and tests without imposing TypeScript on other agents.
 
 GitHub Actions checks the current agent and a newly assembled TypeScript starter on pull requests and pushes to `main`. Run `pnpm check` and `pnpm test` inside either TypeScript package to reproduce the quality gates; `ingest-classifier` also has its three offline milestone evaluations.
 

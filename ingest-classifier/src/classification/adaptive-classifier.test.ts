@@ -8,7 +8,7 @@ import {
   buildAdaptiveClassificationPrompt,
   classifyWithLiveTaxonomy,
   parseAdaptiveClassification,
-} from "./adaptiveClassifier.ts";
+} from "./adaptive-classifier.ts";
 import { CategoryStore, type StoredCategory } from "../storage/categories.ts";
 
 const stores: CategoryStore[] = [];

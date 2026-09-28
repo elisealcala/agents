@@ -15,9 +15,9 @@ import {
   type IngestAgent,
   type IngestAgentOptions,
 } from "./agent.ts";
-import { acquireIngestionLock, INGESTION_LOCK_NAME } from "./ingestionLock.ts";
-import { AdaptiveFixtureModelClient } from "../../evals/adaptiveFixtureModel.ts";
-import { AdaptiveIngestPipeline } from "../pipelines/adaptivePipeline.ts";
+import { acquireIngestionLock, INGESTION_LOCK_NAME } from "./ingestion-lock.ts";
+import { AdaptiveFixtureModelClient } from "../../evals/adaptive-fixture-model.ts";
+import { AdaptiveIngestPipeline } from "../pipelines/adaptive-pipeline.ts";
 import { AuditStore } from "../storage/audit.ts";
 import { DocumentStore } from "../storage/documents.ts";
 import { CorrectionStore } from "../storage/corrections.ts";

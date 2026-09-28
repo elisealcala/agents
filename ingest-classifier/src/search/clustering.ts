@@ -1,14 +1,53 @@
+/**
+ * Deterministic two-way clustering that looks for categories holding two
+ * distinct themes.
+ *
+ * Every function here is advisory. Nothing moves a file, creates a folder or
+ * edits the taxonomy — a human reads the report and decides (DEC-011).
+ */
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DocumentStore, StoredDocument } from "../storage/documents.ts";
 import { cosineSimilarity } from "./embeddings.ts";
 
+/** How many documents a category needs before a split is worth considering. */
+export const DEFAULT_MINIMUM_CATEGORY_SIZE = 6;
+
+/** Both sides must reach this size, so one outlier cannot force a split. */
+export const DEFAULT_MINIMUM_CLUSTER_SIZE = 2;
+
+/**
+ * How far apart the two centroids must sit, as `1 - cosine similarity`.
+ * Below this the two halves are near-identical and the split is noise.
+ */
+export const DEFAULT_MINIMUM_SEPARATION = 0.1;
+
+/**
+ * Above this similarity between the seed vectors, the category is treated as
+ * too homogeneous to divide and clustering stops before it starts.
+ */
+const MAXIMUM_HOMOGENEOUS_SIMILARITY = 0.98;
+
+/** Iteration cap. Assignments normally settle in far fewer passes. */
+const MAX_KMEANS_ITERATIONS = 25;
+
+/** Tokens shorter than this carry no thematic signal. */
+const MINIMUM_LABEL_TOKEN_LENGTH = 2;
+
+/** How many frequent tokens name a cluster, joined with " / ". */
+const LABEL_TOKEN_COUNT = 3;
+
+/** How many filenames are shown as examples of a cluster. */
+const EXAMPLE_FILE_COUNT = 3;
+
+/** One side of a proposed split, named by its most frequent tokens. */
 export type SuggestedCluster = {
   label: string;
   documentCount: number;
   exampleFiles: string[];
 };
 
+/** A category that appears to hold two themes, and how far apart they are. */
 export type TaxonomySplitSuggestion = {
   action: "split";
   categoryId: string;
@@ -17,23 +56,31 @@ export type TaxonomySplitSuggestion = {
   clusters: [SuggestedCluster, SuggestedCluster];
 };
 
+/** One clustering pass over every category large enough to examine. */
 export type ClusteringReport = {
   generatedAt: string;
   examinedCategories: number;
   suggestions: TaxonomySplitSuggestion[];
 };
 
+/** Thresholds controlling when a split is proposed. All have defaults. */
+export type SplitDetectionOptions = {
+  minimumCategorySize?: number;
+  minimumClusterSize?: number;
+  minimumSeparation?: number;
+};
+
+/** Find categories worth splitting. Returns suggestions only. */
 export function suggestTaxonomySplits(
   documents: StoredDocument[],
-  options: {
-    minimumCategorySize?: number;
-    minimumClusterSize?: number;
-    minimumSeparation?: number;
-  } = {},
+  options: SplitDetectionOptions = {},
 ): TaxonomySplitSuggestion[] {
-  const minimumCategorySize = options.minimumCategorySize ?? 6;
-  const minimumClusterSize = options.minimumClusterSize ?? 2;
-  const minimumSeparation = options.minimumSeparation ?? 0.1;
+  const minimumCategorySize =
+    options.minimumCategorySize ?? DEFAULT_MINIMUM_CATEGORY_SIZE;
+  const minimumClusterSize =
+    options.minimumClusterSize ?? DEFAULT_MINIMUM_CLUSTER_SIZE;
+  const minimumSeparation =
+    options.minimumSeparation ?? DEFAULT_MINIMUM_SEPARATION;
   const byCategory = new Map<string, StoredDocument[]>();
   for (const document of documents) {
     if (!document.embedding) continue;
@@ -69,11 +116,17 @@ export function suggestTaxonomySplits(
   return suggestions;
 }
 
-export async function runClusteringJob(options: {
+/** Inputs for one clustering pass. `outputPath` writes the report to disk. */
+export type ClusteringJobOptions = {
   documents: DocumentStore;
   outputPath?: string;
   minimumCategorySize?: number;
-}): Promise<ClusteringReport> {
+};
+
+/** Run one clustering pass. Never moves a file or edits the taxonomy. */
+export async function runClusteringJob(
+  options: ClusteringJobOptions,
+): Promise<ClusteringReport> {
   const ready = options.documents.list("ready");
   const report: ClusteringReport = {
     generatedAt: new Date().toISOString(),
@@ -109,11 +162,11 @@ function kMeansTwo(documents: StoredDocument[]): {
       rightIndex = index;
     }
   }
-  if (smallestSimilarity > 0.98) return null;
+  if (smallestSimilarity > MAXIMUM_HOMOGENEOUS_SIMILARITY) return null;
   let rightCentroid = [...vectors[rightIndex]!];
   let assignments = new Array<number>(documents.length).fill(-1);
 
-  for (let iteration = 0; iteration < 25; iteration += 1) {
+  for (let iteration = 0; iteration < MAX_KMEANS_ITERATIONS; iteration += 1) {
     const next = vectors.map((vector) =>
       cosineSimilarity(vector, leftCentroid) >=
       cosineSimilarity(vector, rightCentroid)
@@ -178,24 +231,23 @@ function summarizeCluster(documents: StoredDocument[]): SuggestedCluster {
   for (const document of documents) {
     const unique = new Set(
       (document.cleanText.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter(
-        (token) => token.length > 2 && !LABEL_STOP_WORDS.has(token),
+        (token) =>
+          token.length > MINIMUM_LABEL_TOKEN_LENGTH &&
+          !LABEL_STOP_WORDS.has(token),
       ),
     );
     for (const token of unique) counts.set(token, (counts.get(token) ?? 0) + 1);
   }
-  const label =
-    [...counts]
-      .sort(
-        (left, right) => right[1] - left[1] || left[0].localeCompare(right[0]),
-      )
-      .slice(0, 3)
-      .map(([token]) => token)
-      .join(" / ") || "untitled group";
-  return {
-    label,
-    documentCount: documents.length,
-    exampleFiles: documents
-      .slice(0, 3)
-      .map(({ destinationPath }) => path.basename(destinationPath)),
-  };
+  // Most frequent first, then alphabetically so the label is deterministic.
+  const rankedTokens = [...counts].sort(
+    (left, right) => right[1] - left[1] || left[0].localeCompare(right[0]),
+  );
+  const labelTokens = rankedTokens
+    .slice(0, LABEL_TOKEN_COUNT)
+    .map(([token]) => token);
+  const label = labelTokens.join(" / ") || "untitled group";
+  const exampleFiles = documents
+    .slice(0, EXAMPLE_FILE_COUNT)
+    .map(({ destinationPath }) => path.basename(destinationPath));
+  return { label, documentCount: documents.length, exampleFiles };
 }

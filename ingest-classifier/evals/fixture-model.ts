@@ -1,3 +1,9 @@
+/**
+ * A deterministic stand-in for a model, for the fixed-taxonomy evaluation.
+ *
+ * Matches notes by keyword rules and returns the JSON a real provider would,
+ * which keeps the evaluations offline, fast and reproducible.
+ */
 import type { ModelClient } from "../src/providers/types.ts";
 
 type Rule = {

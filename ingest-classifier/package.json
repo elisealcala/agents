@@ -6,23 +6,23 @@
     "start": "tsx src/cli.ts",
     "run": "tsx src/cli.ts run",
     "watch": "tsx src/cli.ts watch",
-    "eval:m1": "tsx evals/m1.ts",
-    "eval:m2": "tsx evals/m2.ts",
-    "eval:m3": "tsx evals/m3.ts",
+    "mcp": "tsx src/mcp/main.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "eval:fixed-taxonomy": "tsx evals/fixed-taxonomy.ts",
+    "eval:adaptive-taxonomy": "tsx evals/adaptive-taxonomy.ts",
+    "eval:retrieval-and-clustering": "tsx evals/retrieval-and-clustering.ts",
+    "eval:mcp-worker": "tsx evals/mcp-worker.ts",
     "backfill": "tsx src/cli.ts backfill",
     "correct": "tsx src/cli.ts correct",
     "cluster": "tsx src/cli.ts cluster",
     "ask": "tsx src/cli.ts ask",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0",
-    "lint:fix": "eslint . --fix --max-warnings 0",
+    "lint": "biome lint --error-on-warnings .",
+    "lint:fix": "biome lint --write --error-on-warnings .",
     "format:check": "biome format .",
     "format": "biome format --write .",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check",
-    "mcp": "tsx src/mcp/main.ts",
-    "eval:mcp": "tsx evals/mcp.ts"
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check"
   },
   "engines": {
     "node": ">=22.22.0"
@@ -36,14 +36,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
-    "@eslint/js": "10.0.1",
     "@modelcontextprotocol/client": "^2.0.0",
     "@types/node": "^26.4.1",
-    "eslint": "10.10.0",
-    "globals": "17.12.0",
     "tsx": "^4.23.13",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.0",
     "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.9.0"

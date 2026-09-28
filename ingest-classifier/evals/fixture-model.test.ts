@@ -4,7 +4,7 @@ import {
   parseClassification,
 } from "../src/classification/classifier.ts";
 import type { SeedCategoryId } from "../src/taxonomy/taxonomy.ts";
-import { FixtureModelClient } from "./fixtureModel.ts";
+import { FixtureModelClient } from "./fixture-model.ts";
 
 describe("FixtureModelClient", () => {
   it.each<[string, string, SeedCategoryId]>([

@@ -1,3 +1,9 @@
+/**
+ * The per-file audit trail: one row per inbox file, from detection to filing.
+ *
+ * This is the record of what the classifier did and why. Rows are never
+ * deleted, so a failed or skipped file stays visible and re-runnable.
+ */
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -9,9 +15,19 @@ type AuditableClassification = {
   confidence_score: number;
 };
 
+/** Where a file ended up. Only `ok` means it moved out of the inbox. */
 export type AuditStatus = "processing" | "ok" | "failed" | "skipped";
+
+/** The step that produced an event, used to locate where a file broke. */
 export type AuditStage = "detect" | "parse" | "classify" | "move";
 
+/**
+ * One file's audit row.
+ *
+ * The nullable fields are filled in as the pipeline progresses, so they are
+ * all null while `status` is `processing`. Use {@link isCompletedAuditRecord}
+ * to obtain a row that is proven to carry them.
+ */
 export type AuditRecord = {
   id: number;
   sourcePath: string;
@@ -29,6 +45,67 @@ export type AuditRecord = {
   updatedAt: string;
 };
 
+/**
+ * An audit row proven to carry everything a filed note needs.
+ *
+ * `complete()` only flips a row to `ok` when destination, category, summary,
+ * tags and confidence are all present, so in practice every `ok` row written
+ * by this code satisfies this type. It is a narrowed subtype rather than a
+ * separate union arm because databases written before that SQL guard existed
+ * may still hold an `ok` row with gaps, and those rows must stay readable and
+ * countable rather than disappear (DEC-022).
+ */
+export type CompletedAuditRecord = AuditRecord & {
+  status: "ok";
+  destinationPath: string;
+  category: string;
+  summary: string;
+  confidence: number;
+};
+
+/**
+ * Narrow a row to {@link CompletedAuditRecord}.
+ *
+ * Returns false for a legacy `ok` row with missing fields, which lets callers
+ * count it as a failure instead of trusting it.
+ */
+export function isCompletedAuditRecord(
+  record: AuditRecord,
+): record is CompletedAuditRecord {
+  return (
+    record.status === "ok" &&
+    record.destinationPath !== null &&
+    record.category !== null &&
+    record.summary !== null &&
+    record.confidence !== null
+  );
+}
+
+/** Identifies the file a row is opened for, and the model that will judge it. */
+export type AuditBeginInput = {
+  sourcePath: string;
+  sourceSha256: string;
+  provider: string;
+  model: string;
+};
+
+/**
+ * Everything known about a failure.
+ *
+ * `auditId` is absent when the file failed before a row was opened, in which
+ * case one is created so no file fails invisibly.
+ */
+export type AuditFailureInput = {
+  auditId?: number;
+  sourcePath: string;
+  sourceSha256?: string;
+  provider?: string;
+  model?: string;
+  stage: AuditStage;
+  error: string;
+};
+
+/** Owns the `audit_records` table and its per-stage event log. */
 export class AuditStore {
   readonly databasePath: string;
   private readonly db: DatabaseSync;
@@ -46,16 +123,17 @@ export class AuditStore {
     }
   }
 
+  /** Close the database handle. The store is unusable afterwards. */
   close(): void {
     this.db.close();
   }
 
-  begin(input: {
-    sourcePath: string;
-    sourceSha256: string;
-    provider: string;
-    model: string;
-  }): number | null {
+  /**
+   * Open a row for a file, or reuse the existing row for the same content.
+   *
+   * Returns null when this exact file has already been filed successfully.
+   */
+  begin(input: AuditBeginInput): number | null {
     const existing = this.db
       .prepare(
         `SELECT id, status FROM audit_records
@@ -119,6 +197,7 @@ export class AuditStore {
       );
   }
 
+  /** Record where the file landed, before the move is confirmed complete. */
   setDestination(auditId: number, destinationPath: string): void {
     this.db
       .prepare(
@@ -129,6 +208,12 @@ export class AuditStore {
       .run(destinationPath, auditId);
   }
 
+  /**
+   * Mark a file successfully filed.
+   *
+   * The SQL guard is the invariant behind {@link CompletedAuditRecord}: a row
+   * missing any required field will not flip, and this throws instead.
+   */
   complete(auditId: number): void {
     const result = this.db
       .prepare(
@@ -146,15 +231,8 @@ export class AuditStore {
     }
   }
 
-  fail(input: {
-    auditId?: number;
-    sourcePath: string;
-    sourceSha256?: string;
-    provider?: string;
-    model?: string;
-    stage: AuditStage;
-    error: string;
-  }): number {
+  /** Record a failure at one stage, creating the row if detection never did. */
+  fail(input: AuditFailureInput): number {
     const sourceSha256 = input.sourceSha256 ?? "unavailable";
     let auditId = input.auditId;
     if (auditId === undefined) {
@@ -223,6 +301,7 @@ export class AuditStore {
     return rows.map(mapRow);
   }
 
+  /** Every row, newest first, optionally filtered to one status. */
   list(status?: AuditStatus): AuditRecord[] {
     const rows = status
       ? (this.db

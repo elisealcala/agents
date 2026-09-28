@@ -1,3 +1,13 @@
+/**
+ * Gate for the local MCP worker interface (DEC-017, DEC-018).
+ *
+ * Drives a real stdio server as a client would: discovers all six tools,
+ * ingests one valid and one invalid note to force a partial result, searches
+ * and answers with citations, records feedback, confirms clustering writes no
+ * files, and confirms a competing ingestion is rejected with LIBRARY_BUSY.
+ * It demonstrates worker integration; it is not a supervisor. No live model
+ * call, and the temporary library is removed afterwards.
+ */
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, writeFile, rm, access } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -13,11 +23,24 @@ import {
   correctionSchema,
   clusteringReportSchema,
   backfillReportSchema,
+  type IngestCounts,
 } from "../src/application/contracts.ts";
-import { acquireIngestionLock } from "../src/application/ingestionLock.ts";
+import { acquireIngestionLock } from "../src/application/ingestion-lock.ts";
+
+/** What the evaluation proved, printed as the run's JSON report. */
+export type McpEvaluationReport = {
+  passed: true;
+  tools: string[];
+  ingestion: IngestCounts | undefined;
+  sources: number | undefined;
+  partialFailureVisible: boolean;
+  busyRunRejected: boolean;
+  clusteringWritesReport: boolean;
+  liveModelCalls: number;
+};
 
 /** A deterministic client standing in for a supervisor; no agent planning loop. */
-export async function runMcpEvaluation() {
+export async function runMcpEvaluation(): Promise<McpEvaluationReport> {
   const root = await mkdtemp(path.join(tmpdir(), "ingest-mcp-eval-"));
   const client = new Client(
     { name: "offline-supervisor-example", version: "1.0.0" },
@@ -28,7 +51,7 @@ export async function runMcpEvaluation() {
     args: [
       "--import",
       fileURLToPath(import.meta.resolve("tsx")),
-      fileURLToPath(new URL("./mcpFixtureServer.ts", import.meta.url)),
+      fileURLToPath(new URL("./mcp-fixture-server.ts", import.meta.url)),
       root,
     ],
     cwd: root,

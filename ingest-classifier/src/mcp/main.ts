@@ -1,7 +1,16 @@
+/**
+ * The MCP server's executable entry point.
+ *
+ * Argument parsing is deliberately strict and stdout is reserved entirely for
+ * the protocol: a stray log line here corrupts the stream an MCP host reads.
+ * `--root` is required, because a supervisor must state which library it means
+ * rather than inheriting the current directory.
+ */
 import { config as loadEnvFile } from "dotenv";
-import { createModelClient } from "../providers/createClient.ts";
+import { createModelClient } from "../providers/create-client.ts";
 import { startClassifierStdio } from "./stdio.ts";
 
+/** Parse arguments, load the environment, and start the stdio server. */
 function main(): void {
   const args = process.argv.slice(2).filter((arg) => arg !== "--");
   let root: string | undefined;

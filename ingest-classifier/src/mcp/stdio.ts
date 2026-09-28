@@ -1,12 +1,22 @@
+/**
+ * Wiring one agent, one server and one draining transport together.
+ *
+ * Nothing here writes to stdout: that stream belongs to the protocol alone.
+ */
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import {
   createIngestAgent,
   type IngestAgentOptions,
 } from "../application/agent.ts";
 import { createClassifierServer } from "./server.ts";
-import { DrainingStdioTransport } from "./drainingTransport.ts";
+import { DrainingStdioTransport } from "./draining-transport.ts";
 
-/** Start one local server. The SDK negotiates modern and legacy clients. */
+/**
+ * Start one local server over stdio.
+ *
+ * The SDK negotiates both modern and legacy protocol versions, so a host on
+ * either revision connects without configuration.
+ */
 export function startClassifierStdio(options: IngestAgentOptions): {
   close(): Promise<void>;
 } {

@@ -16,7 +16,13 @@
     "lineWidth": 80
   },
   "linter": {
-    "enabled": false
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
   },
   "assist": {
     "enabled": false
@@ -26,5 +32,20 @@
       "quoteStyle": "double",
       "semicolons": "always"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["src/**/*.ts", "!src/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noMagicNumbers": {
+              "level": "warn",
+              "options": {}
+            }
+          }
+        }
+      }
+    }
+  ]
 }

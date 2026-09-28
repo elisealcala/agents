@@ -34,13 +34,13 @@ jobs:
       - name: Tests
         run: pnpm test
       - name: Zero-loss evaluation
-        run: pnpm eval:m1
+        run: pnpm eval:fixed-taxonomy
       - name: Adaptive taxonomy evaluation
-        run: pnpm eval:m2
+        run: pnpm eval:adaptive-taxonomy
       - name: Retrieval and clustering evaluation
-        run: pnpm eval:m3
+        run: pnpm eval:retrieval-and-clustering
       - name: Local MCP worker evaluation
-        run: pnpm eval:mcp
+        run: pnpm eval:mcp-worker
 
   typescript-starter:
     name: TypeScript starter

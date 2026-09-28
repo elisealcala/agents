@@ -1,9 +1,17 @@
+/**
+ * Gate for nested, adaptive classification (roadmap M2).
+ *
+ * Runs 57 notes in two waves and checks that novel themes create exactly one
+ * child each, that later related notes reuse those children rather than adding
+ * siblings, that a paraphrase merges into its seed, and that no stored sibling
+ * pair crosses the duplicate threshold (DEC-019). No live model call.
+ */
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AdaptiveIngestPipeline } from "../src/pipelines/adaptivePipeline.ts";
+import { AdaptiveIngestPipeline } from "../src/pipelines/adaptive-pipeline.ts";
 import { cosineSimilarity } from "../src/search/embeddings.ts";
-import { AdaptiveFixtureModelClient } from "./adaptiveFixtureModel.ts";
+import { AdaptiveFixtureModelClient } from "./adaptive-fixture-model.ts";
 
 type Note = readonly [filename: string, content: string];
 

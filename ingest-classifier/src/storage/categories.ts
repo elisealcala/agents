@@ -1,9 +1,21 @@
+/**
+ * The live taxonomy: the five seeds plus every category the classifier has
+ * created beneath them.
+ *
+ * Categories form a tree through `parentId`. Seeds are always roots; a new
+ * category is filed under the closest existing match (DEC-019). A flat
+ * database written before nesting existed migrates in place with null parents.
+ */
 import { DatabaseSync } from "node:sqlite";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import type { EmbeddingProvider } from "../search/embeddings.ts";
 import { SEED_CATEGORIES, type Category } from "../taxonomy/taxonomy.ts";
 
+/** Longest folder slug generated from a category name. */
+const MAXIMUM_SLUG_LENGTH = 64;
+
+/** A category as stored, including its place in the tree and its vector. */
 export type StoredCategory = Category & {
   parentId: string | null;
   embedding: number[] | null;
@@ -179,6 +191,11 @@ export class CategoryStore {
       name: string;
     }[];
     if (columns.some((column) => column.name === "parent_id")) return;
+    // SQLite cannot add a self-referencing foreign key to an existing table,
+    // so the whole table is rebuilt: rename, recreate with parent_id, copy
+    // every row across with a null parent, drop the old one. Foreign keys are
+    // off only for the rename and copy, because the legacy table is briefly
+    // referenced under a name nothing points at.
     this.db.exec("PRAGMA foreign_keys = OFF;");
     this.db.exec("ALTER TABLE categories RENAME TO categories_legacy;");
     this.createTreeTable();
@@ -252,7 +269,7 @@ function slugify(value: string, separator: "_" | "-"): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, separator)
     .replace(new RegExp(`^\\${separator}+|\\${separator}+$`, "g"), "")
-    .slice(0, 64);
+    .slice(0, MAXIMUM_SLUG_LENGTH);
 }
 
 type CategoryRow = {

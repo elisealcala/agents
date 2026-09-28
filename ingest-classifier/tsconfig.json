@@ -8,6 +8,9 @@
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
+    "declaration": true,
+    "isolatedDeclarations": true,
+    "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },

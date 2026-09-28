@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_CATEGORY_DEDUP_THRESHOLD,
   resolveCategoryProposal,
-} from "./categoryDedup.ts";
+} from "./category-dedup.ts";
 import {
   categoryText,
   type CategoryProposal,

@@ -1,8 +1,17 @@
+/**
+ * The operations both entry points share: the CLI and the MCP server call
+ * these, never the pipeline directly.
+ *
+ * Every public method validates its input, runs the work, validates the output
+ * and returns an {@link OperationResult} rather than throwing — a supervisor
+ * inspects results, it does not catch exceptions across the boundary
+ * (DEC-016, DEC-017).
+ */
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 import type { ModelClient } from "../providers/types.ts";
-import { AdaptiveIngestPipeline } from "../pipelines/adaptivePipeline.ts";
+import { AdaptiveIngestPipeline } from "../pipelines/adaptive-pipeline.ts";
 import { AuditStore } from "../storage/audit.ts";
 import {
   DocumentStore,
@@ -16,11 +25,16 @@ import {
 import { answerQuestion, retrieveDocuments } from "../search/retrieval.ts";
 import { runClusteringJob } from "../search/clustering.ts";
 import { getLibraryPaths } from "../taxonomy/taxonomy.ts";
-import { acquireIngestionLock } from "./ingestionLock.ts";
+import { acquireIngestionLock } from "./ingestion-lock.ts";
 import {
   OperationFailure,
   type OperationResult,
   type IngestReport,
+  type SearchReport,
+  type AnswerReport,
+  type CorrectionRecord,
+  type ClusteringReport,
+  type EmbeddingBackfillReport,
   emptyInputSchema,
   questionInputSchema,
   correctionInputSchema,
@@ -36,6 +50,13 @@ import {
   batchResult,
 } from "./contracts.ts";
 
+/**
+ * How one agent instance is wired.
+ *
+ * `model` supplies a client directly; `createModel` defers construction until
+ * an operation actually needs one, so read-only tools work without provider
+ * credentials configured.
+ */
 export type IngestAgentOptions = {
   root: string;
   model?: ModelClient;
@@ -45,7 +66,11 @@ export type IngestAgentOptions = {
   pollIntervalMs?: number;
 };
 
+/** Anything the agent owns and must close, in reverse order of creation. */
 type Closable = { close(): void };
+
+/** The three terminal states one inbox file can reach. */
+type ProcessStatus = "ok" | "failed" | "skipped";
 
 export class IngestAgent {
   readonly root: string;
@@ -67,6 +92,12 @@ export class IngestAgent {
     }
   }
 
+  /**
+   * Classify and file one batch from the inbox.
+   *
+   * Holds the ingestion lock for the run, so a competing call gets
+   * `LIBRARY_BUSY` rather than interleaving file moves (DEC-018).
+   */
   ingestInbox(input: unknown = {}): Promise<OperationResult<IngestReport>> {
     return this.perform(
       emptyInputSchema,
@@ -78,14 +109,13 @@ export class IngestAgent {
           const pipeline = this.pipeline();
           try {
             const results = await pipeline.scanOnce();
+            const countByStatus = (status: ProcessStatus): number =>
+              results.filter((result) => result.status === status).length;
             const counts = {
               total: results.length,
-              succeeded: results.filter((result) => result.status === "ok")
-                .length,
-              failed: results.filter((result) => result.status === "failed")
-                .length,
-              skipped: results.filter((result) => result.status === "skipped")
-                .length,
+              succeeded: countByStatus("ok"),
+              failed: countByStatus("failed"),
+              skipped: countByStatus("skipped"),
             };
             return batchResult(
               { results, counts },
@@ -102,7 +132,8 @@ export class IngestAgent {
     );
   }
 
-  searchDocuments(input: unknown) {
+  /** Rank stored vectors against a question. No model call, no writes. */
+  searchDocuments(input: unknown): Promise<OperationResult<SearchReport>> {
     return this.perform(
       questionInputSchema,
       searchReportSchema,
@@ -126,7 +157,8 @@ export class IngestAgent {
     );
   }
 
-  askQuestion(input: unknown) {
+  /** Answer from retrieved excerpts, with citations. Needs a model client. */
+  askQuestion(input: unknown): Promise<OperationResult<AnswerReport>> {
     return this.perform(
       questionInputSchema,
       answerSchema,
@@ -147,7 +179,8 @@ export class IngestAgent {
     );
   }
 
-  recordCorrection(input: unknown) {
+  /** Store feedback for future prompts. Never moves or reclassifies a file. */
+  recordCorrection(input: unknown): Promise<OperationResult<CorrectionRecord>> {
     return this.perform(
       correctionInputSchema,
       correctionSchema,
@@ -162,7 +195,10 @@ export class IngestAgent {
     );
   }
 
-  suggestCategorySplits(input: unknown = {}) {
+  /** Report categories holding two themes. Suggestion only (DEC-011). */
+  suggestCategorySplits(
+    input: unknown = {},
+  ): Promise<OperationResult<ClusteringReport>> {
     return this.perform(
       clusterInputSchema,
       clusteringReportSchema,
@@ -174,7 +210,10 @@ export class IngestAgent {
     );
   }
 
-  backfillEmbeddings(input: unknown = {}) {
+  /** Repair missing document embeddings. Idempotent; safe to re-run. */
+  backfillEmbeddings(
+    input: unknown = {},
+  ): Promise<OperationResult<EmbeddingBackfillReport>> {
     return this.perform(
       emptyInputSchema,
       backfillReportSchema,
@@ -222,6 +261,7 @@ export class IngestAgent {
     });
   }
 
+  /** Stop accepting work and wait for in-flight operations to settle. */
   async close(): Promise<void> {
     this.closing = true;
     this.stop.abort();
@@ -312,16 +352,20 @@ export class IngestAgent {
     const task = (async (): Promise<OperationResult<O>> => {
       try {
         const result = await work(parsed.data);
-        if (result.data !== null) {
-          const output = outputSchema.safeParse(result.data);
-          if (!output.success)
-            return failure(
-              "INVALID_OUTPUT",
-              `Operation returned invalid data: ${output.error.message}`,
-            );
-          return { ...result, data: output.data };
-        }
-        return result;
+        // Only the all-failed batch reaches here with `error` status and data.
+        if (result.data === null) return result;
+        const output = outputSchema.safeParse(result.data);
+        if (!output.success)
+          return failure(
+            "INVALID_OUTPUT",
+            `Operation returned invalid data: ${output.error.message}`,
+          );
+        if (result.status === "success") return success(output.data);
+        return {
+          status: result.status,
+          data: output.data,
+          error: result.error,
+        };
       } catch (error) {
         return failure(
           error instanceof OperationFailure ? error.code : "OPERATION_FAILED",
@@ -335,6 +379,7 @@ export class IngestAgent {
   }
 }
 
+/** Construct an agent. Preferred over `new` so callers depend on the type. */
 export function createIngestAgent(options: IngestAgentOptions): IngestAgent {
   return new IngestAgent(options);
 }

@@ -13,13 +13,13 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { acquireIngestionLock, INGESTION_LOCK_NAME } from "./ingestionLock.ts";
+import { acquireIngestionLock, INGESTION_LOCK_NAME } from "./ingestion-lock.ts";
 
 const execute = promisify(execFile);
 const roots: string[] = [];
 const releases: Array<() => Promise<void>> = [];
 const loader = fileURLToPath(import.meta.resolve("tsx"));
-const lockModule = new URL("./ingestionLock.ts", import.meta.url).href;
+const lockModule = new URL("./ingestion-lock.ts", import.meta.url).href;
 afterEach(async () => {
   await Promise.all(releases.splice(0).map((release) => release()));
   await Promise.all(

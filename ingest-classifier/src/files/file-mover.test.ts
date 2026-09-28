@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { moveWithoutOverwrite, restoreMovedFile } from "./fileMover.ts";
+import { moveWithoutOverwrite, restoreMovedFile } from "./file-mover.ts";
 
 const temporaryDirectories: string[] = [];
 

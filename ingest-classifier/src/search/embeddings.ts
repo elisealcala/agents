@@ -1,5 +1,20 @@
+/**
+ * Deterministic local embeddings (DEC-008).
+ *
+ * Vectors are derived by hashing tokens into fixed buckets, so the same text
+ * always yields the same vector, no network call is made, and evaluations stay
+ * offline. The trade-off is that these vectors capture shared vocabulary, not
+ * meaning: paraphrases with no words in common score poorly.
+ */
 import { createHash } from "node:crypto";
 
+/** Bucket count for a local vector. Wide enough to keep collisions rare. */
+export const DEFAULT_EMBEDDING_DIMENSIONS = 256;
+
+/** Below this, hash collisions dominate and similarity stops being useful. */
+const MINIMUM_EMBEDDING_DIMENSIONS = 16;
+
+/** A source of vectors. Implementations must be deterministic for a given id. */
 export type EmbeddingProvider = {
   id: string;
   dimensions: number;
@@ -30,6 +45,20 @@ const STOP_WORDS = new Set([
   "with",
 ]);
 
+/**
+ * Words folded together before hashing, so related notes share buckets.
+ *
+ * Local hashing has no notion of meaning: "recipes" and "recipe" would land in
+ * unrelated buckets and score as unrelated documents. Collapsing known
+ * variants to one term is what lets a paraphrase merge into an existing
+ * category instead of proposing a duplicate.
+ *
+ * The vocabulary is deliberately small and literal, and it leans toward the
+ * themes the offline evaluations exercise. That is a known limitation of
+ * DEC-008, not an accident: it is the cost of keeping evaluations offline and
+ * deterministic. Replacing this provider with a real embedding model makes the
+ * whole table unnecessary.
+ */
 const CANONICAL_TERMS: Record<string, string> = {
   api: "architecture",
   apis: "architecture",
@@ -55,12 +84,16 @@ const CANONICAL_TERMS: Record<string, string> = {
   cooking: "cook",
 };
 
+/** Hashes canonicalized tokens into fixed buckets. Deterministic and offline. */
 export class LocalHashEmbedding implements EmbeddingProvider {
   readonly id = "local-hash-v1";
   readonly dimensions: number;
 
-  constructor(dimensions = 256) {
-    if (!Number.isInteger(dimensions) || dimensions < 16) {
+  constructor(dimensions: number = DEFAULT_EMBEDDING_DIMENSIONS) {
+    if (
+      !Number.isInteger(dimensions) ||
+      dimensions < MINIMUM_EMBEDDING_DIMENSIONS
+    ) {
       throw new Error("embedding dimensions must be an integer of at least 16");
     }
     this.dimensions = dimensions;

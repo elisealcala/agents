@@ -1,9 +1,18 @@
+/**
+ * Durable memory of human corrections (DEC-010).
+ *
+ * Recording a correction never moves or reclassifies the file it refers to.
+ * Its only effect is on future prompts: the most recent examples are shown to
+ * the classifier so it can learn the library's intent over time.
+ */
 import { mkdirSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 
+/** How many recent corrections are shown to the classifier as examples. */
 export const DEFAULT_CORRECTION_EXAMPLE_LIMIT = 5;
 
+/** One recorded disagreement between the classifier and a human. */
 export type Correction = {
   id: number;
   originalPath: string;
@@ -67,7 +76,8 @@ export class CorrectionStore {
     return row ? mapRow(row) : null;
   }
 
-  listRecent(limit = DEFAULT_CORRECTION_EXAMPLE_LIMIT): Correction[] {
+  /** Most recent first, so prompt examples show the latest human intent. */
+  listRecent(limit: number = DEFAULT_CORRECTION_EXAMPLE_LIMIT): Correction[] {
     if (!Number.isInteger(limit) || limit < 0) {
       throw new Error("correction limit must be a non-negative integer");
     }
@@ -78,7 +88,8 @@ export class CorrectionStore {
     ).map(mapRow);
   }
 
-  toPromptExamples(limit = DEFAULT_CORRECTION_EXAMPLE_LIMIT): string[] {
+  /** Corrections rendered as prompt lines for the classifier (DEC-010). */
+  toPromptExamples(limit: number = DEFAULT_CORRECTION_EXAMPLE_LIMIT): string[] {
     return this.listRecent(limit).map(
       (correction) =>
         `File ${correction.originalPath} was incorrectly classified as ${correction.wrongCategory}; use ${correction.correctCategory}.${correction.note ? ` Note: ${correction.note}` : ""}`,

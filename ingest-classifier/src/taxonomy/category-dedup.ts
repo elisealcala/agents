@@ -1,3 +1,10 @@
+/**
+ * Deciding whether a proposed category already exists (DEC-008).
+ *
+ * A proposal is compared only against the children of the parent it would be
+ * filed under. Resembling the parent itself never cancels a child, because a
+ * narrower topic is expected to look like its parent (DEC-019).
+ */
 import {
   categoryText,
   type CategoryProposal,
@@ -8,8 +15,13 @@ import {
   type EmbeddingProvider,
 } from "../search/embeddings.ts";
 
+/**
+ * Similarity above which a proposal reuses an existing sibling instead of
+ * creating a near-duplicate folder beside it.
+ */
 export const DEFAULT_CATEGORY_DEDUP_THRESHOLD = 0.85;
 
+/** Reuse a sibling, or create a new child. Neither touches the filesystem. */
 export type CategoryResolution =
   | {
       action: "merge";
@@ -19,11 +31,12 @@ export type CategoryResolution =
     }
   | { action: "create"; similarity: number; embedding: number[] };
 
+/** Resolve a proposal against its prospective siblings. */
 export async function resolveCategoryProposal(
   proposal: CategoryProposal,
   categories: StoredCategory[],
   provider: EmbeddingProvider,
-  threshold = DEFAULT_CATEGORY_DEDUP_THRESHOLD,
+  threshold: number = DEFAULT_CATEGORY_DEDUP_THRESHOLD,
   parentId: string | null = null,
 ): Promise<CategoryResolution> {
   if (!Number.isFinite(threshold) || threshold < -1 || threshold > 1) {

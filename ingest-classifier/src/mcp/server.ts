@@ -1,3 +1,10 @@
+/**
+ * The six MCP tools, mapped onto the shared application operations (DEC-017).
+ *
+ * This module only adapts: every tool validates through the same contracts the
+ * CLI uses and adds no behavior of its own. Tool descriptions state side
+ * effects explicitly, because a supervisor chooses tools by reading them.
+ */
 import { McpServer } from "@modelcontextprotocol/server";
 import type { IngestAgent } from "../application/agent.ts";
 import {
@@ -15,7 +22,18 @@ import {
   type OperationResult,
 } from "../application/contracts.ts";
 
-function toolResult(result: OperationResult<unknown>) {
+/**
+ * Wrap an operation result as an MCP tool response.
+ *
+ * `isError` is set for anything other than a full success, including
+ * `partial`, so a host cannot mistake a half-finished batch for a clean run.
+ * The payload is sent both as text and as structured content.
+ */
+function toolResult(result: OperationResult<unknown>): {
+  content: Array<{ type: "text"; text: string }>;
+  structuredContent: OperationResult<unknown>;
+  isError: boolean;
+} {
   return {
     content: [{ type: "text" as const, text: JSON.stringify(result) }],
     structuredContent: { ...result },
@@ -23,6 +41,7 @@ function toolResult(result: OperationResult<unknown>) {
   };
 }
 
+/** Register every tool against one agent bound to one library. */
 export function createClassifierServer(agent: IngestAgent): McpServer {
   const server = new McpServer({ name: "ingest-classifier", version: "1.0.0" });
   server.registerTool(

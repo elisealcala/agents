@@ -1,10 +1,34 @@
+/**
+ * Classification against the live taxonomy, which grows as notes arrive.
+ *
+ * The model is shown the whole current category tree and either files a note
+ * under the most specific category that fits as a whole, or proposes exactly
+ * one new child beneath the closest existing one (DEC-019).
+ */
 import type { ModelClient } from "../providers/types.ts";
+import { DEFAULT_CLASSIFICATION_ATTEMPTS } from "../defaults.ts";
 import type {
   StoredCategory,
   CategoryProposal,
 } from "../storage/categories.ts";
 
+/**
+ * How well a live category must cover a note before it is filed there.
+ *
+ * This replaces the proposal half of DEC-007 for the adaptive path: a child
+ * proposal may also score above it, because a parent can fit while still being
+ * too broad. The fixed pipeline is unaffected and still uses confidence.
+ */
 export const EXISTING_CATEGORY_FIT_THRESHOLD = 0.8;
+
+/**
+ * The threshold as the prompt and the error messages spell it.
+ *
+ * Derived rather than retyped so the instruction the model receives can never
+ * disagree with the check applied to its answer. `toFixed(2)` keeps the exact
+ * "0.80" wording the prompt has always used.
+ */
+const FIT_THRESHOLD_TEXT = EXISTING_CATEGORY_FIT_THRESHOLD.toFixed(2);
 
 type ClassificationDetails = {
   summary: string;
@@ -34,7 +58,7 @@ export async function classifyWithLiveTaxonomy(
   categories: StoredCategory[],
   options: { maxAttempts?: number; examples?: string[] } = {},
 ): Promise<AdaptiveClassification> {
-  const maxAttempts = options.maxAttempts ?? 2;
+  const maxAttempts = options.maxAttempts ?? DEFAULT_CLASSIFICATION_ATTEMPTS;
   let lastError: Error | undefined;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
@@ -74,7 +98,7 @@ If the note is about an existing category as a whole, and that category is the m
 If the note is a narrower subtopic, propose exactly one new child under the closest existing category:
 {"action":"propose","parent":"parent_category_id","proposal":{"name":"Specific Category","definition":"One sentence defining the category."},"summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
 
-An existing match requires fit_score > 0.80. A child proposal may also have fit_score > 0.80 when the parent fits but is too broad. Return JSON only. Scores must be between 0 and 1.${fewShot}
+An existing match requires fit_score > ${FIT_THRESHOLD_TEXT}. A child proposal may also have fit_score > ${FIT_THRESHOLD_TEXT} when the parent fits but is too broad. Return JSON only. Scores must be between 0 and 1.${fewShot}
 Note:
 ${cleanText}`;
 }
@@ -126,7 +150,9 @@ export function parseAdaptiveClassification(
       throw new Error("existing category must be a live category id");
     }
     if (details.fit_score <= EXISTING_CATEGORY_FIT_THRESHOLD) {
-      throw new Error("existing category fit_score must be greater than 0.80");
+      throw new Error(
+        `existing category fit_score must be greater than ${FIT_THRESHOLD_TEXT}`,
+      );
     }
     return { action: "existing", category: record.category, ...details };
   }

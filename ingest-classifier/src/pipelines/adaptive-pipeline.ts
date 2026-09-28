@@ -1,10 +1,18 @@
+/**
+ * The production ingestion pipeline: the one `run` and `watch` use.
+ *
+ * For each inbox file it parses the Markdown, classifies against the live
+ * taxonomy, resolves any proposed category against that parent's existing
+ * children, files the note, and records an audit row and a document vector.
+ * A file that fails at any step stays in the inbox with a failed audit row.
+ */
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { AuditStore } from "../storage/audit.ts";
 import {
   classifyWithLiveTaxonomy,
   type AdaptiveClassification,
-} from "../classification/adaptiveClassifier.ts";
+} from "../classification/adaptive-classifier.ts";
 import {
   CategoryStore,
   type CategoryProposal,
@@ -13,14 +21,15 @@ import {
 import {
   DEFAULT_CATEGORY_DEDUP_THRESHOLD,
   resolveCategoryProposal,
-} from "../taxonomy/categoryDedup.ts";
+} from "../taxonomy/category-dedup.ts";
 import {
   LocalHashEmbedding,
   type EmbeddingProvider,
 } from "../search/embeddings.ts";
 import { DocumentStore } from "../storage/documents.ts";
 import { CorrectionStore } from "../storage/corrections.ts";
-import { moveWithoutOverwrite, restoreMovedFile } from "../files/fileMover.ts";
+import { moveWithoutOverwrite, restoreMovedFile } from "../files/file-mover.ts";
+import { DEFAULT_POLL_INTERVAL_MS } from "../defaults.ts";
 import { parseMarkdownFile } from "../files/markdown.ts";
 import type { ModelClient } from "../providers/types.ts";
 import {
@@ -29,6 +38,12 @@ import {
   type LibraryPaths,
 } from "../taxonomy/taxonomy.ts";
 
+/**
+ * What happened to one inbox file.
+ *
+ * `categoryAction` distinguishes filing under an existing category, merging a
+ * proposal into a near-duplicate sibling, and creating a new child.
+ */
 export type AdaptiveProcessResult =
   | {
       status: "ok";
@@ -71,7 +86,7 @@ export class AdaptiveIngestPipeline {
       options.embeddingProvider ?? new LocalHashEmbedding();
     this.dedupThreshold =
       options.dedupThreshold ?? DEFAULT_CATEGORY_DEDUP_THRESHOLD;
-    this.pollIntervalMs = options.pollIntervalMs ?? 1_000;
+    this.pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     const opened: Array<{ close(): void }> = [];
     try {
       this.audit = new AuditStore(this.paths.database);
@@ -301,6 +316,20 @@ export class AdaptiveIngestPipeline {
     return category;
   }
 
+  /**
+   * Turn a proposed category into a real one, serialized against every other
+   * proposal in this run.
+   *
+   * Files are classified concurrently, so two notes can propose the same new
+   * category at almost the same moment. Without serialization both would look
+   * up the parent's children, both would find no match, and both would create
+   * a folder — the duplicate the dedup threshold exists to prevent (DEC-009).
+   *
+   * `categoryMutationTail` is a promise chain acting as a mutex: each caller
+   * captures the previous tail, installs its own unresolved promise as the new
+   * tail, then waits for the one it captured. Releasing in `finally` lets the
+   * next caller proceed even if this one throws.
+   */
   private async resolveProposal(
     proposal: CategoryProposal,
     parentId: string,
@@ -308,12 +337,12 @@ export class AdaptiveIngestPipeline {
     category: StoredCategory;
     categoryAction: "merged" | "created";
   }> {
-    const previous = this.categoryMutationTail;
+    const previousMutation = this.categoryMutationTail;
     let release!: () => void;
     this.categoryMutationTail = new Promise<void>((resolve) => {
       release = resolve;
     });
-    await previous;
+    await previousMutation;
     try {
       await this.categories.ensureEmbeddings(this.embeddingProvider);
       const resolution = await resolveCategoryProposal(

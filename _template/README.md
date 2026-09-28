@@ -27,7 +27,7 @@ Use concrete responsibility names such as `classification`, `pipelines`, `files`
 
 ## Optional TypeScript starter
 
-The general template stays language-neutral. For a TypeScript agent, the preset supplies Node 22.22+, pnpm 10.9.0, TypeScript 6.0, ESLint, Biome, Vitest, a minimal CLI, and a CLI smoke test. Each agent installs its own dependencies and keeps its own lockfile.
+The general template stays language-neutral. For a TypeScript agent, the preset supplies Node 22.22+, pnpm 10.9.0, TypeScript 6.0, Biome, Vitest, a minimal CLI, and a CLI smoke test. Each agent installs its own dependencies and keeps its own lockfile.
 
 From the collection root, start with a fresh folder name:
 
@@ -52,14 +52,14 @@ Replace `my-agent` with the new folder/package name, then complete the contribut
 | Command | Purpose |
 |---|---|
 | `pnpm typecheck` | Run `tsc --noEmit` over source, tests, evaluations, and TypeScript tool configuration |
-| `pnpm lint` | Run recommended JavaScript/TypeScript ESLint rules; warnings fail |
-| `pnpm lint:fix` | Apply supported ESLint fixes |
+| `pnpm lint` | Run recommended Biome lint rules; warnings fail |
+| `pnpm lint:fix` | Apply safe Biome lint fixes |
 | `pnpm format:check` | Check Biome formatting without editing files |
 | `pnpm format` | Apply Biome formatting |
 | `pnpm check` | Run type, lint, and formatting checks |
 | `pnpm test` | Run the unit and smoke tests |
 
-ESLint owns code rules. Biome owns formatting (two spaces, double quotes, semicolons), with its linter and assists disabled. TypeScript 6.0 is pinned for compatibility with the ESLint TypeScript integration. Keep the lockfile committed and use the pinned pnpm version.
+Biome owns both code rules and formatting (two spaces, double quotes, semicolons); its assists stay disabled. `tsc --noEmit` owns types. Keep the lockfile committed and use the pinned pnpm version.
 
 The collection's GitHub Actions workflow checks `ingest-classifier` and a temporary agent assembled from this preset on pull requests and pushes to `main`. When adding another TypeScript agent, add a dedicated job following the existing agent job, with its own working directory and lockfile; add its evaluation commands when available.
 

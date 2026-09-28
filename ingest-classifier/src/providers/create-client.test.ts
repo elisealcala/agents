@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createModelClient } from "./createClient.ts";
+import { createModelClient } from "./create-client.ts";
 import type { ModelClient } from "./types.ts";
 import type { ModelConfig } from "../config.ts";
 

@@ -1,4 +1,13 @@
+/**
+ * Classification against the five fixed seed categories.
+ *
+ * This is the M1 pipeline's classifier, kept for the zero-loss evaluation.
+ * Production ingestion uses the adaptive classifier instead. Below
+ * {@link LOW_CONFIDENCE_THRESHOLD} a note is filed under the fallback category
+ * rather than guessed at (DEC-004).
+ */
 import type { ModelClient } from "../providers/types.ts";
+import { DEFAULT_CLASSIFICATION_ATTEMPTS } from "../defaults.ts";
 import {
   LOW_CONFIDENCE_FALLBACK,
   LOW_CONFIDENCE_THRESHOLD,
@@ -24,7 +33,7 @@ export async function classifyFile(
   cleanText: string,
   options: ClassifierOptions = {},
 ): Promise<Classification> {
-  const maxAttempts = options.maxAttempts ?? 2;
+  const maxAttempts = options.maxAttempts ?? DEFAULT_CLASSIFICATION_ATTEMPTS;
   let lastError: Error | undefined;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

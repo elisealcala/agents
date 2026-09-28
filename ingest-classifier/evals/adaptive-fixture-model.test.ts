@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   buildAdaptiveClassificationPrompt,
   parseAdaptiveClassification,
-} from "../src/classification/adaptiveClassifier.ts";
+} from "../src/classification/adaptive-classifier.ts";
 import type { StoredCategory } from "../src/storage/categories.ts";
 import { SEED_CATEGORIES } from "../src/taxonomy/taxonomy.ts";
-import { AdaptiveFixtureModelClient } from "./adaptiveFixtureModel.ts";
+import { AdaptiveFixtureModelClient } from "./adaptive-fixture-model.ts";
 
 function storedCategories(): StoredCategory[] {
   return SEED_CATEGORIES.map((category) => ({

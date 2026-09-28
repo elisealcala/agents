@@ -12,4 +12,4 @@ This agent follows the collection protocol in the repo-root `AGENTS.md`. Use **t
 
 Source is grouped by responsibility under `src/`, with tests beside modules. Offline evaluation runners and fixture clients live in `evals/`. Preserve the exports in `src/index.ts` and existing package command names when reorganizing internal modules.
 
-After implementation, verification covers `pnpm check`, `pnpm test`, and all three offline milestone evaluations (`pnpm eval:m1`, `pnpm eval:m2`, `pnpm eval:m3`). See `README.md` for the folder map and tool commands.
+After implementation, verification covers `pnpm check`, `pnpm test`, and all three offline milestone evaluations (`pnpm eval:fixed-taxonomy`, `pnpm eval:adaptive-taxonomy`, `pnpm eval:retrieval-and-clustering`). See `README.md` for the folder map and tool commands.

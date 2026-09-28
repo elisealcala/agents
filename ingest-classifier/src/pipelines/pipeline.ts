@@ -1,3 +1,10 @@
+/**
+ * The fixed-taxonomy pipeline, kept for the zero-loss evaluation.
+ *
+ * It files every note into one of the five seed categories and never creates a
+ * category. Production `run` and `watch` use the adaptive pipeline instead;
+ * this one exists so the zero-loss guarantee stays independently testable.
+ */
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { AuditStore } from "../storage/audit.ts";
@@ -5,7 +12,8 @@ import {
   classifyFile,
   type Classification,
 } from "../classification/classifier.ts";
-import { moveWithoutOverwrite, restoreMovedFile } from "../files/fileMover.ts";
+import { moveWithoutOverwrite, restoreMovedFile } from "../files/file-mover.ts";
+import { DEFAULT_POLL_INTERVAL_MS } from "../defaults.ts";
 import { parseMarkdownFile } from "../files/markdown.ts";
 import type { ModelClient } from "../providers/types.ts";
 import {
@@ -40,7 +48,7 @@ export class IngestPipeline {
   constructor(options: PipelineOptions) {
     this.paths = getLibraryPaths(options.root);
     this.client = options.client;
-    this.pollIntervalMs = options.pollIntervalMs ?? 1_000;
+    this.pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     this.audit = new AuditStore(this.paths.database);
   }
 

@@ -1,9 +1,18 @@
+/**
+ * A stdio transport that finishes what it accepted before it closes.
+ *
+ * An ingestion run moves files. If the transport closed the moment stdin
+ * reached EOF or a SIGTERM arrived, a tool call already underway would keep
+ * working with no way to report what it had done, and the ingestion lock could
+ * outlive the process. Tracking in-flight `tools/call` requests lets shutdown
+ * wait for their responses to be written first.
+ */
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 
 type Message = Parameters<StdioServerTransport["send"]>[0];
 type RequestId = string | number;
 
-/** Keep the wire open until accepted tool calls have written their responses. */
+/** Keeps the wire open until accepted tool calls have written their responses. */
 export class DrainingStdioTransport extends StdioServerTransport {
   private readonly pending = new Map<
     RequestId,

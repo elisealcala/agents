@@ -9,10 +9,10 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AdaptiveIngestPipeline } from "../src/pipelines/adaptivePipeline.ts";
+import { AdaptiveIngestPipeline } from "../src/pipelines/adaptive-pipeline.ts";
 import { runClusteringJob } from "../src/search/clustering.ts";
 import { answerQuestion } from "../src/search/retrieval.ts";
-import { AdaptiveFixtureModelClient } from "./adaptiveFixtureModel.ts";
+import { AdaptiveFixtureModelClient } from "./adaptive-fixture-model.ts";
 
 const pipelines: AdaptiveIngestPipeline[] = [];
 const temporaryDirectories: string[] = [];

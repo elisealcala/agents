@@ -1,29 +1,60 @@
+/**
+ * Grounded retrieval and question answering over stored vectors (DEC-012).
+ *
+ * Answers are built only from documents that clear the relevance floor, so an
+ * unanswerable question returns an explicit no-sources reply rather than a
+ * confident answer assembled from unrelated notes. Retrieval itself makes no
+ * model call; only {@link answerQuestion} does.
+ */
 import type { DocumentStore, StoredDocument } from "../storage/documents.ts";
 import { cosineSimilarity, type EmbeddingProvider } from "./embeddings.ts";
 import type { ModelClient } from "../providers/types.ts";
 
+/** How many excerpts a question retrieves before the model sees them. */
+export const DEFAULT_TOP_K = 5;
+
+/**
+ * The relevance floor (DEC-012).
+ *
+ * A document scoring below this is not cited at all, so an unanswerable
+ * question returns an explicit no-sources answer instead of a confident one
+ * built from unrelated notes.
+ */
+export const DEFAULT_MINIMUM_SCORE = 0.2;
+
+/** How much of a document's clean text is quoted back as a snippet. */
+const DEFAULT_SNIPPET_LENGTH = 320;
+
+/** One matching document, its similarity score and a quoted excerpt. */
 export type RetrievalHit = {
   document: StoredDocument;
   score: number;
   snippet: string;
 };
 
+/** An answer and the excerpts it cites. Empty sources means none qualified. */
 export type GroundedAnswer = {
   answer: string;
   sources: Array<{ path: string; score: number; snippet: string }>;
 };
 
-export async function retrieveDocuments(options: {
+/** What a retrieval needs: a question, stored documents, and a vector source. */
+export type RetrievalOptions = {
   question: string;
   documents: DocumentStore;
   embeddingProvider: EmbeddingProvider;
   topK?: number;
   minimumScore?: number;
-}): Promise<RetrievalHit[]> {
+};
+
+/** Rank stored vectors against a question. No model call. */
+export async function retrieveDocuments(
+  options: RetrievalOptions,
+): Promise<RetrievalHit[]> {
   const question = options.question.trim();
   if (!question) return [];
-  const topK = options.topK ?? 5;
-  const minimumScore = options.minimumScore ?? 0.2;
+  const topK = options.topK ?? DEFAULT_TOP_K;
+  const minimumScore = options.minimumScore ?? DEFAULT_MINIMUM_SCORE;
   if (!Number.isInteger(topK) || topK < 1)
     throw new Error("topK must be a positive integer");
   if (!Number.isFinite(minimumScore) || minimumScore < -1 || minimumScore > 1) {
@@ -47,14 +78,13 @@ export async function retrieveDocuments(options: {
     .slice(0, topK);
 }
 
-export async function answerQuestion(options: {
-  question: string;
-  documents: DocumentStore;
-  embeddingProvider: EmbeddingProvider;
-  model?: ModelClient;
-  topK?: number;
-  minimumScore?: number;
-}): Promise<GroundedAnswer> {
+/** A retrieval plus the model that turns the excerpts into an answer. */
+export type AnswerOptions = RetrievalOptions & { model?: ModelClient };
+
+/** Answer from retrieved excerpts, citing them. Needs a model client. */
+export async function answerQuestion(
+  options: AnswerOptions,
+): Promise<GroundedAnswer> {
   const question = options.question.trim();
   if (!question) {
     return { answer: "Please provide a non-empty question.", sources: [] };
@@ -86,6 +116,7 @@ export async function answerQuestion(options: {
   };
 }
 
+/** Build the prompt that pins the answer to the retrieved excerpts. */
 export function buildGroundedAnswerPrompt(
   question: string,
   hits: RetrievalHit[],
@@ -105,7 +136,11 @@ Grounded excerpts:
 ${context}`;
 }
 
-function createSnippet(cleanText: string, maximumLength = 320): string {
+/** Quote the opening of a document, trimmed to a whole word. */
+function createSnippet(
+  cleanText: string,
+  maximumLength: number = DEFAULT_SNIPPET_LENGTH,
+): string {
   const compact = cleanText.replace(/\s+/g, " ").trim();
   return compact.length <= maximumLength
     ? compact

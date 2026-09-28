@@ -1,6 +1,10 @@
+/**
+ * The OpenAI adapter, also reused by xAI over a different base URL.
+ */
 import OpenAI from "openai";
 import type { ModelClient } from "./types.ts";
 
+/** The slice of the OpenAI SDK this adapter uses, so tests can substitute it. */
 export type ChatCompletionsPort = {
   chat: {
     completions: {
@@ -14,19 +18,25 @@ export type ChatCompletionsPort = {
   };
 };
 
-export function createOpenAIProvider(opts: {
+/** How an OpenAI-compatible client is constructed. */
+export type OpenAIProviderOptions = {
   apiKey: string;
   model: string;
   client?: ChatCompletionsPort;
-}): ModelClient {
-  const client = opts.client ?? new OpenAI({ apiKey: opts.apiKey });
+};
+
+/** Build an OpenAI-backed {@link ModelClient}. */
+export function createOpenAIProvider(
+  options: OpenAIProviderOptions,
+): ModelClient {
+  const client = options.client ?? new OpenAI({ apiKey: options.apiKey });
 
   return {
     provider: "openai",
-    model: opts.model,
+    model: options.model,
     async complete(prompt: string) {
       const response = await client.chat.completions.create({
-        model: opts.model,
+        model: options.model,
         messages: [{ role: "user", content: prompt }],
       });
       const text = response.choices[0]?.message?.content?.trim();

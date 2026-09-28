@@ -1,11 +1,21 @@
+/**
+ * Stored document memory: the clean text, summary and vector for every note
+ * that was successfully filed.
+ *
+ * This is what retrieval and clustering read. An embedding failure is stored
+ * as a `missing` row rather than dropped, so the gap stays visible and can be
+ * repaired later by a backfill.
+ */
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
-import type { AuditStore } from "./audit.ts";
+import { isCompletedAuditRecord, type AuditStore } from "./audit.ts";
 import type { EmbeddingProvider } from "../search/embeddings.ts";
 import { parseMarkdownFile } from "../files/markdown.ts";
 
+/** `missing` marks a document whose embedding failed and needs a backfill. */
 export type EmbeddingStatus = "ready" | "missing";
 
+/** A filed note as stored, with its vector when one could be computed. */
 export type StoredDocument = {
   id: number;
   auditId: number;
@@ -147,6 +157,13 @@ export class DocumentStore {
   }
 }
 
+/**
+ * Counts from one repair pass.
+ *
+ * `created` is a first embedding; `repaired` replaces a `missing` row. A
+ * non-zero `failed` leaves those documents visibly unsearchable rather than
+ * dropping them.
+ */
 export type BackfillReport = {
   examined: number;
   created: number;
@@ -154,11 +171,22 @@ export type BackfillReport = {
   failed: number;
 };
 
-export async function backfillDocumentEmbeddings(options: {
+/**
+ * Give every successfully filed note a stored embedding.
+ *
+ * Idempotent: documents already `ready` are skipped, so this is safe to
+ * re-run after fixing whatever caused a failure.
+ */
+/** The three stores a backfill reads and writes. */
+export type BackfillOptions = {
   audit: AuditStore;
   documents: DocumentStore;
   embeddingProvider: EmbeddingProvider;
-}): Promise<BackfillReport> {
+};
+
+export async function backfillDocumentEmbeddings(
+  options: BackfillOptions,
+): Promise<BackfillReport> {
   const report: BackfillReport = {
     examined: 0,
     created: 0,
@@ -169,7 +197,9 @@ export async function backfillDocumentEmbeddings(options: {
     report.examined += 1;
     const existing = options.documents.getByAuditId(record.id);
     if (existing?.embeddingStatus === "ready") continue;
-    if (!record.destinationPath || !record.category || !record.summary) {
+    // A legacy `ok` row written before complete() enforced the invariant.
+    // Count it as failed rather than trusting its missing fields.
+    if (!isCompletedAuditRecord(record)) {
       report.failed += 1;
       continue;
     }

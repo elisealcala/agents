@@ -61,9 +61,9 @@ For `ask`, only the question is newly embedded; stored document vectors select r
 | Taxonomy | Define seed categories and resolve proposed categories through similarity checks | [`taxonomy/`](src/taxonomy/) |
 | Runtime storage | Persist audit events, categories, document text/vectors, and human corrections in SQLite | [`storage/`](src/storage/) |
 | Search and review | Compute local embeddings, retrieve sources, and suggest category splits | [`search/`](src/search/) |
-| Offline evaluations | Exercise the M1–M3 workflows using fixture models, without live API calls | [`evals/`](evals/) |
+| Offline evaluations | Exercise the classification and retrieval workflows using fixture models, without live API calls | [`evals/`](evals/) |
 
-`memory-bank/` records development progress and decisions for coding agents. The running classifier's memory lives in SQLite. Offline evaluations and development memory sit outside the runtime concerns shown above. `adaptivePipeline.ts` powers production `run` and `watch`; `pipeline.ts` is the fixed-taxonomy pipeline used by the M1 evaluation.
+`memory-bank/` records development progress and decisions for coding agents. The running classifier's memory lives in SQLite. Offline evaluations and development memory sit outside the runtime concerns shown above. `adaptive-pipeline.ts` powers production `run` and `watch`; `pipeline.ts` is the fixed-taxonomy pipeline used by the M1 evaluation.
 
 ## Setup
 
@@ -86,12 +86,13 @@ cp .env.example .env   # fill the key for the provider you pick
 | `XAI_API_KEY` | When provider is `xai` |
 
 ```bash
-pnpm start                         # provider smoke completion
-pnpm run -- --root ./my-library    # adaptive classification, once
-pnpm watch -- --root ./my-library  # adaptive classification, polling
-pnpm eval:m1                       # offline 20-file zero-loss gate
-pnpm eval:m2                       # offline 57-file adaptive-taxonomy gate
-pnpm eval:m3                       # offline split-suggestion and grounded-Q&A gate
+pnpm start                          # provider smoke completion
+pnpm run -- --root ./my-library     # adaptive classification, once
+pnpm watch -- --root ./my-library   # adaptive classification, polling
+pnpm eval:fixed-taxonomy            # offline 20-file zero-loss gate
+pnpm eval:adaptive-taxonomy         # offline 57-file adaptive-taxonomy gate
+pnpm eval:retrieval-and-clustering  # offline split-suggestion and grounded-Q&A gate
+pnpm eval:mcp-worker                # offline six-tool MCP worker gate
 pnpm test
 ```
 
@@ -206,12 +207,12 @@ Use an injected `model` and `embeddingProvider` for offline callers. `close()` i
 ### Offline MCP example and evaluation
 
 ```bash
-pnpm eval:mcp
+pnpm eval:mcp-worker
 ```
 
-The [client example](evals/mcp.ts) starts a fixture server over real stdio in a temporary library. It discovers all six tools, ingests one valid and one invalid note, checks the partial result (`1` success / `1` failure), searches and answers with citations, records feedback, verifies suggestion-only clustering and backfill, and confirms a competing ingestion returns `LIBRARY_BUSY`. It removes its temporary library after completion and makes zero live model calls. This demonstrates worker integration without implementing a supervisor planning loop.
+The [client example](evals/mcp-worker.ts) starts a fixture server over real stdio in a temporary library. It discovers all six tools, ingests one valid and one invalid note, checks the partial result (`1` success / `1` failure), searches and answers with citations, records feedback, verifies suggestion-only clustering and backfill, and confirms a competing ingestion returns `LIBRARY_BUSY`. It removes its temporary library after completion and makes zero live model calls. This demonstrates worker integration without implementing a supervisor planning loop.
 
-Verified on 2026-09-15 with Node 22.22.0 and pnpm 10.9.0: frozen installation, types, ESLint, Biome, 198 tests across 24 files, and all four offline evaluations (M1, M2, M3, MCP) pass. Verification also covered modern (2026-07-28) and legacy (2025-11-25) protocol negotiation, standalone CLI compatibility, clean protocol stdout, ingestion contention, and active-work draining on EOF/SIGTERM. Zero live model calls were used.
+Verified on 2026-09-15 with Node 22.22.0 and pnpm 10.9.0: frozen installation, types, lint, formatting, 198 tests across 24 files, and all four offline evaluations pass. Verification also covered modern (2026-07-28) and legacy (2025-11-25) protocol negotiation, standalone CLI compatibility, clean protocol stdout, ingestion contention, and active-work draining on EOF/SIGTERM. Zero live model calls were used.
 
 ## Source layout
 
@@ -240,15 +241,26 @@ Tests live beside the modules they exercise. Import the library through `src/ind
 | Command | Purpose |
 |---|---|
 | `pnpm typecheck` | TypeScript checks for source, tests, evaluations, and TypeScript tool configuration |
-| `pnpm lint` | Recommended ESLint rules, with warnings treated as failures |
-| `pnpm lint:fix` | Apply supported lint fixes |
+| `pnpm lint` | Recommended Biome lint rules, with warnings treated as failures |
+| `pnpm lint:fix` | Apply safe Biome lint fixes |
 | `pnpm format:check` | Check Biome formatting without writing files |
 | `pnpm format` | Apply Biome formatting |
 | `pnpm check` | Run type, lint, and formatting checks |
 
-Use `pnpm install --frozen-lockfile` to reproduce the locked dependencies. ESLint handles code rules; Biome handles formatting with two spaces, double quotes, and semicolons. TypeScript 6.0.3 is pinned to match the ESLint TypeScript integration's supported compiler range.
+Use `pnpm install --frozen-lockfile` to reproduce the locked dependencies. Biome is the single lint and format tool: recommended rules, two spaces, double quotes, and semicolons. `noNonNullAssertion` is off, matching the strictness of the ESLint gate it replaced (see DEC-020). `tsc --noEmit` remains the type gate.
 
-GitHub Actions runs `pnpm check`, `pnpm test`, and `pnpm eval:m1`, `pnpm eval:m2`, `pnpm eval:m3`, and `pnpm eval:mcp` on pull requests and pushes to `main`. These checks use offline fixtures and need no model credentials. Generated dependencies, build output, coverage, and development memory are excluded from formatting/linting.
+GitHub Actions runs `pnpm check`, `pnpm test`, and `pnpm eval:fixed-taxonomy`, `pnpm eval:adaptive-taxonomy`, `pnpm eval:retrieval-and-clustering`, and `pnpm eval:mcp-worker` on pull requests and pushes to `main`. These checks use offline fixtures and need no model credentials. Generated dependencies, build output, coverage, and development memory are excluded from formatting/linting.
+
+### Evaluation names
+
+Evaluations are named for what they gate. The roadmap milestone IDs used in `memory-bank/` map as follows.
+
+| Command | Entry point | Gate | Former ID |
+|---|---|---|---|
+| `pnpm eval:fixed-taxonomy` | [`evals/fixed-taxonomy.ts`](evals/fixed-taxonomy.ts) | Zero-loss sorting into the five seed categories | M1 |
+| `pnpm eval:adaptive-taxonomy` | [`evals/adaptive-taxonomy.ts`](evals/adaptive-taxonomy.ts) | Nested category creation, reuse, and sibling dedup | M2 |
+| `pnpm eval:retrieval-and-clustering` | [`evals/retrieval-and-clustering.ts`](evals/retrieval-and-clustering.ts) | Embeddings, grounded Q&A, corrections, suggestion-only clustering | M3 |
+| `pnpm eval:mcp-worker` | [`evals/mcp-worker.ts`](evals/mcp-worker.ts) | Six MCP tools over real stdio, partial failure, contention | MCP |
 
 ## Library contract
 
@@ -272,7 +284,7 @@ The stable category IDs and definitions live in `src/taxonomy/taxonomy.ts`. In t
 
 Only `.md` files move. Other files remain in the inbox and receive a single `skipped` audit record. UTF-8 parse failures remain in place, receive a failed audit record, and do not stop the rest of a batch.
 
-`pnpm eval:m1` creates an isolated temporary library with 20 valid, diverse Markdown notes plus invalid/ignored inputs. It succeeds only when all 20 valid notes move to seed folders and have complete audit rows; the printed temporary path can be inspected after the run.
+`pnpm eval:fixed-taxonomy` creates an isolated temporary library with 20 valid, diverse Markdown notes plus invalid/ignored inputs. It succeeds only when all 20 valid notes move to seed folders and have complete audit rows; the printed temporary path can be inspected after the run.
 
 ## Adaptive taxonomy
 
@@ -280,7 +292,7 @@ The production `run` and `watch` commands load the category tree from SQLite on 
 
 Before creation, `local-hash-v1` embeds the proposal and compares it only with that parent's existing children. Similarity above `INGEST_CATEGORY_DEDUP_THRESHOLD` (default `0.85`) reuses the nearest sibling. Similarity to the parent does not cancel the child. A novel child is inserted in SQLite, its nested folder is created, and only then can the checksum-safe move occur. Notes already filed in a parent stay there.
 
-`pnpm eval:m2` runs 57 notes offline in two waves. It verifies that novel equipment-maintenance and cooking themes create exactly one folder each, later related notes reuse them, an architecture paraphrase merges into the seed category, every note has a complete audit row, and no stored category pair crosses the duplicate threshold. The JSON report includes the human-review theme checklist.
+`pnpm eval:adaptive-taxonomy` runs 57 notes offline in two waves. It verifies that novel equipment-maintenance and cooking themes create exactly one folder each, later related notes reuse them, an architecture paraphrase merges into the seed category, every note has a complete audit row, and no stored category pair crosses the duplicate threshold. The JSON report includes the human-review theme checklist.
 
 ## Document memory, corrections, and retrieval
 
@@ -310,4 +322,4 @@ Ask a grounded question. The query alone is embedded; stored document vectors ar
 pnpm ask -- --root ./my-library --question "What were the Q3 cache takeaways?"
 ```
 
-`pnpm eval:m3` creates a mixed architecture library, proves a caching/authentication split suggestion without moving anything, records a correction, and answers a known caching question with citations to retrieved fixture files.
+`pnpm eval:retrieval-and-clustering` creates a mixed architecture library, proves a caching/authentication split suggestion without moving anything, records a correction, and answers a known caching question with citations to retrieved fixture files.

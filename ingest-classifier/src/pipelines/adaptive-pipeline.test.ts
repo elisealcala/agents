@@ -14,12 +14,12 @@ import path from "node:path";
 import {
   AdaptiveIngestPipeline,
   type AdaptivePipelineOptions,
-} from "./adaptivePipeline.ts";
+} from "./adaptive-pipeline.ts";
 import {
   cosineSimilarity,
   type EmbeddingProvider,
 } from "../search/embeddings.ts";
-import { AdaptiveFixtureModelClient } from "../../evals/adaptiveFixtureModel.ts";
+import { AdaptiveFixtureModelClient } from "../../evals/adaptive-fixture-model.ts";
 import type { ModelClient } from "../providers/types.ts";
 import { backfillDocumentEmbeddings } from "../storage/documents.ts";
 

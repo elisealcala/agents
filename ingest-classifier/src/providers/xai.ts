@@ -1,30 +1,40 @@
+/**
+ * The xAI adapter.
+ *
+ * xAI speaks the OpenAI chat-completions protocol, so this reuses that adapter
+ * against a different base URL and only relabels the reported provider.
+ */
 import OpenAI from "openai";
 import { createOpenAIProvider, type ChatCompletionsPort } from "./openai.ts";
 import type { ModelClient } from "./types.ts";
 
 const XAI_BASE_URL = "https://api.x.ai/v1";
 
-export function createXaiProvider(opts: {
+/** How an xAI client is constructed. Mirrors {@link OpenAIProviderOptions}. */
+export type XaiProviderOptions = {
   apiKey: string;
   model: string;
   client?: ChatCompletionsPort;
-}): ModelClient {
+};
+
+/** Build an xAI-backed {@link ModelClient}. */
+export function createXaiProvider(options: XaiProviderOptions): ModelClient {
   const client =
-    opts.client ??
+    options.client ??
     new OpenAI({
-      apiKey: opts.apiKey,
+      apiKey: options.apiKey,
       baseURL: XAI_BASE_URL,
     });
 
   const inner = createOpenAIProvider({
-    apiKey: opts.apiKey,
-    model: opts.model,
+    apiKey: options.apiKey,
+    model: options.model,
     client,
   });
 
   return {
     provider: "xai",
-    model: opts.model,
+    model: options.model,
     complete: (prompt) => inner.complete(prompt),
   };
 }

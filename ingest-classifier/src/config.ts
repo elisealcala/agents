@@ -1,6 +1,16 @@
+/**
+ * Model configuration read from the environment (DEC-002).
+ *
+ * Nothing here reaches the network: this only decides which provider and model
+ * a client will be built for, and fails early with a message naming the
+ * missing variable.
+ */
+
+/** Every supported provider. Adding one means adding a factory and a key. */
 export const PROVIDERS = ["openai", "anthropic", "xai"] as const;
 export type Provider = (typeof PROVIDERS)[number];
 
+/** A resolved provider, model id and credential. */
 export type ModelConfig = {
   provider: Provider;
   model: string;

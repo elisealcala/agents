@@ -1,8 +1,15 @@
+/**
+ * Zero-loss gate for the fixed taxonomy (roadmap M1).
+ *
+ * Builds a temporary library of 20 valid notes plus invalid and ignored
+ * inputs, and passes only when every valid note reaches a seed folder with a
+ * complete audit row. Uses a fixture model, so it makes no live model call.
+ */
 import { mkdtemp, mkdir, writeFile, access } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { IngestPipeline } from "../src/pipelines/pipeline.ts";
-import { FixtureModelClient } from "./fixtureModel.ts";
+import { FixtureModelClient } from "./fixture-model.ts";
 
 const FIXTURE_NOTES = [
   [

@@ -1,3 +1,9 @@
+/**
+ * A deterministic stand-in for a model, for the adaptive evaluations.
+ *
+ * Reads the live taxonomy out of the prompt and answers as a real provider
+ * would, so nesting and dedup can be exercised offline and reproducibly.
+ */
 import type { ModelClient } from "../src/providers/types.ts";
 
 type Existing = { id: string; terms: string[]; tags: string[] };

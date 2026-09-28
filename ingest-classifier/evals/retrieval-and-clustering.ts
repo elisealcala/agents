@@ -1,10 +1,17 @@
+/**
+ * Gate for document memory, retrieval and clustering (roadmap M3).
+ *
+ * Proves a caching/authentication split is suggested without anything moving,
+ * that a correction persists, and that a known question is answered with
+ * citations to retrieved files. No live model call.
+ */
 import { access, mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { AdaptiveIngestPipeline } from "../src/pipelines/adaptivePipeline.ts";
+import { AdaptiveIngestPipeline } from "../src/pipelines/adaptive-pipeline.ts";
 import { runClusteringJob } from "../src/search/clustering.ts";
 import { answerQuestion } from "../src/search/retrieval.ts";
-import { AdaptiveFixtureModelClient } from "./adaptiveFixtureModel.ts";
+import { AdaptiveFixtureModelClient } from "./adaptive-fixture-model.ts";
 
 async function main(): Promise<void> {
   const root = await mkdtemp(path.join(os.tmpdir(), "ingest-classifier-m3-"));

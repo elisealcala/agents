@@ -1,6 +1,13 @@
+/**
+ * The standalone command-line entry point.
+ *
+ * Every command runs the same application operations the MCP server exposes,
+ * so behavior cannot drift between supervised and standalone use (DEC-016).
+ * Commands print JSON to stdout and signal failure with a non-zero exit.
+ */
 import { config as loadEnvFile } from "dotenv";
 import { writeFile } from "node:fs/promises";
-import { createModelClient } from "./providers/createClient.ts";
+import { createModelClient } from "./providers/create-client.ts";
 import { createIngestAgent, type IngestAgent } from "./application/agent.ts";
 import {
   type OperationResult,
@@ -24,13 +31,20 @@ function requireOption(args: string[], name: string): string {
   if (!value) throw new Error(`${name} is required`);
   return value;
 }
+/**
+ * Take the payload out of an operation result, or throw.
+ *
+ * A batch that partly failed still carries its report, and printing it keeps
+ * the original CLI behavior: per-file failures are visible in the output
+ * rather than collapsing the whole run into an error. Only a result with no
+ * data at all throws, and {@link OperationResult} guarantees such a result
+ * carries an error, so there is nothing to fall back to.
+ */
 function unwrap<T>(result: OperationResult<T>): T {
-  // Batch reports keep the original CLI behavior, even with per-file failures.
+  if (result.status !== "error") return result.data;
+  // An all-failed batch still carries its report; print it and exit zero.
   if (result.data !== null) return result.data;
-  throw new OperationFailure(
-    result.error?.code ?? "OPERATION_FAILED",
-    result.error?.message ?? "Operation failed",
-  );
+  throw new OperationFailure(result.error.code, result.error.message);
 }
 
 async function execute(

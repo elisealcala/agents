@@ -152,3 +152,35 @@ Status: accepted
 Context: Broad seed categories, especially Architecture & Code, absorb narrower technical notes because a fit above 0.80 blocks a new category. Split suggestions stay a report and do not create folders.
 Decision: Store `parent_id` on categories. Seeds remain roots. Adaptive classification files a note in the most specific existing category when that category matches as a whole. A narrower note creates one child under the closest existing category. Sibling dedup still uses the 0.85 threshold. A high fit against the parent does not block the child. This replaces the proposal half of DEC-007 for the adaptive path only. The fixed M1 classifier stays flat. Existing files are not moved when a later child appears. Clustering remains suggestion-only (DEC-011).
 Consequences: New folders nest under `library/`, for example `library/architecture-code/caching/redis/`. Flat libraries migrate with `parent_id` null so current seed paths stay valid. Folder names are unique among siblings.
+
+## DEC-020: Biome is the only linter and formatter
+
+Date: 2026-09-25
+Status: accepted
+Context: DEC-013 ran ESLint for code rules and Biome for formatting as independent gates. Two tools meant two configs, two ignore lists, and a TypeScript version pinned to the ESLint TypeScript integration's supported range.
+Decision: Biome owns lint and format. `eslint.config.mjs` is deleted and `@eslint/js`, `eslint`, `globals`, and `typescript-eslint` are removed from both `ingest-classifier` and `_template/presets/typescript`. `pnpm lint` is `biome lint --error-on-warnings .` so warnings still fail, matching the old `--max-warnings 0`. `noNonNullAssertion` is turned off: Biome puts it in `recommended`, typescript-eslint has it in `strict`, so leaving it on would have tightened the gate rather than preserving it. `tsc --noEmit` remains the type gate. Supersedes DEC-013's two-tool split; the responsibility-folder half of DEC-013 stands.
+Consequences: One config, one ignore list. Rules that only typescript-eslint offers are gone, so type-aware lint rules are unavailable until Biome ships equivalents. Script names and the `pnpm check` contract are unchanged.
+
+## DEC-021: Kebab-case filenames and evaluations named for their gate
+
+Date: 2026-09-25
+Status: accepted
+Context: Filenames mixed camelCase (`adaptivePipeline.ts`, `createClient.ts`) with single-word lowercase. Evaluations were named for roadmap milestones (`m1`, `m2`, `m3`), which said nothing about what they check.
+Decision: Every file is kebab-case. Evaluations are named for what they gate: `fixed-taxonomy`, `adaptive-taxonomy`, `retrieval-and-clustering`, `mcp-worker`, with pnpm script names matching the file basenames. Milestone IDs stay in this bank as history and are mapped to the new names in a README table.
+Consequences: Imports carried explicit `.ts` extensions, so the rename was mechanical and tsc proved it complete. CI step names and README commands were updated. Existing dated entries in `progress.md` keep their original `eval:m1`-style wording, because the log records what was run at the time.
+
+## DEC-022: Verbosity means explicit types plus stated reasons
+
+Date: 2026-09-25
+Status: accepted
+Context: "Make the code more verbose" is ambiguous. Two TypeScript reviews were commissioned and reconciled. They independently agreed that error messages were already strong, that blanket naming conventions would break the `snake_case` model and SQLite wire formats, that domain vocabulary (`db`, `topK`) should not be expanded, and that naming the policy thresholds was the riskiest item because those numbers are the product.
+Decision: Verbosity is (a) explicitness the compiler checks and (b) reasons a reader cannot reconstruct from the code. Concretely: `isolatedDeclarations` and `noUncheckedIndexedAccess` are on, so every exported symbol carries a written type; inline option literals of three or more members become named types; every policy threshold, retry budget and iteration cap is a named constant, enforced by Biome's `noMagicNumbers` scoped to non-test `src/**`; every non-test module has a header stating its responsibility and citing its `DEC-NNN`; exported symbols carry TSDoc that adds an invariant, side effect or failure mode rather than restating the signature. Comments state why, never what. Rejected: TSDoc on self-describing record types, `@param`/`@returns` duplicating the signature, Biome's `useExplicitType` (it annotates every inline callback), removing non-null assertions, and runtime-validating SQLite row casts.
+Consequences: Error strings that surface in reports or audit rows stay short and path-free, because the surrounding record already carries the path and tests assert the string exactly. `SeedCategoryId` is now written as a union instead of inferred from `SEED_CATEGORIES`, so adding a seed means editing both. Zod schemas carry `z.ZodType<T>` annotations against hand-written wire types, which is what `isolatedDeclarations` requires and what keeps the contract readable.
+
+## DEC-023: OperationResult is a three-arm union; AuditRecord is a narrowed subtype
+
+Date: 2026-09-25
+Status: accepted
+Context: `OperationResult` was `{ status; data: T | null; error: OperationError | null }`, which permitted nonsense states and forced `result.error?.code ?? "OPERATION_FAILED"` fallbacks the compiler could not discharge. `AuditRecord` carried eight nullable fields whose invariant was already enforced in SQL by `complete()`, so `backfillDocumentEmbeddings` needed a guard purely to satisfy the compiler.
+Decision: `OperationResult<T>` becomes three arms: `success` carries data and no error; `partial` carries both; `error` carries an error and carries data only for a batch in which every item failed, because `batchResult` still reports what it attempted. Every non-success arm therefore has a non-null error, and the CLI fallback is deleted. `AuditRecord` keeps its shape and gains a `CompletedAuditRecord` narrowed subtype plus an `isCompletedAuditRecord` predicate, rather than becoming a hard discriminated union.
+Consequences: `resultSchema` now builds a `z.discriminatedUnion`, so the JSON Schema advertised as each MCP tool's `outputSchema` is a union rather than a flat object; the MCP worker evaluation validates every response against it and passes. `AuditRecord` was deliberately not split into union arms: a database written before the `complete()` guard existed can hold an `ok` row with gaps, and a hard union would force `mapRow` either to drop such rows or to throw. The predicate keeps them readable and countable, and backfill still reports them as failures exactly as before.
