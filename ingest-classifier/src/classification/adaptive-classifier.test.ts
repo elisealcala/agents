@@ -5,6 +5,7 @@ import path from "node:path";
 import type { ModelClient } from "../providers/types.ts";
 import {
   EXISTING_CATEGORY_FIT_THRESHOLD,
+  adaptivePlacementHooks,
   buildAdaptiveClassificationPrompt,
   classifyWithLiveTaxonomy,
   parseAdaptiveClassification,
@@ -88,11 +89,24 @@ function proposed(overrides: Record<string, unknown> = {}): string {
   });
 }
 
-function client(complete: ModelClient["complete"]): ModelClient {
+function client(runTools: ModelClient["runTools"]): ModelClient {
   return {
-    provider: "openai",
+    provider: "anthropic",
     model: "offline-adaptive-model",
-    complete,
+    complete: async () => {
+      throw new Error("adaptive classification does not answer questions");
+    },
+    runTools,
+  };
+}
+
+function place(
+  name: string,
+  input: Record<string, unknown>,
+): ModelClient["runTools"] {
+  return async ({ execute }) => {
+    const outcome = await execute(name, input);
+    if (!outcome.terminal) throw new Error(outcome.content);
   };
 }
 
@@ -113,12 +127,27 @@ describe("live taxonomy prompt", () => {
       [1, 0],
       "fixture-v1",
     );
-    const complete = vi.fn<ModelClient["complete"]>(async () =>
-      existing({ category: created.id, fit_score: 0.81 }),
+    const runTools = vi.fn<ModelClient["runTools"]>(
+      async ({ system, user, execute }) => {
+        const listed = await execute("list_categories", {});
+        expect(listed.content).toContain(
+          "customer_interviews (Customer Interviews): Research calls and customer discovery notes.",
+        );
+        expect(system).toContain(
+          "Corrections to learn from:\n- Discovery calls belong in Customer Interviews.",
+        );
+        expect(user).toBe("A discovery call with a customer.");
+        expect(system).not.toContain(user);
+        const outcome = await execute(
+          "file_existing",
+          JSON.parse(existing({ category: created.id, fit_score: 0.81 })),
+        );
+        if (!outcome.terminal) throw new Error(outcome.content);
+      },
     );
 
     const result = await classifyWithLiveTaxonomy(
-      client(complete),
+      client(runTools),
       "A discovery call with a customer.",
       store.list(),
       { examples: ["Discovery calls belong in Customer Interviews."] },
@@ -131,29 +160,45 @@ describe("live taxonomy prompt", () => {
         fit_score: 0.81,
       }),
     );
-    const prompt = complete.mock.calls[0]?.[0];
-    expect(prompt).toContain(
-      "customer_interviews (Customer Interviews): Research calls and customer discovery notes.",
-    );
-    expect(prompt).toContain(
-      "Corrections to learn from:\n- Discovery calls belong in Customer Interviews.",
-    );
-    expect(prompt).toContain("Note:\nA discovery call with a customer.");
   });
 
-  it("renders exactly the categories supplied at call time", () => {
-    const first = buildAdaptiveClassificationPrompt("Note", [
+  it("keeps the system prompt free of the taxonomy and of corrections until some exist", () => {
+    const prompt = buildAdaptiveClassificationPrompt();
+
+    expect(prompt).toContain("fit_score > 0.80");
+    expect(prompt).toContain("list_recent_filings");
+    expect(prompt).toContain("propose_child");
+    expect(prompt).not.toContain("project_specs (Project Specs)");
+    expect(prompt).not.toContain("Corrections to learn from:");
+  });
+
+  it("lists only the categories supplied at call time", async () => {
+    const seen: string[] = [];
+    const runTools = vi.fn<ModelClient["runTools"]>(async ({ execute }) => {
+      const listed = await execute("list_categories", {});
+      seen.push(listed.content);
+      const outcome = await execute(
+        "file_existing",
+        JSON.parse(
+          existing({
+            category: seen.length === 1 ? "project_specs" : "meeting_notes",
+          }),
+        ),
+      );
+      if (!outcome.terminal) throw new Error(outcome.content);
+    });
+
+    await classifyWithLiveTaxonomy(client(runTools), "Note", [
       LIVE_CATEGORIES[0]!,
     ]);
-    const second = buildAdaptiveClassificationPrompt("Note", [
+    await classifyWithLiveTaxonomy(client(runTools), "Note", [
       LIVE_CATEGORIES[1]!,
     ]);
 
-    expect(first).toContain("project_specs (Project Specs)");
-    expect(first).not.toContain("meeting_notes (Meeting Notes)");
-    expect(second).toContain("meeting_notes (Meeting Notes)");
-    expect(second).not.toContain("project_specs (Project Specs)");
-    expect(first).not.toContain("Corrections to learn from:");
+    expect(seen[0]).toContain("project_specs (Project Specs)");
+    expect(seen[0]).not.toContain("meeting_notes (Meeting Notes)");
+    expect(seen[1]).toContain("meeting_notes (Meeting Notes)");
+    expect(seen[1]).not.toContain("project_specs (Project Specs)");
   });
 });
 
@@ -307,14 +352,19 @@ ${existing({
 
 describe("classifyWithLiveTaxonomy", () => {
   it("retries one invalid reply and returns the valid second reply", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
-      .mockResolvedValueOnce("not-json")
-      .mockResolvedValueOnce(existing({ category: "meeting_notes" }));
+    const runTools = vi
+      .fn<ModelClient["runTools"]>()
+      .mockRejectedValueOnce(new Error("not-json"))
+      .mockImplementationOnce(
+        place(
+          "file_existing",
+          JSON.parse(existing({ category: "meeting_notes" })),
+        ),
+      );
 
     await expect(
       classifyWithLiveTaxonomy(
-        client(complete),
+        client(runTools),
         "Meeting minutes",
         LIVE_CATEGORIES,
       ),
@@ -324,36 +374,79 @@ describe("classifyWithLiveTaxonomy", () => {
         category: "meeting_notes",
       }),
     );
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
   });
 
   it("reports the final schema failure after attempts are exhausted", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
-      .mockResolvedValue(existing({ fit_score: 0.8 }));
+    const runTools = vi.fn<ModelClient["runTools"]>(async ({ execute }) => {
+      const outcome = await execute(
+        "file_existing",
+        JSON.parse(existing({ fit_score: 0.8 })),
+      );
+      if (!outcome.terminal) throw new Error(outcome.content);
+    });
 
     await expect(
       classifyWithLiveTaxonomy(
-        client(complete),
+        client(runTools),
         "Borderline note",
         LIVE_CATEGORIES,
       ),
     ).rejects.toThrow(
       /adaptive classification failed after 2 attempts: existing category fit_score must be greater than 0.80/,
     );
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
   });
 
   it("honors a configured retry count for client errors", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
+    const runTools = vi
+      .fn<ModelClient["runTools"]>()
       .mockRejectedValue(new Error("offline provider unavailable"));
 
     await expect(
-      classifyWithLiveTaxonomy(client(complete), "Note", LIVE_CATEGORIES, {
+      classifyWithLiveTaxonomy(client(runTools), "Note", LIVE_CATEGORIES, {
         maxAttempts: 1,
       }),
     ).rejects.toThrow(/failed after 1 attempts: offline provider unavailable/);
-    expect(complete).toHaveBeenCalledOnce();
+    expect(runTools).toHaveBeenCalledOnce();
+  });
+});
+
+describe("adaptive placement hook", () => {
+  it("denies a terminal tool the adaptive classifier rejects", async () => {
+    const hooks = adaptivePlacementHooks(LIVE_CATEGORIES, 0.8);
+    const hook = hooks.PreToolUse?.[0]?.hooks[0];
+    const denied = await hook?.({
+      hook_event_name: "PreToolUse",
+      tool_name: "file_existing",
+      tool_use_id: "tool-1",
+      tool_input: JSON.parse(existing({ fit_score: 0.8 })),
+    });
+
+    expect(denied?.hookSpecificOutput?.permissionDecision).toBe("deny");
+    expect(denied?.hookSpecificOutput?.permissionDecisionReason).toMatch(
+      /greater than 0.80/,
+    );
+  });
+
+  it("allows a placement the adaptive classifier accepts", async () => {
+    const hooks = adaptivePlacementHooks(LIVE_CATEGORIES, 0.8);
+    const hook = hooks.PreToolUse?.[0]?.hooks[0];
+    const allowed = await hook?.({
+      hook_event_name: "PreToolUse",
+      tool_name: "propose_child",
+      tool_use_id: "tool-2",
+      tool_input: {
+        parent: "project_specs",
+        name: "Equipment Maintenance",
+        definition: "Repair and maintenance notes for equipment.",
+        summary: "A bicycle repair guide.",
+        tags: ["repair"],
+        confidence_score: 0.9,
+        fit_score: 0.91,
+      },
+    });
+
+    expect(allowed).toEqual({});
   });
 });

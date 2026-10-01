@@ -2,7 +2,7 @@
 
 **Bank:** [`memory-bank/`](memory-bank/)
 
-Markdown intake classifier with adaptive taxonomy, document memory, clustering suggestions, and grounded retrieval. OpenAI, Anthropic, and xAI are selectable providers.
+Markdown intake classifier with adaptive taxonomy, document memory, clustering suggestions, and grounded retrieval. Anthropic is the only model provider.
 
 This agent follows the collection protocol in the repo-root `AGENTS.md`. Use **this folder's** `memory-bank/` only.
 

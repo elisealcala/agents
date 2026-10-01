@@ -14,5 +14,6 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "evals/**/*.ts", "*.config.ts"]
+  "include": ["src/**/*.ts", "evals/**/*.ts", "*.config.ts"],
+  "exclude": ["src/server/**/*.ts"]
 }

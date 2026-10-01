@@ -1,34 +1,21 @@
 /**
- * Provider selection: the one place that turns configuration into a client.
- *
- * Factories are injectable so tests and offline evaluations can supply a
- * deterministic client without touching the real SDKs.
+ * The one place that turns configuration into an Anthropic client (DEC-025).
  */
 import { loadConfig, type ModelConfig } from "../config.ts";
-import { createAnthropicProvider } from "./anthropic.ts";
-import { createOpenAIProvider } from "./openai.ts";
-import { createXaiProvider } from "./xai.ts";
+import {
+  createAnthropicProvider,
+  type AnthropicProviderOptions,
+} from "./anthropic.ts";
 import type { ModelClient } from "./types.ts";
 
-/** One builder per supported provider (DEC-002). */
-export type ProviderFactories = {
-  openai: typeof createOpenAIProvider;
-  anthropic: typeof createAnthropicProvider;
-  xai: typeof createXaiProvider;
-};
-
-const defaultFactories: ProviderFactories = {
-  openai: createOpenAIProvider,
-  anthropic: createAnthropicProvider,
-  xai: createXaiProvider,
-};
-
-/** Build the client the configured provider calls for. */
+/** Build the Anthropic client named by configuration. */
 export function createModelClient(
   config: ModelConfig = loadConfig(),
-  factories: ProviderFactories = defaultFactories,
+  createProvider: (
+    options: AnthropicProviderOptions,
+  ) => ModelClient = createAnthropicProvider,
 ): ModelClient {
-  return factories[config.provider]({
+  return createProvider({
     apiKey: config.apiKey,
     model: config.model,
   });

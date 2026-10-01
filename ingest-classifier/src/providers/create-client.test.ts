@@ -1,41 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
 import { createModelClient } from "./create-client.ts";
 import type { ModelClient } from "./types.ts";
-import type { ModelConfig } from "../config.ts";
-
-function fakeClient(provider: ModelClient["provider"]): ModelClient {
-  return {
-    provider,
-    model: "test-model",
-    complete: vi.fn(async () => `${provider}:ok`),
-  };
-}
-
-const config = (provider: ModelConfig["provider"]): ModelConfig => ({
-  provider,
-  model: "test-model",
-  apiKey: "test-key",
-});
 
 describe("createModelClient", () => {
-  it("routes openai, anthropic, and xai to the matching factory", () => {
-    const openai = vi.fn(() => fakeClient("openai"));
-    const anthropic = vi.fn(() => fakeClient("anthropic"));
-    const xai = vi.fn(() => fakeClient("xai"));
-    const factories = { openai, anthropic, xai };
-
-    expect(createModelClient(config("openai"), factories).provider).toBe(
-      "openai",
+  it("builds an Anthropic client from the model and key", () => {
+    const created = vi.fn(
+      (): ModelClient => ({
+        provider: "anthropic",
+        model: "claude-test",
+        complete: vi.fn(async () => "ok"),
+        runTools: vi.fn(async () => undefined),
+      }),
     );
-    expect(openai).toHaveBeenCalledWith({
-      apiKey: "test-key",
-      model: "test-model",
+
+    const client = createModelClient(
+      {
+        provider: "anthropic",
+        model: "claude-test",
+        apiKey: "ant-test",
+      },
+      created,
+    );
+
+    expect(client.provider).toBe("anthropic");
+    expect(client.model).toBe("claude-test");
+    expect(created).toHaveBeenCalledWith({
+      apiKey: "ant-test",
+      model: "claude-test",
     });
-
-    expect(createModelClient(config("anthropic"), factories).provider).toBe(
-      "anthropic",
-    );
-    expect(createModelClient(config("xai"), factories).provider).toBe("xai");
-    expect(xai).toHaveBeenCalledOnce();
   });
 });

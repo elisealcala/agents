@@ -279,10 +279,12 @@ describe("MCP stdio adapter", () => {
     const script = `import { startClassifierStdio } from ${JSON.stringify(stdioModule)};
 import { AdaptiveFixtureModelClient } from ${JSON.stringify(fixtureModule)};
 const fixture = new AdaptiveFixtureModelClient();
-startClassifierStdio({ root: process.argv[1], model: { provider: 'openai', model: 'offline-slow-fixture', async complete(prompt) {
+startClassifierStdio({ root: process.argv[1], model: { provider: 'anthropic', model: 'offline-slow-fixture', async complete(input) {
+  return fixture.complete(input);
+}, async runTools(input) {
   console.error('MODEL_ENTERED');
   await new Promise(resolve => setTimeout(resolve, 150));
-  return fixture.complete(prompt);
+  return fixture.runTools(input);
 } } });`;
     const child = spawn(
       process.execPath,

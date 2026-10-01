@@ -60,24 +60,34 @@ function openPipeline(
   return pipeline;
 }
 
-function modelClient(complete: ModelClient["complete"]): ModelClient {
+function modelClient(runTools: ModelClient["runTools"]): ModelClient {
   return {
-    provider: "openai",
+    provider: "anthropic",
     model: "offline-adaptive-test-model",
-    complete,
+    complete: async () => {
+      throw new Error("this test does not answer questions");
+    },
+    runTools,
   };
 }
 
-function proposal(name: string, definition: string, tags = ["topic"]): string {
-  return JSON.stringify({
-    action: "propose",
-    parent: "personal_ideas",
-    proposal: { name, definition },
-    summary: `Summary for ${name}.`,
-    tags,
-    confidence_score: 0.94,
-    fit_score: 0.3,
-  });
+function proposal(
+  name: string,
+  definition: string,
+  tags = ["topic"],
+): ModelClient["runTools"] {
+  return async ({ execute }) => {
+    const outcome = await execute("propose_child", {
+      parent: "personal_ideas",
+      name,
+      definition,
+      summary: `Summary for ${name}.`,
+      tags,
+      confidence_score: 0.94,
+      fit_score: 0.3,
+    });
+    if (!outcome.terminal) throw new Error(outcome.content);
+  };
 }
 
 function twoThemeEmbedding(novelMarker: string): EmbeddingProvider {
@@ -175,14 +185,14 @@ describe("AdaptiveIngestPipeline category lifecycle", () => {
         "utf8",
       ),
     ]);
-    const complete = vi.fn<ModelClient["complete"]>(async () =>
+    const runTools = vi.fn(
       proposal(
         "Garden Logs",
         "Seasonal observations and maintenance notes for a home garden.",
         ["garden"],
       ),
     );
-    const pipeline = openPipeline(root, modelClient(complete), {
+    const pipeline = openPipeline(root, modelClient(runTools), {
       embeddingProvider: twoThemeEmbedding("Garden Logs"),
     });
 
@@ -204,7 +214,7 @@ describe("AdaptiveIngestPipeline category lifecycle", () => {
     await expect(
       readdir(path.join(root, "library", "personal-ideas", "garden-logs")),
     ).resolves.toEqual(expect.arrayContaining(["garden-a.md", "garden-b.md"]));
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
     expect(pipeline.audit.list("ok")).toHaveLength(2);
   });
 
@@ -220,7 +230,7 @@ describe("AdaptiveIngestPipeline category lifecycle", () => {
     const pipeline = openPipeline(
       root,
       modelClient(
-        vi.fn(async () =>
+        vi.fn(
           proposal(
             "Fragile Topic",
             "A novel topic used to exercise move compensation.",
@@ -423,17 +433,25 @@ describe("AdaptiveIngestPipeline document memory", () => {
   it("injects only the five most recent persisted corrections into adaptive prompts", async () => {
     const root = await temporaryRoot();
     const inbox = path.join(root, "inbox");
-    const complete = vi.fn<ModelClient["complete"]>(async () =>
-      JSON.stringify({
-        action: "existing",
-        category: "project_specs",
-        summary: "A corrected project note.",
-        tags: ["planning"],
-        confidence_score: 0.9,
-        fit_score: 0.9,
-      }),
+    const runTools = vi.fn<ModelClient["runTools"]>(
+      async ({ system, execute }) => {
+        const outcome = await execute("file_existing", {
+          category: "project_specs",
+          summary: "A corrected project note.",
+          tags: ["planning"],
+          confidence_score: 0.9,
+          fit_score: 0.9,
+        });
+        if (!outcome.terminal) throw new Error(outcome.content);
+        expect(system).toContain("Corrections to learn from:");
+        for (let index = 3; index <= 7; index += 1) {
+          expect(system).toContain(`/vault/correction-${index}.md`);
+        }
+        expect(system).not.toContain("/vault/correction-2.md");
+        expect(system).not.toContain("/vault/correction-1.md");
+      },
     );
-    const pipeline = openPipeline(root, modelClient(complete));
+    const pipeline = openPipeline(root, modelClient(runTools));
     for (let index = 1; index <= 7; index += 1) {
       pipeline.corrections.record({
         originalPath: `/vault/correction-${index}.md`,
@@ -450,13 +468,54 @@ describe("AdaptiveIngestPipeline document memory", () => {
     await expect(pipeline.scanOnce()).resolves.toEqual([
       expect.objectContaining({ status: "ok" }),
     ]);
-    const prompt = complete.mock.calls[0]?.[0];
-    expect(prompt).toContain("Corrections to learn from:");
-    for (let index = 3; index <= 7; index += 1) {
-      expect(prompt).toContain(`/vault/correction-${index}.md`);
-    }
-    expect(prompt).not.toContain("/vault/correction-2.md");
-    expect(prompt).not.toContain("/vault/correction-1.md");
+    expect(runTools).toHaveBeenCalledOnce();
+  });
+
+  it("shows already-filed notes when the organizer searches for similar ones", async () => {
+    const root = await temporaryRoot();
+    const inbox = path.join(root, "inbox");
+    let searching = false;
+    const runTools = vi.fn<ModelClient["runTools"]>(async ({ execute }) => {
+      if (searching) {
+        const similar = await execute("search_similar_notes", {});
+        expect(similar.isError).toBeUndefined();
+        expect(similar.content).toContain("cache.md");
+        expect(similar.content).toContain("architecture_code");
+      }
+      const outcome = await execute("file_existing", {
+        category: "architecture_code",
+        summary: "Cache notes.",
+        tags: ["cache"],
+        confidence_score: 0.9,
+        fit_score: 0.9,
+      });
+      if (!outcome.terminal) throw new Error(outcome.content);
+    });
+    const pipeline = openPipeline(root, modelClient(runTools), {
+      embeddingProvider: {
+        id: "same-vector",
+        dimensions: 2,
+        async embed(): Promise<number[]> {
+          return [1, 0];
+        },
+      },
+    });
+    await writeFile(
+      path.join(inbox, "cache.md"),
+      "# Cache\nTTL policy.",
+      "utf8",
+    );
+    await pipeline.scanOnce();
+    searching = true;
+    await writeFile(
+      path.join(inbox, "again.md"),
+      "# Cache\nAnother TTL note.",
+      "utf8",
+    );
+
+    await expect(pipeline.scanOnce()).resolves.toEqual([
+      expect.objectContaining({ status: "ok" }),
+    ]);
   });
 });
 

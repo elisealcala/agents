@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: The template now documents source organization and provides an optional, independently installable TypeScript preset with local checks and GitHub Actions coverage.
-Next: product work stays in `ingest-classifier/memory-bank/`.
+Current: `studio/` is a local Next.js app for `ingest-classifier`. Product work stays in each agent's bank.
+Next: product work stays in `ingest-classifier/memory-bank/` and `studio/memory-bank/`.
 
 ## Checklist
 
@@ -20,6 +20,7 @@ Next: product work stays in `ingest-classifier/memory-bank/`.
 
 - [x] Document and implement project structure and quality tooling
 - [x] Verify project structure and quality tooling
+- [x] `studio` exists as a local Next.js app; its design stays in `studio/memory-bank/`
 
 ## Log
 
@@ -69,3 +70,8 @@ Next: product work stays in `ingest-classifier/memory-bank/`.
 - User authorized committing and pushing the verified repository, template, and agent changes to GitHub `main`.
 - Confirmed local `main` and `origin/main` were synchronized before preparing the commit; unrelated `.cursor/plans/` files are excluded.
 - Local checks remain green from the completed verification batch. The new GitHub Actions workflow will report its remote result after publication.
+
+### 2026-10-01 — studio
+
+- `studio/` exists. It is a local Next.js app. Its design and progress stay in `studio/memory-bank/`.
+- GitHub Actions gains a `studio` job (`pnpm check`, `pnpm build`) beside the classifier job.

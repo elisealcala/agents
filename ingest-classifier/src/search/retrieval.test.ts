@@ -69,9 +69,12 @@ function provider(vector: number[]) {
 
 function model(complete: ModelClient["complete"]): ModelClient {
   return {
-    provider: "openai",
+    provider: "anthropic",
     model: "offline-answer-model",
     complete,
+    runTools: async () => {
+      throw new Error("answering does not organize");
+    },
   };
 }
 
@@ -280,10 +283,12 @@ describe("answerQuestion", () => {
 
     expect(complete).toHaveBeenCalledOnce();
     const prompt = complete.mock.calls[0]?.[0];
-    expect(prompt).toContain("using only the grounded excerpts");
-    expect(prompt).toContain("/vault/library/architecture-code/cache.md");
-    expect(prompt).toContain("/vault/library/architecture-code/rollout.md");
-    expect(prompt).not.toContain(
+    expect(prompt?.system).toContain("using only the grounded excerpts");
+    expect(prompt?.user).toContain("/vault/library/architecture-code/cache.md");
+    expect(prompt?.user).toContain(
+      "/vault/library/architecture-code/rollout.md",
+    );
+    expect(prompt?.user).not.toContain(
       "/vault/library/architecture-code/unrelated.md",
     );
     expect(result.sources).toEqual([
@@ -342,11 +347,14 @@ describe("buildGroundedAnswerPrompt", () => {
 
     const prompt = buildGroundedAnswerPrompt("What is grounded?", hits);
 
-    expect(prompt).toContain("Do not name or cite any path not shown below.");
-    expect(prompt).toContain("Question: What is grounded?");
-    expect(prompt).toContain(`[1] Path: ${stored.destinationPath}`);
-    expect(prompt).toContain(`Summary: ${stored.summary}`);
-    expect(prompt).toContain("Excerpt: Only this excerpt is grounded.");
-    expect(prompt).not.toContain("invented.md");
+    expect(prompt.system).toContain(
+      "Do not name or cite any path not shown below.",
+    );
+    expect(prompt.user).toContain("Question: What is grounded?");
+    expect(prompt.user).toContain(`[1] Path: ${stored.destinationPath}`);
+    expect(prompt.user).toContain(`Summary: ${stored.summary}`);
+    expect(prompt.user).toContain("Excerpt: Only this excerpt is grounded.");
+    expect(prompt.user).not.toContain("invented.md");
+    expect(prompt.system).not.toContain("invented.md");
   });
 });

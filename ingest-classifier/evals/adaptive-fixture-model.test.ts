@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildAdaptiveClassificationPrompt,
-  parseAdaptiveClassification,
-} from "../src/classification/adaptive-classifier.ts";
+import { classifyWithLiveTaxonomy } from "../src/classification/adaptive-classifier.ts";
+import type { CompletionInput } from "../src/providers/types.ts";
 import type { StoredCategory } from "../src/storage/categories.ts";
 import { SEED_CATEGORIES } from "../src/taxonomy/taxonomy.ts";
 import { AdaptiveFixtureModelClient } from "./adaptive-fixture-model.ts";
@@ -56,16 +54,15 @@ describe("AdaptiveFixtureModelClient", () => {
       "reference_material",
     ],
   ])(
-    "returns an existing seed for a natural %s",
+    "files a natural %s into an existing seed",
     async (_name, note, category) => {
-      const categories = storedCategories();
-      const client = new AdaptiveFixtureModelClient();
-
-      const raw = await client.complete(
-        buildAdaptiveClassificationPrompt(note, categories),
-      );
-
-      expect(parseAdaptiveClassification(raw, categories)).toEqual(
+      await expect(
+        classifyWithLiveTaxonomy(
+          new AdaptiveFixtureModelClient(),
+          note,
+          storedCategories(),
+        ),
+      ).resolves.toEqual(
         expect.objectContaining({
           action: "existing",
           category,
@@ -81,12 +78,9 @@ describe("AdaptiveFixtureModelClient", () => {
     const seeds = storedCategories();
     const note = "# Bicycle maintenance\nRepair a bike chain and brakes.";
 
-    const firstRaw = await client.complete(
-      buildAdaptiveClassificationPrompt(note, seeds),
-    );
-    const first = parseAdaptiveClassification(firstRaw, seeds);
-
-    expect(first).toEqual(
+    await expect(
+      classifyWithLiveTaxonomy(client, note, seeds),
+    ).resolves.toEqual(
       expect.objectContaining({
         action: "propose",
         parent: "personal_ideas",
@@ -103,12 +97,9 @@ describe("AdaptiveFixtureModelClient", () => {
       "Equipment Maintenance",
       "Guides and notes about maintaining and repairing bicycles and equipment.",
     );
-    const live = [...seeds, equipment];
-    const secondRaw = await client.complete(
-      buildAdaptiveClassificationPrompt(note, live),
-    );
-
-    expect(parseAdaptiveClassification(secondRaw, live)).toEqual(
+    await expect(
+      classifyWithLiveTaxonomy(client, note, [...seeds, equipment]),
+    ).resolves.toEqual(
       expect.objectContaining({
         action: "existing",
         category: "equipment_maintenance",
@@ -121,10 +112,9 @@ describe("AdaptiveFixtureModelClient", () => {
     const seeds = storedCategories();
     const note = "# Cooking recipe\nPrepare ingredients and roast squash.";
 
-    const proposedRaw = await client.complete(
-      buildAdaptiveClassificationPrompt(note, seeds),
-    );
-    expect(parseAdaptiveClassification(proposedRaw, seeds)).toEqual(
+    await expect(
+      classifyWithLiveTaxonomy(client, note, seeds),
+    ).resolves.toEqual(
       expect.objectContaining({
         action: "propose",
         parent: "personal_ideas",
@@ -137,11 +127,9 @@ describe("AdaptiveFixtureModelClient", () => {
       "Recipes Cooking",
       "Recipes, cooking techniques, ingredients, and meal preparation notes.",
     );
-    const live = [...seeds, recipes];
-    const existingRaw = await client.complete(
-      buildAdaptiveClassificationPrompt(note, live),
-    );
-    expect(parseAdaptiveClassification(existingRaw, live)).toEqual(
+    await expect(
+      classifyWithLiveTaxonomy(client, note, [...seeds, recipes]),
+    ).resolves.toEqual(
       expect.objectContaining({
         action: "existing",
         category: "recipes_cooking",
@@ -150,17 +138,13 @@ describe("AdaptiveFixtureModelClient", () => {
   });
 
   it("keeps an architecture paraphrase on the existing architecture category", async () => {
-    const categories = storedCategories();
-    const client = new AdaptiveFixtureModelClient();
-
-    const raw = await client.complete(
-      buildAdaptiveClassificationPrompt(
+    await expect(
+      classifyWithLiveTaxonomy(
+        new AdaptiveFixtureModelClient(),
         "# Dedup candidate\nSoftware design should reuse architecture.",
-        categories,
+        storedCategories(),
       ),
-    );
-
-    expect(parseAdaptiveClassification(raw, categories)).toEqual(
+    ).resolves.toEqual(
       expect.objectContaining({
         action: "existing",
         category: "architecture_code",
@@ -168,16 +152,18 @@ describe("AdaptiveFixtureModelClient", () => {
     );
   });
 
-  it("uses the grounded Q&A response path instead of classification JSON", async () => {
+  it("uses the grounded Q&A response path instead of a placement", async () => {
     const client = new AdaptiveFixtureModelClient();
-
-    const response = await client.complete(`Answer using this context.
-
-Question: What is the Q3 cache strategy?
+    const input: CompletionInput = {
+      system: "Answer using this context.",
+      user: `Question: What is the Q3 cache strategy?
 
 Grounded excerpts:
 [1] Path: /vault/q3-cache.md
-Excerpt: Measure cache hit rate, choose TTLs, and rehearse invalidation.`);
+Excerpt: Measure cache hit rate, choose TTLs, and rehearse invalidation.`,
+    };
+
+    const response = await client.complete(input);
 
     expect(response).toBe(
       "The grounded notes emphasize measuring cache hit rate, choosing explicit TTLs, and rehearsing invalidation before rollout.",

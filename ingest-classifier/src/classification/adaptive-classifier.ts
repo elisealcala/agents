@@ -1,9 +1,10 @@
 /**
  * Classification against the live taxonomy, which grows as notes arrive.
  *
- * The model is shown the whole current category tree and either files a note
- * under the most specific category that fits as a whole, or proposes exactly
- * one new child beneath the closest existing one (DEC-019).
+ * The model looks the taxonomy up and either files a note under the most
+ * specific category that fits as a whole, or proposes exactly one new child
+ * beneath the closest existing one (DEC-019, DEC-025). The pipeline, not the
+ * model, creates the category and moves the file.
  */
 import type { ModelClient } from "../providers/types.ts";
 import { DEFAULT_CLASSIFICATION_ATTEMPTS } from "../defaults.ts";
@@ -11,6 +12,15 @@ import type {
   StoredCategory,
   CategoryProposal,
 } from "../storage/categories.ts";
+import type { AgentHooks } from "../agent/hooks.ts";
+import {
+  buildOrganizerSystemPrompt,
+  placeNote,
+  toolRecord,
+  type RecentFiling,
+  type SimilarNote,
+} from "./organizer.ts";
+import type { ToolLoopObserver } from "../providers/types.ts";
 
 /**
  * How well a live category must cover a note before it is filed there.
@@ -20,15 +30,6 @@ import type {
  * too broad. The fixed pipeline is unaffected and still uses confidence.
  */
 export const EXISTING_CATEGORY_FIT_THRESHOLD = 0.8;
-
-/**
- * The threshold as the prompt and the error messages spell it.
- *
- * Derived rather than retyped so the instruction the model receives can never
- * disagree with the check applied to its answer. `toFixed(2)` keeps the exact
- * "0.80" wording the prompt has always used.
- */
-const FIT_THRESHOLD_TEXT = EXISTING_CATEGORY_FIT_THRESHOLD.toFixed(2);
 
 type ClassificationDetails = {
   summary: string;
@@ -56,20 +57,44 @@ export async function classifyWithLiveTaxonomy(
   client: ModelClient,
   cleanText: string,
   categories: StoredCategory[],
-  options: { maxAttempts?: number; examples?: string[] } = {},
+  options: {
+    maxAttempts?: number;
+    examples?: string[];
+    searchSimilar?: () => Promise<SimilarNote[]>;
+    listRecent?: () => Promise<RecentFiling[]> | RecentFiling[];
+    fitThreshold?: number;
+    promptTemplate?: string;
+    observe?: ToolLoopObserver;
+  } = {},
 ): Promise<AdaptiveClassification> {
   const maxAttempts = options.maxAttempts ?? DEFAULT_CLASSIFICATION_ATTEMPTS;
+  const examples = options.examples ?? [];
+  const fitThreshold = options.fitThreshold ?? EXISTING_CATEGORY_FIT_THRESHOLD;
   let lastError: Error | undefined;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      const response = await client.complete(
-        buildAdaptiveClassificationPrompt(
-          cleanText,
-          categories,
-          options.examples ?? [],
-        ),
-      );
-      return parseAdaptiveClassification(response, categories);
+      return await placeNote(client, {
+        system: buildAdaptiveClassificationPrompt(examples, {
+          fitThreshold,
+          promptTemplate: options.promptTemplate,
+        }),
+        user: cleanText,
+        entries: categories.map((category) => ({
+          id: category.id,
+          name: category.name,
+          definition: category.definition,
+          parentId: category.parentId,
+        })),
+        allowPropose: true,
+        searchSimilar: options.searchSimilar ?? (async () => []),
+        listRecent: options.listRecent,
+        acceptExisting: (input) =>
+          acceptExisting(input, categories, fitThreshold),
+        acceptPropose: (input) =>
+          acceptProposal(input, categories, fitThreshold),
+        observe: options.observe,
+        hooks: adaptivePlacementHooks(categories, fitThreshold),
+      });
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
     }
@@ -79,53 +104,106 @@ export async function classifyWithLiveTaxonomy(
   );
 }
 
+/** System prompt for the adaptive organizer. The note is the user message. */
 export function buildAdaptiveClassificationPrompt(
-  cleanText: string,
-  categories: StoredCategory[],
   examples: string[] = [],
+  options: { fitThreshold?: number; promptTemplate?: string } = {},
 ): string {
-  const fewShot = examples.length
-    ? `\nCorrections to learn from:\n${examples.map((example) => `- ${example}`).join("\n")}\n`
-    : "";
-  return `Classify one note into the most specific category in the live taxonomy.
-
-Existing Categories:
-${formatTaxonomy(categories)}
-
-If the note is about an existing category as a whole, and that category is the most specific match, return:
-{"action":"existing","category":"category_id","summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
-
-If the note is a narrower subtopic, propose exactly one new child under the closest existing category:
-{"action":"propose","parent":"parent_category_id","proposal":{"name":"Specific Category","definition":"One sentence defining the category."},"summary":"one or two sentences","tags":["tag"],"confidence_score":0.0,"fit_score":0.0}
-
-An existing match requires fit_score > ${FIT_THRESHOLD_TEXT}. A child proposal may also have fit_score > ${FIT_THRESHOLD_TEXT} when the parent fits but is too broad. Return JSON only. Scores must be between 0 and 1.${fewShot}
-Note:
-${cleanText}`;
+  const fitThreshold = options.fitThreshold ?? EXISTING_CATEGORY_FIT_THRESHOLD;
+  return buildOrganizerSystemPrompt({
+    allowPropose: true,
+    fitThresholdText: fitThreshold.toFixed(2),
+    examples,
+    promptTemplate: options.promptTemplate,
+  });
 }
 
-function formatTaxonomy(categories: StoredCategory[]): string {
-  const byParent = new Map<string | null, StoredCategory[]>();
-  for (const category of categories) {
-    const group = byParent.get(category.parentId) ?? [];
-    group.push(category);
-    byParent.set(category.parentId, group);
-  }
-  const lines: string[] = [];
-  const walk = (parentId: string | null, depth: number) => {
-    for (const category of byParent.get(parentId) ?? []) {
-      lines.push(
-        `${"  ".repeat(depth)}- ${category.id} (${category.name}): ${category.definition}`,
-      );
-      walk(category.id, depth + 1);
-    }
+/**
+ * PreToolUse hook that runs the adaptive classifier.
+ *
+ * The matcher is `file_existing|propose_child`. A placement that fails the
+ * live-taxonomy rules is denied before the tool handler records it. An empty
+ * return allows the handler to record the same placement.
+ */
+export function adaptivePlacementHooks(
+  categories: StoredCategory[],
+  fitThreshold: number,
+): AgentHooks {
+  return {
+    PreToolUse: [
+      {
+        matcher: "file_existing|propose_child",
+        hooks: [
+          async (input) => {
+            try {
+              if (input.tool_name === "file_existing") {
+                acceptExisting(input.tool_input, categories, fitThreshold);
+              } else if (input.tool_name === "propose_child") {
+                acceptProposal(input.tool_input, categories, fitThreshold);
+              }
+              return {};
+            } catch (error) {
+              return {
+                hookSpecificOutput: {
+                  hookEventName: "PreToolUse",
+                  permissionDecision: "deny",
+                  permissionDecisionReason:
+                    error instanceof Error ? error.message : String(error),
+                },
+              };
+            }
+          },
+        ],
+      },
+    ],
   };
-  walk(null, 0);
-  return lines.join("\n");
+}
+
+function acceptExisting(
+  input: unknown,
+  categories: StoredCategory[],
+  fitThreshold: number,
+): AdaptiveClassification {
+  const record = toolRecord(input);
+  return parseAdaptiveClassification(
+    JSON.stringify({
+      action: "existing",
+      category: record.category,
+      summary: record.summary,
+      tags: record.tags,
+      confidence_score: record.confidence_score,
+      fit_score: record.fit_score,
+    }),
+    categories,
+    fitThreshold,
+  );
+}
+
+function acceptProposal(
+  input: unknown,
+  categories: StoredCategory[],
+  fitThreshold: number,
+): AdaptiveClassification {
+  const record = toolRecord(input);
+  return parseAdaptiveClassification(
+    JSON.stringify({
+      action: "propose",
+      parent: record.parent,
+      proposal: { name: record.name, definition: record.definition },
+      summary: record.summary,
+      tags: record.tags,
+      confidence_score: record.confidence_score,
+      fit_score: record.fit_score,
+    }),
+    categories,
+    fitThreshold,
+  );
 }
 
 export function parseAdaptiveClassification(
   raw: string,
   categories: StoredCategory[],
+  fitThreshold: number = EXISTING_CATEGORY_FIT_THRESHOLD,
 ): AdaptiveClassification {
   const candidate = raw
     .trim()
@@ -149,9 +227,9 @@ export function parseAdaptiveClassification(
     ) {
       throw new Error("existing category must be a live category id");
     }
-    if (details.fit_score <= EXISTING_CATEGORY_FIT_THRESHOLD) {
+    if (details.fit_score <= fitThreshold) {
       throw new Error(
-        `existing category fit_score must be greater than ${FIT_THRESHOLD_TEXT}`,
+        `existing category fit_score must be greater than ${fitThreshold.toFixed(2)}`,
       );
     }
     return { action: "existing", category: record.category, ...details };

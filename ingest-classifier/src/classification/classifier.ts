@@ -1,10 +1,10 @@
 /**
  * Classification against the five fixed seed categories.
  *
- * This is the M1 pipeline's classifier, kept for the zero-loss evaluation.
- * Production ingestion uses the adaptive classifier instead. Below
- * {@link LOW_CONFIDENCE_THRESHOLD} a note is filed under the fallback category
- * rather than guessed at (DEC-004).
+ * This is the fixed-taxonomy pipeline's classifier, kept for the zero-loss
+ * evaluation. Production ingestion uses the adaptive classifier instead. The
+ * model places the note through the organizer tools, and code still files a
+ * low-confidence result under the fallback category (DEC-004, DEC-025).
  */
 import type { ModelClient } from "../providers/types.ts";
 import { DEFAULT_CLASSIFICATION_ATTEMPTS } from "../defaults.ts";
@@ -15,6 +15,11 @@ import {
   isSeedCategoryId,
   type SeedCategoryId,
 } from "../taxonomy/taxonomy.ts";
+import {
+  buildOrganizerSystemPrompt,
+  placeNote,
+  toolRecord,
+} from "./organizer.ts";
 
 export type Classification = {
   category: SeedCategoryId;
@@ -38,10 +43,18 @@ export async function classifyFile(
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      const response = await client.complete(
-        buildClassificationPrompt(cleanText),
-      );
-      return normalizeLowConfidence(parseClassification(response));
+      const result = await placeNote(client, {
+        system: buildClassificationPrompt(),
+        user: cleanText,
+        entries: SEED_CATEGORIES.map((category) => ({
+          ...category,
+          parentId: null,
+        })),
+        allowPropose: false,
+        searchSimilar: async () => [],
+        acceptExisting: acceptFixedPlacement,
+      });
+      return normalizeLowConfidence(result);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
     }
@@ -52,27 +65,21 @@ export async function classifyFile(
   );
 }
 
-export function buildClassificationPrompt(cleanText: string): string {
-  const taxonomy = SEED_CATEGORIES.map(
-    ({ id, name, definition }) => `- ${id} (${name}): ${definition}`,
-  ).join("\n");
+/** System prompt for the fixed-taxonomy organizer. The note is the user message. */
+export function buildClassificationPrompt(): string {
+  return buildOrganizerSystemPrompt({ allowPropose: false });
+}
 
-  return `You classify one Markdown note into exactly one seed category.
-
-Seed categories:
-${taxonomy}
-
-Return JSON only with this exact shape:
-{"category":"seed_id","summary":"one or two sentences","tags":["tag"],"confidence_score":0.0}
-
-Rules:
-- category must be a listed seed id.
-- confidence_score must be between 0 and 1.
-- tags must contain short strings.
-- Do not wrap JSON in prose.
-
-Note:
-${cleanText}`;
+function acceptFixedPlacement(input: unknown): Classification {
+  const record = toolRecord(input);
+  return parseClassification(
+    JSON.stringify({
+      category: record.category,
+      summary: record.summary,
+      tags: record.tags,
+      confidence_score: record.confidence_score,
+    }),
+  );
 }
 
 export function parseClassification(raw: string): Classification {

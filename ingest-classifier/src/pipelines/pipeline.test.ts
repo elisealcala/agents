@@ -40,32 +40,38 @@ async function createRoot(): Promise<string> {
 
 function createPipeline(
   root: string,
-  complete: ModelClient["complete"],
+  runTools: ModelClient["runTools"],
   pollIntervalMs = 1_000,
 ): IngestPipeline {
   const pipeline = new IngestPipeline({
     root,
     pollIntervalMs,
     client: {
-      provider: "openai",
+      provider: "anthropic",
       model: "offline-test-model",
-      complete,
+      complete: async () => {
+        throw new Error("fixed pipeline does not answer questions");
+      },
+      runTools,
     },
   });
   pipelines.push(pipeline);
   return pipeline;
 }
 
-function response(
+function place(
   category: SeedCategoryId = "project_specs",
   confidence_score = 0.9,
-): string {
-  return JSON.stringify({
-    category,
-    summary: `Summary for ${category}.`,
-    tags: [category],
-    confidence_score,
-  });
+): ModelClient["runTools"] {
+  return async ({ execute }) => {
+    const outcome = await execute("file_existing", {
+      category,
+      summary: `Summary for ${category}.`,
+      tags: [category],
+      confidence_score,
+    });
+    if (!outcome.terminal) throw new Error(outcome.content);
+  };
 }
 
 function deferred(): { promise: Promise<void>; resolve: () => void } {
@@ -117,20 +123,20 @@ describe("IngestPipeline scanning", () => {
     );
     let active = 0;
     let maximumActive = 0;
-    const complete = vi.fn(async () => {
+    const runTools = vi.fn<ModelClient["runTools"]>(async (input) => {
       active += 1;
       maximumActive = Math.max(maximumActive, active);
       await new Promise((resolve) => setTimeout(resolve, 20));
       active -= 1;
-      return response();
+      await place()(input);
     });
-    const pipeline = createPipeline(root, complete);
+    const pipeline = createPipeline(root, runTools);
 
     const results = await pipeline.scanOnce();
 
     expect(results).toHaveLength(3);
     expect(results.every(({ status }) => status === "ok")).toBe(true);
-    expect(complete).toHaveBeenCalledTimes(3);
+    expect(runTools).toHaveBeenCalledTimes(3);
     expect(maximumActive).toBeGreaterThan(1);
     expect(pipeline.audit.list("ok")).toHaveLength(3);
     for (const [filename, bytes] of originals) {
@@ -143,7 +149,7 @@ describe("IngestPipeline scanning", () => {
     }
 
     await expect(pipeline.scanOnce()).resolves.toEqual([]);
-    expect(complete).toHaveBeenCalledTimes(3);
+    expect(runTools).toHaveBeenCalledTimes(3);
     expect(pipeline.audit.list()).toHaveLength(3);
   });
 
@@ -158,12 +164,12 @@ describe("IngestPipeline scanning", () => {
     );
     const enteredClassifier = deferred();
     const releaseClassifier = deferred();
-    const complete = vi.fn(async () => {
+    const runTools = vi.fn<ModelClient["runTools"]>(async (input) => {
       enteredClassifier.resolve();
       await releaseClassifier.promise;
-      return response("architecture_code");
+      await place("architecture_code")(input);
     });
-    const pipeline = createPipeline(root, complete);
+    const pipeline = createPipeline(root, runTools);
 
     const firstScan = pipeline.scanOnce();
     await withTimeout(enteredClassifier.promise);
@@ -181,7 +187,7 @@ describe("IngestPipeline scanning", () => {
         reason: "already processing",
       }),
     );
-    expect(complete).toHaveBeenCalledOnce();
+    expect(runTools).toHaveBeenCalledOnce();
     expect(pipeline.audit.list("ok")).toHaveLength(1);
   });
 
@@ -191,8 +197,8 @@ describe("IngestPipeline scanning", () => {
     await mkdir(inbox);
     const ignoredPath = path.join(inbox, "diagram.png");
     await writeFile(ignoredPath, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
-    const complete = vi.fn(async () => response());
-    const pipeline = createPipeline(root, complete);
+    const runTools = vi.fn(place());
+    const pipeline = createPipeline(root, runTools);
 
     await expect(pipeline.scanOnce()).resolves.toEqual([
       {
@@ -212,7 +218,7 @@ describe("IngestPipeline scanning", () => {
     await expect(readFile(ignoredPath)).resolves.toEqual(
       Buffer.from([0x89, 0x50, 0x4e, 0x47]),
     );
-    expect(complete).not.toHaveBeenCalled();
+    expect(runTools).not.toHaveBeenCalled();
     expect(pipeline.audit.list("skipped")).toEqual([
       expect.objectContaining({
         sourcePath: ignoredPath,
@@ -229,8 +235,8 @@ describe("IngestPipeline scanning", () => {
     const sourcePath = path.join(inbox, "invalid.md");
     const bytes = Buffer.from([0xc3, 0x28]);
     await writeFile(sourcePath, bytes);
-    const complete = vi.fn(async () => response());
-    const pipeline = createPipeline(root, complete);
+    const runTools = vi.fn(place());
+    const pipeline = createPipeline(root, runTools);
 
     const results = await pipeline.scanOnce();
 
@@ -238,7 +244,7 @@ describe("IngestPipeline scanning", () => {
       expect.objectContaining({ status: "failed", sourcePath }),
     ]);
     expect((await readFile(sourcePath)).equals(bytes)).toBe(true);
-    expect(complete).not.toHaveBeenCalled();
+    expect(runTools).not.toHaveBeenCalled();
     expect(pipeline.audit.list("failed")).toEqual([
       expect.objectContaining({
         sourcePath,
@@ -256,8 +262,8 @@ describe("IngestPipeline scanning", () => {
     const sourcePath = path.join(inbox, "repeat-invalid.md");
     const bytes = Buffer.from([0xc3, 0x28]);
     await writeFile(sourcePath, bytes);
-    const complete = vi.fn(async () => response());
-    const pipeline = createPipeline(root, complete);
+    const runTools = vi.fn(place());
+    const pipeline = createPipeline(root, runTools);
 
     const first = await pipeline.scanOnce();
     const second = await pipeline.scanOnce();
@@ -269,7 +275,7 @@ describe("IngestPipeline scanning", () => {
       expect.objectContaining({ status: "failed", sourcePath }),
     ]);
     expect((await readFile(sourcePath)).equals(bytes)).toBe(true);
-    expect(complete).not.toHaveBeenCalled();
+    expect(runTools).not.toHaveBeenCalled();
     expect(pipeline.audit.list("failed")).toEqual([
       expect.objectContaining({
         sourcePath,
@@ -285,8 +291,16 @@ describe("IngestPipeline scanning", () => {
     await mkdir(inbox);
     const sourcePath = path.join(inbox, "bad-reply.md");
     await writeFile(sourcePath, "# Valid source\nNever discard this.", "utf8");
-    const complete = vi.fn(async () => "not-json");
-    const pipeline = createPipeline(root, complete);
+    const runTools = vi.fn<ModelClient["runTools"]>(async ({ execute }) => {
+      const outcome = await execute("file_existing", {
+        category: "not_a_seed",
+        summary: "Invalid.",
+        tags: ["invalid"],
+        confidence_score: 0.9,
+      });
+      if (!outcome.terminal) throw new Error(outcome.content);
+    });
+    const pipeline = createPipeline(root, runTools);
 
     const results = await pipeline.scanOnce();
 
@@ -300,7 +314,7 @@ describe("IngestPipeline scanning", () => {
     await expect(readFile(sourcePath, "utf8")).resolves.toContain(
       "Never discard this",
     );
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
     expect(pipeline.audit.list("failed")).toEqual([
       expect.objectContaining({
         sourcePath,
@@ -313,10 +327,7 @@ describe("IngestPipeline scanning", () => {
 
   it("uses a collision suffix without changing an existing library file", async () => {
     const root = await createRoot();
-    const pipeline = createPipeline(
-      root,
-      vi.fn(async () => response("meeting_notes")),
-    );
+    const pipeline = createPipeline(root, vi.fn(place("meeting_notes")));
     await pipeline.initialize();
     const sourcePath = path.join(pipeline.paths.inbox, "notes.md");
     const existingPath = path.join(
@@ -348,10 +359,7 @@ describe("IngestPipeline scanning", () => {
 
   it("restores the inbox source if audit finalization fails after the move", async () => {
     const root = await createRoot();
-    const pipeline = createPipeline(
-      root,
-      vi.fn(async () => response("reference_material")),
-    );
+    const pipeline = createPipeline(root, vi.fn(place("reference_material")));
     await pipeline.initialize();
     const sourcePath = path.join(pipeline.paths.inbox, "recover.md");
     const destinationPath = path.join(
@@ -389,11 +397,11 @@ describe("IngestPipeline polling", () => {
   it("detects a Markdown file added after the initial watch scan", async () => {
     const root = await createRoot();
     const observedClassification = deferred();
-    const complete = vi.fn(async () => {
+    const runTools = vi.fn<ModelClient["runTools"]>(async (input) => {
       observedClassification.resolve();
-      return response("personal_ideas");
+      await place("personal_ideas")(input);
     });
-    const pipeline = createPipeline(root, complete, 5);
+    const pipeline = createPipeline(root, runTools, 5);
     const initialScanFinished = deferred();
     const originalScanOnce = pipeline.scanOnce.bind(pipeline);
     let scanCount = 0;
@@ -420,7 +428,7 @@ describe("IngestPipeline polling", () => {
     }
 
     expect(scanCount).toBeGreaterThanOrEqual(2);
-    expect(complete).toHaveBeenCalledOnce();
+    expect(runTools).toHaveBeenCalledOnce();
     await expect(
       readFile(
         path.join(pipeline.paths.categories.personal_ideas, "arrived-later.md"),
@@ -449,20 +457,29 @@ describe("M1 exit gate", () => {
         await writeFile(path.join(inbox, filename), bytes);
       }
     }
-    const complete = vi.fn(async (prompt: string) => {
-      const match = prompt.match(
-        /Target category: (project_specs|architecture_code|meeting_notes|personal_ideas|reference_material)/,
-      );
-      if (!match) throw new Error("fixture category marker missing");
-      return response(match[1] as SeedCategoryId, 0.95);
-    });
-    const pipeline = createPipeline(root, complete);
+    const runTools = vi.fn<ModelClient["runTools"]>(
+      async ({ user, execute }) => {
+        const match = user.match(
+          /Target category: (project_specs|architecture_code|meeting_notes|personal_ideas|reference_material)/,
+        );
+        const category = match?.[1] as SeedCategoryId | undefined;
+        if (!category) throw new Error("fixture category marker missing");
+        const outcome = await execute("file_existing", {
+          category,
+          summary: `Summary for ${category}.`,
+          tags: [category],
+          confidence_score: 0.95,
+        });
+        if (!outcome.terminal) throw new Error(outcome.content);
+      },
+    );
+    const pipeline = createPipeline(root, runTools);
 
     const results = await pipeline.scanOnce();
 
     expect(results).toHaveLength(20);
     expect(results.every(({ status }) => status === "ok")).toBe(true);
-    expect(complete).toHaveBeenCalledTimes(20);
+    expect(runTools).toHaveBeenCalledTimes(20);
     await expect(readdir(inbox)).resolves.toEqual([]);
 
     const audits = pipeline.audit.list("ok");
@@ -480,7 +497,7 @@ describe("M1 exit gate", () => {
           summary: `Summary for ${category}.`,
           tags: [category],
           confidence: 0.95,
-          provider: "openai",
+          provider: "anthropic",
           model: "offline-test-model",
           status: "ok",
           error: null,

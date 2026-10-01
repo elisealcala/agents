@@ -1,6 +1,6 @@
 # ingest-classifier
 
-TypeScript agent that watches a Markdown inbox, classifies notes, moves them without overwriting user data, and records every stage in SQLite. OpenAI GPT, Anthropic Claude, and xAI Grok remain env-only swaps.
+TypeScript agent that watches a Markdown inbox, classifies notes, moves them without overwriting user data, and records every stage in SQLite. Anthropic is the only model provider.
 
 ## How it works
 
@@ -13,11 +13,11 @@ flowchart TB
     Application["Application operations<br/>Validation, results and lifecycle"]
     Pipeline["Ingestion orchestration<br/>Scan and coordinate processing"]
     Files["File handling<br/>Markdown parsing and safe moves"]
-    Classification["Classification<br/>Prompts and response validation"]
+    Classification["Classification<br/>Organizer tool loop"]
     Taxonomy["Taxonomy<br/>Category rules and deduplication"]
     Search["Search<br/>Local embeddings, Q&A and clustering"]
     Storage["Storage<br/>SQLite audit and runtime memory"]
-    Providers["Model providers<br/>OpenAI · Anthropic · xAI"]
+    Providers["Anthropic<br/>System prompt and tools"]
 
     Commands --> Application
     MCP --> Application
@@ -32,16 +32,16 @@ flowchart TB
     Pipeline -->|"Document embeddings"| Search
 
     Taxonomy -->|"Category embeddings"| Search
-    Classification -->|"Model completion"| Providers
+    Classification -->|"Tool loop"| Providers
     Search -->|"Grounded answers"| Providers
     Search -->|"Read stored documents"| Storage
 ```
 
-**How the folders work together:** the standalone CLI and `mcp/` adapter call shared `application/` operations. These validate inputs/results, own resource cleanup, and coordinate ingestion across processes. The application routes `run` and `watch` to `pipelines/`. The pipeline coordinates `files/` for parsing and safe moves, `classification/` for model decisions, `taxonomy/` for category resolution, `search/` for local embeddings, and `storage/` for persistence. Classification calls a `ModelClient` supplied by `providers/`, whose factory loads provider/model settings from `config.ts`.
+**How the folders work together:** the standalone CLI and `mcp/` adapter call shared `application/` operations. These validate inputs/results, own resource cleanup, and coordinate ingestion across processes. The application routes `run` and `watch` to `pipelines/`. The pipeline coordinates `files/` for parsing and safe moves, `classification/` for the organizing decision, `taxonomy/` for category resolution, `search/` for local embeddings, and `storage/` for persistence. Classification calls the Anthropic `ModelClient` from `providers/`, which `config.ts` builds from `INGEST_MODEL` and `ANTHROPIC_API_KEY`.
 
 `ask` and `cluster` call `search/` with document stores from `storage/`; answering also uses the selected model client. `correct` and `backfill` use `storage/`, with backfill reading files and computing local embeddings. `index.ts` exposes the public library API.
 
-For each note, the model sees the current categories and the five most recent corrections. An existing-category fit above `0.80` reuses that category; otherwise the model proposes one. Local category embeddings check for a similar category before a new category and folder are created. Document embeddings are also computed locally; they do not require a separate embedding API.
+For each note the pipeline parses the file, then asks one Anthropic agent to place it. The walkthrough is [Building the agent](docs/building-the-agent.md). The agent starts with the latest filings, then similar notes, then the live taxonomy, and finishes with `file_existing` or `propose_child`. A `PreToolUse` hook runs the adaptive classifier before either finishing tool is recorded: a placement that fails the live-taxonomy rules is denied, and the model sees the reason. An existing match requires `fit_score` above `0.80`. The five most recent corrections are in the system prompt. The model does not move the file. After an accept, code deduplicates a proposed child against that parent's children, creates the folder, and only then moves the note. Document embeddings are computed locally; they do not require a separate embedding API.
 
 During ingestion, audit records track processing as it happens. Markdown parse failures stay in the inbox and are audited as failures. Invalid classification responses are retried once; if still invalid, the note remains in the inbox and is audited as failed. Non-Markdown files are skipped. The mover verifies the destination checksum before removing the source. If saving document metadata fails after a move, the pipeline attempts to restore the source file. A document-embedding failure is recorded as missing and can be repaired with `backfill`.
 
@@ -51,12 +51,12 @@ For `ask`, only the question is newly embedded; stored document vectors select r
 
 | Piece | Responsibility | Code |
 |---|---|---|
-| CLI and configuration | Select the command, library root, provider, and model | [`cli.ts`](src/cli.ts), [`config.ts`](src/config.ts) |
+| CLI and configuration | Select the command, library root, and Anthropic model | [`cli.ts`](src/cli.ts), [`config.ts`](src/config.ts) |
 | Application operations | Share validated operations and lifecycle handling between CLI and MCP | [`application/`](src/application/) |
 | MCP adapter | Discover and invoke six local tools for one configured library | [`mcp/`](src/mcp/) |
 | Intake pipelines | Coordinate scanning, classification, safe movement, and persistence | [`pipelines/`](src/pipelines/) |
-| Classifiers | Build prompts and validate model replies | [`classification/`](src/classification/) |
-| Model providers | Create the selected model client and adapt vendor APIs | [`providers/`](src/providers/) |
+| Classifiers | System prompt, organizer tools, and the adaptive placement hook | [`classification/`](src/classification/), [`agent/hooks.ts`](src/agent/hooks.ts) |
+| Model provider | Anthropic tool loop and grounded-answer completion | [`providers/`](src/providers/) |
 | File handling | Parse Markdown and move the original bytes without overwriting files | [`files/`](src/files/) |
 | Taxonomy | Define seed categories and resolve proposed categories through similarity checks | [`taxonomy/`](src/taxonomy/) |
 | Runtime storage | Persist audit events, categories, document text/vectors, and human corrections in SQLite | [`storage/`](src/storage/) |
@@ -72,18 +72,15 @@ Requires Node 22.22 or newer and pnpm 10.9.0 (pinned in `package.json`).
 ```bash
 cd ingest-classifier
 pnpm install
-cp .env.example .env   # fill the key for the provider you pick
+cp .env.example .env   # set the model id and Anthropic key
 ```
 
 ## Pick a model
 
 | Env | Meaning |
 |---|---|
-| `INGEST_PROVIDER` | `openai` \| `anthropic` \| `xai` |
-| `INGEST_MODEL` | Vendor model id |
-| `OPENAI_API_KEY` | When provider is `openai` |
-| `ANTHROPIC_API_KEY` | When provider is `anthropic` |
-| `XAI_API_KEY` | When provider is `xai` |
+| `INGEST_MODEL` | Anthropic model id |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
 
 ```bash
 pnpm start                          # provider smoke completion
@@ -109,6 +106,16 @@ pnpm --silent mcp --root /absolute/path/to/my-library --env-file /absolute/path/
 ```
 
 Model settings are the same as the CLI. Inherited environment variables take precedence over the environment file; without `--env-file`, dotenv looks in the launch working directory. MCP loads it quietly. Startup and tool discovery do not need API keys; only ingestion and answering require a configured model. Local search, corrections, clustering, and backfill do not make completion calls.
+
+### Studio server
+
+`pnpm serve` starts the localhost tRPC server the studio UI calls. It binds to `127.0.0.1` only (port `8787` unless `--port` is set) and the library root comes from `--root`, not from the browser.
+
+```bash
+pnpm serve -- --root /absolute/path/to/my-library
+```
+
+Run the UI from `../studio` with `pnpm dev`. Settings, traces, and corrections are stored in the library SQLite file. CLI and MCP behavior is unchanged when this server is not running.
 
 Configure a local MCP host using absolute paths so it does not depend on its launch directory. Replace these placeholders with your Node 22 executable, agent checkout, library, and optional environment file:
 
@@ -229,7 +236,7 @@ src/
   storage/          # SQLite audit, category, document, correction stores
   taxonomy/         # category definitions and proposal deduplication
   search/           # embeddings, clustering, grounded retrieval
-  providers/        # model clients and provider contracts
+  providers/        # Anthropic client, tool loop, and grounded answers
 evals/              # offline milestone runners and fixture clients
 memory-bank/        # development memory for this agent
 ```

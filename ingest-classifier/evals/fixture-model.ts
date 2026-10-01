@@ -1,10 +1,10 @@
 /**
- * A deterministic stand-in for a model, for the fixed-taxonomy evaluation.
+ * A deterministic stand-in for the organizer, for the fixed-taxonomy evaluation.
  *
- * Matches notes by keyword rules and returns the JSON a real provider would,
- * which keeps the evaluations offline, fast and reproducible.
+ * Reads the note and calls file_existing once, which keeps the evaluation
+ * offline, fast, and reproducible.
  */
-import type { ModelClient } from "../src/providers/types.ts";
+import type { ModelClient, ToolRunInput } from "../src/providers/types.ts";
 
 type Rule = {
   terms: string[];
@@ -36,24 +36,25 @@ const RULES: Rule[] = [
 ];
 
 export class FixtureModelClient implements ModelClient {
-  readonly provider = "openai" as const;
+  readonly provider = "anthropic" as const;
   readonly model = "offline-fixture-model";
 
-  async complete(prompt: string): Promise<string> {
-    const noteMarker = "\nNote:\n";
-    const noteStart = prompt.lastIndexOf(noteMarker);
-    const normalized = (
-      noteStart >= 0 ? prompt.slice(noteStart + noteMarker.length) : prompt
-    ).toLowerCase();
+  async complete(): Promise<string> {
+    throw new Error("fixed fixture does not answer questions");
+  }
+
+  async runTools(input: ToolRunInput): Promise<void> {
+    const note = input.user.toLowerCase();
     const rule = RULES.find(({ terms }) =>
-      terms.some((term) => normalized.includes(term)),
+      terms.some((term) => note.includes(term)),
     );
     const category = rule?.category ?? "reference_material";
-    return JSON.stringify({
+    const outcome = await input.execute("file_existing", {
       category,
       summary: `Offline fixture summary for ${category}.`,
       tags: rule?.tags ?? ["reference"],
       confidence_score: rule ? 0.93 : 0.72,
     });
+    if (!outcome.terminal) throw new Error(outcome.content);
   }
 }

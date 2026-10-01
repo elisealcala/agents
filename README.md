@@ -30,6 +30,8 @@ pnpm eval:retrieval-and-clustering
 
 See the [`ingest-classifier` README](ingest-classifier/README.md) for setup, the library layout, available commands, and configuration.
 
+The [`studio`](studio/) is a local Next.js app for running that agent, editing its prompt and thresholds, reading library memory, and inspecting tool calls. Start the classifier server with `pnpm serve` inside `ingest-classifier`, then `pnpm dev` inside `studio`.
+
 ## Coding-agent collection
 
 The repository is also structured as a collection of independent, runnable agents. Each agent can use a different stack (LangGraph, custom orchestration, or anything else). What they share is a **memory-bank process**, not a runtime.

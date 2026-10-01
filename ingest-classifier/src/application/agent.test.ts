@@ -40,8 +40,14 @@ async function setup(options: Partial<Omit<IngestAgentOptions, "root">> = {}) {
   agents.push(agent);
   return { root, agent };
 }
-function model(complete: ModelClient["complete"]): ModelClient {
-  return { provider: "openai", model: "offline-test", complete };
+function model(runTools: ModelClient["runTools"]): ModelClient {
+  const fixture = new AdaptiveFixtureModelClient();
+  return {
+    provider: "anthropic",
+    model: "offline-test",
+    complete: (input) => fixture.complete(input),
+    runTools,
+  };
 }
 
 describe("shared classifier operations", () => {
@@ -164,10 +170,10 @@ describe("shared classifier operations", () => {
     async (mixed) => {
       const fixture = new AdaptiveFixtureModelClient();
       const { root, agent } = await setup({
-        model: model(async (prompt) => {
-          if (prompt.includes("FAIL_THIS_NOTE"))
+        model: model(async (input) => {
+          if (input.user.includes("FAIL_THIS_NOTE"))
             throw new Error("fixture model failure");
-          return fixture.complete(prompt);
+          return fixture.runTools(input);
         }),
       });
       await writeFile(
@@ -271,10 +277,10 @@ describe("shared classifier operations", () => {
     });
     const fixture = new AdaptiveFixtureModelClient();
     const { root, agent } = await setup({
-      model: model(async (prompt) => {
+      model: model(async (input) => {
         enteredModel();
         await gate;
-        return fixture.complete(prompt);
+        return fixture.runTools(input);
       }),
     });
     await writeFile(
@@ -389,10 +395,10 @@ describe("shared classifier operations", () => {
     });
     const fixture = new AdaptiveFixtureModelClient();
     const { root, agent } = await setup({
-      model: model(async (prompt) => {
+      model: model(async (input) => {
         enteredModel();
         await gate;
-        return fixture.complete(prompt);
+        return fixture.runTools(input);
       }),
     });
     await writeFile(path.join(root, "inbox", "reject.txt"), "non markdown");

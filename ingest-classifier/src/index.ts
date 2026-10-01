@@ -72,12 +72,22 @@ export { IngestPipeline, type ProcessResult } from "./pipelines/pipeline.ts";
 // Classification — prompt construction and response validation
 // ---------------------------------------------------------------------------
 export {
+  adaptivePlacementHooks,
   buildAdaptiveClassificationPrompt,
   classifyWithLiveTaxonomy,
   parseAdaptiveClassification,
   EXISTING_CATEGORY_FIT_THRESHOLD,
   type AdaptiveClassification,
 } from "./classification/adaptive-classifier.ts";
+export {
+  hookMatches,
+  runPreToolUse,
+  type AgentHooks,
+  type HookCallback,
+  type HookMatcher,
+  type HookOutput,
+  type PreToolUseHookInput,
+} from "./agent/hooks.ts";
 export {
   buildClassificationPrompt,
   classifyFile,
@@ -181,4 +191,10 @@ export {
 // ---------------------------------------------------------------------------
 export { loadConfig, type ModelConfig, type Provider } from "./config.ts";
 export { createModelClient } from "./providers/create-client.ts";
-export type { ModelClient } from "./providers/types.ts";
+export type {
+  CompletionInput,
+  ModelClient,
+  ToolDefinition,
+  ToolOutcome,
+  ToolRunInput,
+} from "./providers/types.ts";

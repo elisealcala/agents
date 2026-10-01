@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: Adaptive classification files notes in a category tree (DEC-019). M1 stays a flat seed taxonomy.
-Next: Try a live library run with narrower technical notes and confirm children land under the closest parent.
+Current: One organizer agent. The adaptive classifier is a PreToolUse hook, and recent filings are a tool (DEC-027).
+Next: Try a live library run from the studio and confirm the trace shows `list_recent_filings` before a placement.
 
 ## Checklist
 
@@ -178,3 +178,33 @@ Next: Try a live library run with narrower technical notes and confirm children 
 - Reverted one attempted error-message improvement: `"destination verification failed"` is copied into the process report and the audit row and is asserted exactly, so adding absolute paths would have made reports nondeterministic. Left as-is with a comment explaining why.
 - Verification: `pnpm check`, 202 tests across 24 files, and all four evaluations pass. Frozen installation verified in both packages against a negative control. No live model calls. `src/index.ts` keeps every previous export and adds 27.
 - Not changed, flagged for a separate decision: `anthropic.ts` caps `max_tokens` at 256 while OpenAI and xAI set no cap. The adaptive prompt embeds the whole live taxonomy, so a large library risks truncation and a parse failure on Anthropic only. The constant is now named and documented; the value is untouched.
+
+### 2026-09-29 — Ignore the local scratch library
+
+- Gitignored `ingest-classifier/my-library/` so the SQLite database, WAL sidecars, lock, cluster report, and personal notes stay out of git. Recorded DEC-024.
+- No runtime change. SQLite remains the library database.
+
+### 2026-09-29 — Guided organizer
+
+- Replaced the one-shot classification call with an Anthropic system prompt and tool loop. The model may call `list_categories` and `search_similar_notes`, then must finish with `file_existing` or, on the adaptive path, `propose_child`. Invalid tool input stays in the loop as a tool error. An attempt with no placement retries from scratch.
+- The pipeline sequence is unchanged: parse, place, dedup or create the child, embed, verified move, audit. Terminal tools return a placement and do not move files.
+- Removed OpenAI and xAI. Configuration is `INGEST_MODEL` plus `ANTHROPIC_API_KEY`. Grounded answers use a system prompt and a user message, with no tools. Raised the Anthropic response cap from 256 to 1024. Recorded DEC-025, which supersedes DEC-002.
+- Verification: `pnpm check` passed. 204 tests across 25 files passed. All four evaluations passed. No live model calls.
+
+### 2026-10-01 — Agentic organizing workflow, product pass
+
+- Compared the organizer loop with a date-aware ReAct agent and with note/taxonomy agents (Karpathy LLM wiki, Karakeep similar-tag hints, Silica’s score-then-LLM classifier, swarm classification).
+- No runtime change. Open product choice: when a note fits no existing category as a whole, the model may only propose a child, or it may also suggest a new root. Recent filings are a lookup hint, separate from that choice.
+
+### 2026-10-01 — Local studio server
+
+- Added `pnpm serve`, a tRPC server on `127.0.0.1` for the studio. Procedures cover the six application operations, config, corrections, and read-only library memory. Organizer tools are spans on `runs.follow`, not procedures.
+- Optional trace observer records model turns and tool calls, including rejected calls and discarded retries, in the library database. Prompt, fit threshold, dedup threshold, and example-limit overrides live there too. Unset values keep the built-in defaults. CLI and MCP pass no observer.
+- Recorded DEC-026. Verification: `pnpm check` passed. 207 tests across 26 files passed. All four evaluations passed. No live model calls.
+
+### 2026-10-01 — Organizer agent and adaptive PreToolUse hook
+
+- Kept a single agent. Added `list_recent_filings` and told the prompt to start there, then use similar notes when the recent streak disagrees. The agent chooses the best existing category or the parent of one new child.
+- The adaptive classifier is a `PreToolUse` hook on `file_existing|propose_child`. A deny is the tool error and the handler does not record the placement. Lookup tools are not hooked. Dedup and the file move stay in the pipeline.
+- Wrote `docs/building-the-agent.md` as the step-by-step example against Claude's tool-use guide and the Agent SDK hook contract. Recorded DEC-027.
+- Verification: `pnpm check` passed. 213 tests across 27 files passed. All four evaluations passed. No live model calls.

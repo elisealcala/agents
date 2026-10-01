@@ -5,13 +5,24 @@ import {
   classifyFile,
   parseClassification,
 } from "./classifier.ts";
-import { SEED_CATEGORIES } from "../taxonomy/taxonomy.ts";
 
-function modelClient(complete: ModelClient["complete"]): ModelClient {
+function modelClient(runTools: ModelClient["runTools"]): ModelClient {
   return {
-    provider: "openai",
+    provider: "anthropic",
     model: "offline-test-model",
-    complete,
+    complete: async () => {
+      throw new Error("fixed classification does not answer questions");
+    },
+    runTools,
+  };
+}
+
+function fileExisting(
+  fields: Record<string, unknown>,
+): ModelClient["runTools"] {
+  return async ({ execute }) => {
+    const outcome = await execute("file_existing", fields);
+    if (!outcome.terminal) throw new Error(outcome.content);
   };
 }
 
@@ -26,16 +37,14 @@ function reply(overrides: Record<string, unknown> = {}): string {
 }
 
 describe("buildClassificationPrompt", () => {
-  it("includes every fixed category, the note, and the required JSON contract", () => {
-    const prompt = buildClassificationPrompt("The original note body.");
+  it("tells the organizer to look up the seeds and file once", () => {
+    const prompt = buildClassificationPrompt();
 
-    for (const { id, name, definition } of SEED_CATEGORIES) {
-      expect(prompt).toContain(`${id} (${name}): ${definition}`);
-    }
-    expect(prompt).toContain(
-      '{"category":"seed_id","summary":"one or two sentences","tags":["tag"],"confidence_score":0.0}',
-    );
-    expect(prompt).toContain("Note:\nThe original note body.");
+    expect(prompt).toContain("list_categories");
+    expect(prompt).toContain("search_similar_notes");
+    expect(prompt).toContain("file_existing");
+    expect(prompt).not.toContain("propose_child");
+    expect(prompt).not.toContain("Note:");
   });
 });
 
@@ -117,67 +126,85 @@ ${reply({
 
 describe("classifyFile", () => {
   it("classifies through an injected client without making a network request", async () => {
-    const complete = vi.fn<ModelClient["complete"]>(async () =>
-      reply({ category: "meeting_notes", confidence_score: 0.88 }),
+    const runTools = vi.fn<ModelClient["runTools"]>(
+      async ({ user, execute }) => {
+        expect(user).toBe("Meeting action items");
+        const outcome = await execute(
+          "file_existing",
+          JSON.parse(
+            reply({ category: "meeting_notes", confidence_score: 0.88 }),
+          ),
+        );
+        if (!outcome.terminal) throw new Error(outcome.content);
+      },
     );
 
     await expect(
-      classifyFile(modelClient(complete), "Meeting action items"),
+      classifyFile(modelClient(runTools), "Meeting action items"),
     ).resolves.toEqual({
       category: "meeting_notes",
       summary: "A concise project plan.",
       tags: ["planning"],
       confidence_score: 0.88,
     });
-    expect(complete).toHaveBeenCalledOnce();
-    expect(complete.mock.calls[0]?.[0]).toContain("Meeting action items");
+    expect(runTools).toHaveBeenCalledOnce();
   });
 
-  it("retries once after a malformed response and returns the valid retry", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
-      .mockResolvedValueOnce("not-json")
-      .mockResolvedValueOnce(reply({ category: "personal_ideas" }));
+  it("retries once after a rejected attempt and returns the valid retry", async () => {
+    const runTools = vi
+      .fn<ModelClient["runTools"]>()
+      .mockRejectedValueOnce(new Error("not-json"))
+      .mockImplementationOnce(
+        fileExisting(JSON.parse(reply({ category: "personal_ideas" }))),
+      );
 
     await expect(
-      classifyFile(modelClient(complete), "An experiment"),
+      classifyFile(modelClient(runTools), "An experiment"),
     ).resolves.toEqual(expect.objectContaining({ category: "personal_ideas" }));
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
   });
 
   it("reports failure after both schema-validation attempts are exhausted", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
-      .mockResolvedValue(reply({ category: "invented" }));
+    const runTools = vi.fn<ModelClient["runTools"]>(async ({ execute }) => {
+      const outcome = await execute(
+        "file_existing",
+        JSON.parse(reply({ category: "invented" })),
+      );
+      if (!outcome.terminal) throw new Error(outcome.content);
+    });
 
     await expect(
-      classifyFile(modelClient(complete), "Ambiguous note"),
+      classifyFile(modelClient(runTools), "Ambiguous note"),
     ).rejects.toThrow(
       /classification failed schema validation after 2 attempts: category must be a seed category id/,
     );
-    expect(complete).toHaveBeenCalledTimes(2);
+    expect(runTools).toHaveBeenCalledTimes(2);
   });
 
   it("uses the configured attempt count for client errors", async () => {
-    const complete = vi
-      .fn<ModelClient["complete"]>()
+    const runTools = vi
+      .fn<ModelClient["runTools"]>()
       .mockRejectedValue(new Error("provider unavailable"));
 
     await expect(
-      classifyFile(modelClient(complete), "Note", { maxAttempts: 1 }),
+      classifyFile(modelClient(runTools), "Note", { maxAttempts: 1 }),
     ).rejects.toThrow(
       /classification failed schema validation after 1 attempts: provider unavailable/,
     );
-    expect(complete).toHaveBeenCalledOnce();
+    expect(runTools).toHaveBeenCalledOnce();
   });
 
   it("routes confidence below 0.50 to reference material and preserves the request", async () => {
-    const complete = vi.fn(async () =>
-      reply({ category: "project_specs", confidence_score: 0.49 }),
+    const runTools = vi.fn(
+      fileExisting(
+        JSON.parse(
+          reply({ category: "project_specs", confidence_score: 0.49 }),
+        ),
+      ),
     );
 
     await expect(
-      classifyFile(modelClient(complete), "Unclear note"),
+      classifyFile(modelClient(runTools), "Unclear note"),
     ).resolves.toEqual({
       category: "reference_material",
       requested_category: "project_specs",
@@ -188,10 +215,12 @@ describe("classifyFile", () => {
   });
 
   it("keeps the requested category at the exact confidence boundary", async () => {
-    const complete = vi.fn(async () => reply({ confidence_score: 0.5 }));
+    const runTools = vi.fn(
+      fileExisting(JSON.parse(reply({ confidence_score: 0.5 }))),
+    );
 
     await expect(
-      classifyFile(modelClient(complete), "Boundary note"),
+      classifyFile(modelClient(runTools), "Boundary note"),
     ).resolves.toEqual({
       category: "project_specs",
       summary: "A concise project plan.",

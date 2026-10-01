@@ -15,10 +15,18 @@
 export const DEFAULT_POLL_INTERVAL_MS = 1_000;
 
 /**
+ * How many of the latest filed notes the organizer may see.
+ *
+ * Recent filings show current habits. The cap keeps that list from crowding
+ * out the note and the similar-note search (DEC-027).
+ */
+export const RECENT_FILING_LIMIT = 8;
+
+/**
  * How many times a file is classified before it is audited as failed.
  *
- * Shared by the fixed and adaptive classifiers. A retry sends a fresh request
- * and carries no history from the rejected attempt, so this only recovers from
- * a malformed response, never from a model that keeps refusing.
+ * Shared by the fixed and adaptive classifiers. A retry starts a fresh tool
+ * loop and carries no history from the rejected attempt, so this only recovers
+ * from a malformed placement, never from a model that keeps refusing.
  */
 export const DEFAULT_CLASSIFICATION_ATTEMPTS = 2;

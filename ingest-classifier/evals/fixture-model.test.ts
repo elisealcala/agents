@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildClassificationPrompt,
-  parseClassification,
-} from "../src/classification/classifier.ts";
+import { classifyFile } from "../src/classification/classifier.ts";
 import type { SeedCategoryId } from "../src/taxonomy/taxonomy.ts";
 import { FixtureModelClient } from "./fixture-model.ts";
 
@@ -34,15 +31,11 @@ describe("FixtureModelClient", () => {
       "reference_material",
     ],
   ])(
-    "classifies a natural %s from the same full prompt used by M1",
+    "files a natural %s through the organizer",
     async (_name, note, category) => {
-      const client = new FixtureModelClient();
-
-      const raw = await client.complete(buildClassificationPrompt(note));
-
-      expect(parseClassification(raw)).toEqual(
-        expect.objectContaining({ category }),
-      );
+      await expect(
+        classifyFile(new FixtureModelClient(), note),
+      ).resolves.toEqual(expect.objectContaining({ category }));
     },
   );
 });

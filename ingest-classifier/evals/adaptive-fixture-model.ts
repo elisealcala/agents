@@ -1,10 +1,14 @@
 /**
- * A deterministic stand-in for a model, for the adaptive evaluations.
+ * A deterministic stand-in for the organizer, for the adaptive evaluations.
  *
- * Reads the live taxonomy out of the prompt and answers as a real provider
- * would, so nesting and dedup can be exercised offline and reproducibly.
+ * Looks up the live taxonomy, then calls one terminal tool, so nesting and
+ * dedup can be exercised offline and reproducibly.
  */
-import type { ModelClient } from "../src/providers/types.ts";
+import type {
+  CompletionInput,
+  ModelClient,
+  ToolRunInput,
+} from "../src/providers/types.ts";
 
 type Existing = { id: string; terms: string[]; tags: string[] };
 
@@ -31,67 +35,83 @@ const SEED_RULES: Existing[] = [
   },
 ];
 
+const GROUNDED_ANSWER =
+  "The grounded notes emphasize measuring cache hit rate, choosing explicit TTLs, and rehearsing invalidation before rollout.";
+
 export class AdaptiveFixtureModelClient implements ModelClient {
-  readonly provider = "openai" as const;
+  readonly provider = "anthropic" as const;
   readonly model = "offline-adaptive-fixture-model";
 
-  async complete(prompt: string): Promise<string> {
-    if (prompt.includes("Grounded excerpts:")) {
-      return "The grounded notes emphasize measuring cache hit rate, choosing explicit TTLs, and rehearsing invalidation before rollout.";
-    }
-    const note = extractNote(prompt).toLowerCase();
-    if (note.includes("dedup candidate")) {
-      return existing("architecture_code", ["engineering"]);
-    }
-    if (note.includes("bicycle") || note.includes("bike")) {
-      return hasCategory(prompt, "equipment_maintenance")
-        ? existing("equipment_maintenance", ["maintenance"])
-        : proposed(
+  async complete(input: CompletionInput): Promise<string> {
+    const text = `${input.system}\n${input.user}`;
+    if (text.includes("Grounded excerpts:")) return GROUNDED_ANSWER;
+    throw new Error("adaptive fixture complete is only for grounded answers");
+  }
+
+  async runTools(input: ToolRunInput): Promise<void> {
+    const listed = await input.execute("list_categories", {});
+    if (listed.isError) throw new Error(listed.content);
+    const outcome = await input.execute(
+      ...decision(input.user.toLowerCase(), listed.content),
+    );
+    if (!outcome.terminal) throw new Error(outcome.content);
+  }
+}
+
+function decision(
+  note: string,
+  taxonomy: string,
+): ["file_existing" | "propose_child", Record<string, unknown>] {
+  if (note.includes("dedup candidate")) {
+    return ["file_existing", existing("architecture_code", ["engineering"])];
+  }
+  if (note.includes("bicycle") || note.includes("bike")) {
+    return hasCategory(taxonomy, "equipment_maintenance")
+      ? ["file_existing", existing("equipment_maintenance", ["maintenance"])]
+      : [
+          "propose_child",
+          proposed(
             "personal_ideas",
             "Equipment Maintenance",
             "Guides and notes about maintaining and repairing bicycles and equipment.",
             ["maintenance"],
-          );
-    }
-    if (note.includes("recipe") || note.includes("cooking")) {
-      return hasCategory(prompt, "recipes_cooking")
-        ? existing("recipes_cooking", ["cooking"])
-        : proposed(
+          ),
+        ];
+  }
+  if (note.includes("recipe") || note.includes("cooking")) {
+    return hasCategory(taxonomy, "recipes_cooking")
+      ? ["file_existing", existing("recipes_cooking", ["cooking"])]
+      : [
+          "propose_child",
+          proposed(
             "personal_ideas",
             "Recipes Cooking",
             "Recipes, cooking techniques, ingredients, and meal preparation notes.",
             ["cooking"],
-          );
-    }
-    const rule = SEED_RULES.find(({ terms }) =>
-      terms.some((term) => note.includes(term)),
-    );
-    return existing(
-      rule?.id ?? "reference_material",
-      rule?.tags ?? ["reference"],
-    );
+          ),
+        ];
   }
+  const rule = SEED_RULES.find(({ terms }) =>
+    terms.some((term) => note.includes(term)),
+  );
+  return [
+    "file_existing",
+    existing(rule?.id ?? "reference_material", rule?.tags ?? ["reference"]),
+  ];
 }
 
-function extractNote(prompt: string): string {
-  const marker = "\nNote:\n";
-  const index = prompt.lastIndexOf(marker);
-  return index >= 0 ? prompt.slice(index + marker.length) : prompt;
+function hasCategory(taxonomy: string, id: string): boolean {
+  return taxonomy.includes(`- ${id} (`);
 }
 
-function hasCategory(prompt: string, id: string): boolean {
-  return prompt.includes(`- ${id} (`);
-}
-
-function existing(category: string, tags: string[]): string {
-  return JSON.stringify({
-    action: "existing",
+function existing(category: string, tags: string[]): Record<string, unknown> {
+  return {
     category,
     summary: `Offline fixture summary for ${category}.`,
     tags,
     confidence_score: 0.94,
     fit_score: 0.92,
-  });
+  };
 }
 
 function proposed(
@@ -99,14 +119,14 @@ function proposed(
   name: string,
   definition: string,
   tags: string[],
-): string {
-  return JSON.stringify({
-    action: "propose",
+): Record<string, unknown> {
+  return {
     parent,
-    proposal: { name, definition },
+    name,
+    definition,
     summary: `Offline fixture summary for ${name}.`,
     tags,
     confidence_score: 0.9,
     fit_score: 0.35,
-  });
+  };
 }

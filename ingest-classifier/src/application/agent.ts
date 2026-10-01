@@ -26,6 +26,8 @@ import { answerQuestion, retrieveDocuments } from "../search/retrieval.ts";
 import { runClusteringJob } from "../search/clustering.ts";
 import { getLibraryPaths } from "../taxonomy/taxonomy.ts";
 import { acquireIngestionLock } from "./ingestion-lock.ts";
+import { assertOrganizerTemplate } from "../classification/organizer.ts";
+import type { TraceObserver } from "../observability/trace.ts";
 import {
   OperationFailure,
   type OperationResult,
@@ -64,6 +66,10 @@ export type IngestAgentOptions = {
   embeddingProvider?: EmbeddingProvider;
   dedupThreshold?: number;
   pollIntervalMs?: number;
+  fitThreshold?: number;
+  promptTemplate?: string;
+  exampleLimit?: number;
+  trace?: { observer: TraceObserver; parentId: string | null };
 };
 
 /** Anything the agent owns and must close, in reverse order of creation. */
@@ -89,6 +95,15 @@ export class IngestAgent {
     }
     if (options.pollIntervalMs !== undefined) {
       z.number().int().positive().parse(options.pollIntervalMs);
+    }
+    if (options.fitThreshold !== undefined) {
+      z.number().gt(0).lte(1).parse(options.fitThreshold);
+    }
+    if (options.exampleLimit !== undefined) {
+      z.number().int().nonnegative().parse(options.exampleLimit);
+    }
+    if (options.promptTemplate !== undefined) {
+      assertOrganizerTemplate(options.promptTemplate);
     }
   }
 
@@ -139,21 +154,23 @@ export class IngestAgent {
       searchReportSchema,
       input,
       async (args) =>
-        this.withDocuments(async (documents) => {
-          const hits = await retrieveDocuments({
-            ...args,
-            documents,
-            embeddingProvider: this.embedding,
-          });
-          return success({
-            sources: hits.map(({ document, score, snippet }) => ({
-              path: document.destinationPath,
-              summary: document.summary,
-              score,
-              snippet,
-            })),
-          });
-        }),
+        this.withToolSpan("search_documents", args, () =>
+          this.withDocuments(async (documents) => {
+            const hits = await retrieveDocuments({
+              ...args,
+              documents,
+              embeddingProvider: this.embedding,
+            });
+            return success({
+              sources: hits.map(({ document, score, snippet }) => ({
+                path: document.destinationPath,
+                summary: document.summary,
+                score,
+                snippet,
+              })),
+            });
+          }),
+        ),
     );
   }
 
@@ -164,7 +181,7 @@ export class IngestAgent {
       answerSchema,
       input,
       async (args) => {
-        const model = this.getModel();
+        const model = this.tracedModel(this.getModel());
         return this.withDocuments(async (documents) =>
           success(
             await answerQuestion({
@@ -172,6 +189,7 @@ export class IngestAgent {
               documents,
               embeddingProvider: this.embedding,
               model,
+              trace: this.options.trace,
             }),
           ),
         );
@@ -290,7 +308,68 @@ export class IngestAgent {
       embeddingProvider: this.embedding,
       dedupThreshold: this.options.dedupThreshold,
       pollIntervalMs: this.options.pollIntervalMs,
+      fitThreshold: this.options.fitThreshold,
+      promptTemplate: this.options.promptTemplate,
+      exampleLimit: this.options.exampleLimit,
+      trace: this.options.trace,
     });
+  }
+
+  /** Record one tool span around work when a studio trace is attached. */
+  private async withToolSpan<T>(
+    name: string,
+    input: unknown,
+    work: () => Promise<T>,
+  ): Promise<T> {
+    const trace = this.options.trace;
+    if (!trace) return work();
+    const id = trace.observer.start({
+      parentId: trace.parentId,
+      name,
+      kind: "tool",
+      input,
+    });
+    try {
+      const result = await work();
+      trace.observer.end(id, { status: "ok", output: result });
+      return result;
+    } catch (error) {
+      trace.observer.end(id, {
+        status: "failed",
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  /** Record `complete` as a model span when a studio trace is attached. */
+  private tracedModel(client: ModelClient): ModelClient {
+    const trace = this.options.trace;
+    if (!trace) return client;
+    return {
+      provider: client.provider,
+      model: client.model,
+      complete: async (input) => {
+        const id = trace.observer.start({
+          parentId: trace.parentId,
+          name: "model",
+          kind: "model",
+          input,
+        });
+        try {
+          const text = await client.complete(input);
+          trace.observer.end(id, { status: "ok", output: text });
+          return text;
+        } catch (error) {
+          trace.observer.end(id, {
+            status: "failed",
+            error: error instanceof Error ? error.message : String(error),
+          });
+          throw error;
+        }
+      },
+      runTools: (input) => client.runTools(input),
+    };
   }
 
   private async withResources<T>(

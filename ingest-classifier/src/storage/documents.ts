@@ -134,6 +134,18 @@ export class DocumentStore {
     return rows.map(mapRow);
   }
 
+  /** Newest filed notes first. `id` order matches insertion order. */
+  listRecent(limit: number): StoredDocument[] {
+    if (!Number.isInteger(limit) || limit < 1) {
+      throw new Error("recent filing limit must be a positive integer");
+    }
+    return (
+      this.db
+        .prepare("SELECT * FROM documents ORDER BY id DESC LIMIT ?")
+        .all(limit) as DocumentRow[]
+    ).map(mapRow);
+  }
+
   private migrate(): void {
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS documents (

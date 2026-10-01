@@ -11,7 +11,7 @@ Consequences: Later slices (classify file/records) stay in this package and call
 ## DEC-002: OpenAI, Anthropic, and xAI via env
 
 Date: 2026-09-02
-Status: accepted
+Status: superseded (DEC-025)
 Context: First slice must be able to pick GPT, Claude, or a third model. Cursor SDK is not this slice; the third provider is the xAI API.
 Decision: `INGEST_PROVIDER` (`openai` \| `anthropic` \| `xai`) + `INGEST_MODEL`. Keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`. No defaults — an explicit pick is required. xAI uses the OpenAI SDK with `baseURL: https://api.x.ai/v1`.
 Consequences: Classification later calls `ModelClient.complete` (or structured output) so swapping vendors is an env change.
@@ -184,3 +184,33 @@ Status: accepted
 Context: `OperationResult` was `{ status; data: T | null; error: OperationError | null }`, which permitted nonsense states and forced `result.error?.code ?? "OPERATION_FAILED"` fallbacks the compiler could not discharge. `AuditRecord` carried eight nullable fields whose invariant was already enforced in SQL by `complete()`, so `backfillDocumentEmbeddings` needed a guard purely to satisfy the compiler.
 Decision: `OperationResult<T>` becomes three arms: `success` carries data and no error; `partial` carries both; `error` carries an error and carries data only for a batch in which every item failed, because `batchResult` still reports what it attempted. Every non-success arm therefore has a non-null error, and the CLI fallback is deleted. `AuditRecord` keeps its shape and gains a `CompletedAuditRecord` narrowed subtype plus an `isCompletedAuditRecord` predicate, rather than becoming a hard discriminated union.
 Consequences: `resultSchema` now builds a `z.discriminatedUnion`, so the JSON Schema advertised as each MCP tool's `outputSchema` is a union rather than a flat object; the MCP worker evaluation validates every response against it and passes. `AuditRecord` was deliberately not split into union arms: a database written before the `complete()` guard existed can hold an `ok` row with gaps, and a hard union would force `mapRow` either to drop such rows or to throw. The predicate keeps them readable and countable, and backfill still reports them as failures exactly as before.
+
+## DEC-024: The local scratch library stays untracked
+
+Date: 2026-09-29
+Status: accepted
+Context: `./my-library` is the README example root. Running the classifier there creates `ingest-classifier.sqlite` plus its WAL sidecars, and later runs add notes, a lock directory, and `cluster-suggestions.json`. Those files showed up as untracked.
+Decision: Gitignore the whole `ingest-classifier/my-library/` directory. The SQLite file remains the library database (no Docker, no separate server). Evaluations keep using temporary directories.
+Consequences: Personal notes dropped into that library are also untracked. A library meant to be shared needs a different root that is not named `my-library`.
+
+## DEC-025: Code owns the organizing sequence; Anthropic tools only place the note
+
+Date: 2026-09-29
+Status: accepted
+Context: Classification sent one user message and parsed JSON. A free-choice librarian that picks among ingest, search, ask, and clustering would need prompt guidance to stay on task, and it could still skip a step. Organizing a note already follows one sequence.
+Decision: Anthropic is the only model provider. `INGEST_MODEL` and `ANTHROPIC_API_KEY` are required; `INGEST_PROVIDER` is gone. Supersedes DEC-002 and the multi-provider half of DEC-006. The pipeline still parses, deduplicates, moves, and audits. The classify step is a system prompt plus a tool loop: `list_categories`, `search_similar_notes`, then exactly one of `file_existing` or `propose_child`. The fixed path omits `propose_child`. Terminal tools return a placement; they do not create folders or move files. Invalid tool input is a tool error and the loop continues. An attempt that ends without a placement uses the existing retry budget and does not keep that attempt's history. Grounded answers stay a system prompt plus a user message, with no tools.
+## DEC-026: Local studio server records traces without changing CLI or MCP
+
+Date: 2026-10-01
+Status: accepted
+Context: The studio needs to run the six application operations, edit the organizer prompt and thresholds, read library memory, and show the tool loop. `runTools` returned nothing a caller could watch, and the prompt and fit threshold were constants.
+Decision: `pnpm serve` starts a tRPC server on `127.0.0.1`. An optional trace observer records model turns and organizer tool calls, including rejected calls and discarded retries, in `studio_runs` and `studio_spans` in the library database. Prompt, fit threshold, dedup threshold, and example limit overrides live in `studio_settings` in that same database. Unset values keep the built-in defaults. CLI and MCP pass no observer and no overrides.
+Consequences: The studio imports `AppRouter` from `ingest-classifier/server` and does not call the pipeline in-process. Organizer tools are spans, not procedures. The server TypeScript project disables `isolatedDeclarations` because the router type is inferred.
+
+## DEC-027: One organizer agent, and the adaptive classifier is a PreToolUse hook
+
+Date: 2026-10-01
+Status: accepted
+Context: A second category agent would review the placement, but the review rules are already deterministic. The useful agent shape is the one in Claude's tool-use guide: a system prompt, tools, and a loop. Recent filings were not visible to that loop.
+Decision: The adaptive path is one agent. It calls `list_recent_filings`, then `search_similar_notes`, then `list_categories`, and finishes with `file_existing` or `propose_child`. The agent chooses the best existing category, or the parent of one new child. It does not open a new root. The adaptive classifier runs as a `PreToolUse` hook on the two finishing tools, using the Claude Agent SDK hook contract: allow, or deny with a reason the model sees. Lookup tools are not hooked. Sibling dedup, the folder, and the move stay in the pipeline. The worked example is `docs/building-the-agent.md`.
+Consequences: A recent streak of filings cannot by itself choose the category; the prompt tells the agent to follow similar notes and corrections when they disagree. A denied placement does not record and does not move the file. The fixed-taxonomy path does not register this hook and does not offer `list_recent_filings`.

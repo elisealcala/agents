@@ -16,7 +16,8 @@ import {
 import { getLibraryPaths } from "./taxonomy/taxonomy.ts";
 
 loadEnvFile();
-const SMOKE_PROMPT = "Reply with the provider and model id.";
+const SMOKE_SYSTEM = "Reply with the model id and nothing else.";
+const SMOKE_USER = "Identify yourself.";
 
 function readRoot(args: string[]): string {
   const index = args.indexOf("--root");
@@ -94,7 +95,10 @@ async function main(): Promise<void> {
   const [command = "smoke", ...args] = process.argv.slice(2);
   if (command === "smoke") {
     const client = createModelClient();
-    const text = await client.complete(SMOKE_PROMPT);
+    const text = await client.complete({
+      system: SMOKE_SYSTEM,
+      user: SMOKE_USER,
+    });
     console.log(
       JSON.stringify(
         { provider: client.provider, model: client.model, text },

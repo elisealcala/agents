@@ -29,9 +29,12 @@ import {
 import { DocumentStore } from "../storage/documents.ts";
 import { CorrectionStore } from "../storage/corrections.ts";
 import { moveWithoutOverwrite, restoreMovedFile } from "../files/file-mover.ts";
-import { DEFAULT_POLL_INTERVAL_MS } from "../defaults.ts";
+import { DEFAULT_POLL_INTERVAL_MS, RECENT_FILING_LIMIT } from "../defaults.ts";
 import { parseMarkdownFile } from "../files/markdown.ts";
+import { retrieveDocuments } from "../search/retrieval.ts";
+import type { RecentFiling, SimilarNote } from "../classification/organizer.ts";
 import type { ModelClient } from "../providers/types.ts";
+import { observeToolLoop, type TraceObserver } from "../observability/trace.ts";
 import {
   ensureLibraryLayout,
   getLibraryPaths,
@@ -63,6 +66,10 @@ export type AdaptivePipelineOptions = {
   dedupThreshold?: number;
   pollIntervalMs?: number;
   examples?: () => string[];
+  fitThreshold?: number;
+  promptTemplate?: string;
+  exampleLimit?: number;
+  trace?: { observer: TraceObserver; parentId: string | null };
 };
 
 export class AdaptiveIngestPipeline {
@@ -77,6 +84,11 @@ export class AdaptiveIngestPipeline {
   private readonly inFlight = new Set<string>();
   private readonly pollIntervalMs: number;
   private readonly examples: () => string[];
+  private readonly fitThreshold: number | undefined;
+  private readonly promptTemplate: string | undefined;
+  private readonly trace:
+    | { observer: TraceObserver; parentId: string | null }
+    | undefined;
   private categoryMutationTail: Promise<void> = Promise.resolve();
 
   constructor(options: AdaptivePipelineOptions) {
@@ -107,7 +119,11 @@ export class AdaptiveIngestPipeline {
       throw error;
     }
     this.examples =
-      options.examples ?? (() => this.corrections.toPromptExamples());
+      options.examples ??
+      (() => this.corrections.toPromptExamples(options.exampleLimit));
+    this.fitThreshold = options.fitThreshold;
+    this.promptTemplate = options.promptTemplate;
+    this.trace = options.trace;
   }
 
   async initialize(): Promise<void> {
@@ -181,6 +197,13 @@ export class AdaptiveIngestPipeline {
           `stat:${metadata.size}:${metadata.mtimeMs}`,
           "non-Markdown file",
         );
+        this.finishStage(
+          this.trace?.parentId ?? null,
+          "skip",
+          "stage",
+          { sourcePath },
+          { status: "ok", output: { reason: "non-Markdown file" } },
+        );
         return { status: "skipped", sourcePath, reason: "non-Markdown file" };
       }
       return await this.processMarkdown(sourcePath);
@@ -192,6 +215,14 @@ export class AdaptiveIngestPipeline {
   private async processMarkdown(
     sourcePath: string,
   ): Promise<AdaptiveProcessResult> {
+    const fileSpan = this.trace?.observer.start({
+      parentId: this.trace.parentId,
+      name: path.basename(sourcePath),
+      kind: "stage",
+      input: { sourcePath },
+    });
+    let classifySpan: string | undefined;
+    let classifyOpen = false;
     let auditId: number | undefined;
     let sha256: string | undefined;
     let stage: "parse" | "classify" | "move" = "parse";
@@ -206,12 +237,20 @@ export class AdaptiveIngestPipeline {
           model: this.client.model,
         }) ?? undefined;
       if (auditId === undefined) {
+        this.endSpan(fileSpan, {
+          status: "ok",
+          output: { reason: "already audited or processing" },
+        });
         return {
           status: "skipped",
           sourcePath,
           reason: "already audited or processing",
         };
       }
+      this.finishStage(fileSpan ?? null, "parse", "stage", undefined, {
+        status: "ok",
+        output: { characters: parsed.cleanText.length },
+      });
       this.audit.recordEvent(
         auditId,
         "parse",
@@ -220,12 +259,38 @@ export class AdaptiveIngestPipeline {
       );
 
       stage = "classify";
-      const classification = await classifyWithLiveTaxonomy(
-        this.client,
-        parsed.cleanText,
-        this.categories.list(),
-        { examples: this.examples() },
-      );
+      classifySpan = this.trace?.observer.start({
+        parentId: fileSpan ?? this.trace?.parentId ?? null,
+        name: "classify",
+        kind: "stage",
+      });
+      classifyOpen = classifySpan !== undefined;
+      let classification: AdaptiveClassification;
+      try {
+        classification = await classifyWithLiveTaxonomy(
+          this.client,
+          parsed.cleanText,
+          this.categories.list(),
+          {
+            examples: this.examples(),
+            searchSimilar: () => this.findSimilarNotes(parsed.cleanText),
+            listRecent: () => this.listRecentFilings(),
+            fitThreshold: this.fitThreshold,
+            promptTemplate: this.promptTemplate,
+            observe:
+              this.trace && classifySpan
+                ? observeToolLoop(this.trace.observer, classifySpan)
+                : undefined,
+          },
+        );
+      } catch (error) {
+        this.endSpan(classifySpan, {
+          status: "failed",
+          error: error instanceof Error ? error.message : String(error),
+        });
+        classifyOpen = false;
+        throw error;
+      }
       const resolution =
         classification.action === "existing"
           ? {
@@ -236,6 +301,14 @@ export class AdaptiveIngestPipeline {
               classification.proposal,
               classification.parent,
             );
+      this.endSpan(classifySpan, {
+        status: "ok",
+        output: {
+          categoryAction: resolution.categoryAction,
+          categoryId: resolution.category.id,
+        },
+      });
+      classifyOpen = false;
       this.audit.setClassification(auditId, {
         category: resolution.category.id,
         summary: classification.summary,
@@ -287,6 +360,14 @@ export class AdaptiveIngestPipeline {
         await restoreMovedFile(moved.destinationPath, sourcePath);
         throw error;
       }
+      this.finishStage(fileSpan ?? null, "move", "stage", undefined, {
+        status: "ok",
+        output: { destinationPath: moved.destinationPath },
+      });
+      this.endSpan(fileSpan, {
+        status: "ok",
+        output: { destinationPath: moved.destinationPath },
+      });
       return {
         status: "ok",
         sourcePath,
@@ -306,8 +387,63 @@ export class AdaptiveIngestPipeline {
         stage,
         error: message,
       });
+      if (classifyOpen) {
+        this.endSpan(classifySpan, { status: "failed", error: message });
+      }
+      this.endSpan(fileSpan, { status: "failed", error: message });
       return { status: "failed", sourcePath, error: message };
     }
+  }
+
+  /** Open a stage span and close it at once when a trace is attached. */
+  private finishStage(
+    parentId: string | null,
+    name: string,
+    kind: "stage",
+    input: unknown,
+    result: { status: "ok" | "failed"; output?: unknown; error?: string },
+  ): void {
+    if (!this.trace) return;
+    const id = this.trace.observer.start({
+      parentId,
+      name,
+      kind,
+      input,
+    });
+    this.trace.observer.end(id, result);
+  }
+
+  private endSpan(
+    id: string | undefined,
+    result: { status: "ok" | "failed"; output?: unknown; error?: string },
+  ): void {
+    if (!this.trace || !id) return;
+    this.trace.observer.end(id, result);
+  }
+
+  /** Similar notes already on disk. The query is this note, not a model-written string. */
+  /** Latest filed notes. The organizer sees habits; similarity still decides the fit. */
+  private listRecentFilings(): RecentFiling[] {
+    return this.documents.listRecent(RECENT_FILING_LIMIT).map((document) => ({
+      path: document.destinationPath,
+      categoryId: document.categoryId,
+      summary: document.summary,
+      filedAt: document.createdAt,
+    }));
+  }
+
+  private async findSimilarNotes(cleanText: string): Promise<SimilarNote[]> {
+    const hits = await retrieveDocuments({
+      question: cleanText,
+      documents: this.documents,
+      embeddingProvider: this.embeddingProvider,
+    });
+    return hits.map(({ document, snippet }) => ({
+      path: document.destinationPath,
+      categoryId: document.categoryId,
+      summary: document.summary,
+      snippet,
+    }));
   }
 
   private requireCategory(id: string): StoredCategory {

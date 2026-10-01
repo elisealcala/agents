@@ -8,7 +8,8 @@
  */
 import type { DocumentStore, StoredDocument } from "../storage/documents.ts";
 import { cosineSimilarity, type EmbeddingProvider } from "./embeddings.ts";
-import type { ModelClient } from "../providers/types.ts";
+import type { CompletionInput, ModelClient } from "../providers/types.ts";
+import type { TraceObserver } from "../observability/trace.ts";
 
 /** How many excerpts a question retrieves before the model sees them. */
 export const DEFAULT_TOP_K = 5;
@@ -79,7 +80,10 @@ export async function retrieveDocuments(
 }
 
 /** A retrieval plus the model that turns the excerpts into an answer. */
-export type AnswerOptions = RetrievalOptions & { model?: ModelClient };
+export type AnswerOptions = RetrievalOptions & {
+  model?: ModelClient;
+  trace?: { observer: TraceObserver; parentId: string | null };
+};
 
 /** Answer from retrieved excerpts, citing them. Needs a model client. */
 export async function answerQuestion(
@@ -89,7 +93,7 @@ export async function answerQuestion(
   if (!question) {
     return { answer: "Please provide a non-empty question.", sources: [] };
   }
-  const hits = await retrieveDocuments(options);
+  const hits = await retrieveForAnswer(options);
   if (!hits.length) {
     return {
       answer:
@@ -116,24 +120,57 @@ export async function answerQuestion(
   };
 }
 
-/** Build the prompt that pins the answer to the retrieved excerpts. */
+/** System prompt and user message that pin the answer to the retrieved excerpts. */
 export function buildGroundedAnswerPrompt(
   question: string,
   hits: RetrievalHit[],
-): string {
+): CompletionInput {
   const context = hits
     .map(
       ({ document, snippet }, index) =>
         `[${index + 1}] Path: ${document.destinationPath}\nSummary: ${document.summary}\nExcerpt: ${snippet}`,
     )
     .join("\n\n");
-  return `Answer the question using only the grounded excerpts below.
-If the excerpts do not contain the answer, say that clearly. Do not name or cite any path not shown below.
+  return {
+    system: `Answer the question using only the grounded excerpts in the user message.
+If the excerpts do not contain the answer, say that clearly. Do not name or cite any path not shown below.`,
+    user: `Question: ${question}\n\nGrounded excerpts:\n${context}`,
+  };
+}
 
-Question: ${question}
-
-Grounded excerpts:
-${context}`;
+/** Rank documents, recording a tool span when a studio trace is attached. */
+async function retrieveForAnswer(
+  options: AnswerOptions,
+): Promise<RetrievalHit[]> {
+  if (!options.trace) return retrieveDocuments(options);
+  const id = options.trace.observer.start({
+    parentId: options.trace.parentId,
+    name: "retrieve",
+    kind: "tool",
+    input: {
+      question: options.question,
+      topK: options.topK,
+      minimumScore: options.minimumScore,
+    },
+  });
+  try {
+    const hits = await retrieveDocuments(options);
+    options.trace.observer.end(id, {
+      status: "ok",
+      output: hits.map(({ document, score, snippet }) => ({
+        path: document.destinationPath,
+        score,
+        snippet,
+      })),
+    });
+    return hits;
+  } catch (error) {
+    options.trace.observer.end(id, {
+      status: "failed",
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
 }
 
 /** Quote the opening of a document, trimmed to a whole word. */

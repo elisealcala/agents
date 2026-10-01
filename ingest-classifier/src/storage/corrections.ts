@@ -88,6 +88,26 @@ export class CorrectionStore {
     ).map(mapRow);
   }
 
+  /** Every correction, newest first. The studio editor uses this. */
+  list(): Correction[] {
+    return (
+      this.db
+        .prepare("SELECT * FROM corrections ORDER BY id DESC")
+        .all() as CorrectionRow[]
+    ).map(mapRow);
+  }
+
+  /** Drop one correction. Returns false when the id is already gone. */
+  remove(id: number): boolean {
+    if (!Number.isInteger(id) || id < 1) {
+      throw new Error("correction id must be a positive integer");
+    }
+    const result = this.db
+      .prepare("DELETE FROM corrections WHERE id = ?")
+      .run(id);
+    return result.changes === 1;
+  }
+
   /** Corrections rendered as prompt lines for the classifier (DEC-010). */
   toPromptExamples(limit: number = DEFAULT_CORRECTION_EXAMPLE_LIMIT): string[] {
     return this.listRecent(limit).map(
