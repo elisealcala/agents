@@ -208,3 +208,7 @@ Next: Try a live library run from the studio and confirm the trace shows `list_r
 - The adaptive classifier is a `PreToolUse` hook on `file_existing|propose_child`. A deny is the tool error and the handler does not record the placement. Lookup tools are not hooked. Dedup and the file move stay in the pipeline.
 - Wrote `docs/building-the-agent.md` as the step-by-step example against Claude's tool-use guide and the Agent SDK hook contract. Recorded DEC-027.
 - Verification: `pnpm check` passed. 213 tests across 27 files passed. All four evaluations passed. No live model calls.
+
+### 2026-10-01 — Unused type
+
+- Removed `SpanStatus` from `src/observability/trace.ts`. Nothing referenced it. Every other source file still has a caller, including the fixed-taxonomy pipeline and classifier.

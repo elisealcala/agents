@@ -2,6 +2,8 @@
 
 ## Current focus
 
+Unused-code pass (2026-10-01): removed `SpanStatus`. The rest of the package is still called from production, evals, or tests.
+
 Organizer agent (2026-10-01, DEC-027): one Claude tool-calling agent places each note. It starts with recent filings, then similar notes, then the taxonomy, and finishes with `file_existing` or `propose_child`. The adaptive classifier is a `PreToolUse` hook on those two finishing tools. The walkthrough is `docs/building-the-agent.md`.
 
 Local studio server (2026-10-01, DEC-026): `pnpm serve` exposes the six operations, library memory, and an optional trace of the organizer tool loop. CLI and MCP stay unchanged when no trace or settings override is set.

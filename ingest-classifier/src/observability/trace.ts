@@ -9,9 +9,6 @@ import type { ToolLoopEvent } from "../providers/types.ts";
 /** What kind of step a span is. An orchestrator reuses the same four. */
 export type SpanKind = "action" | "stage" | "model" | "tool";
 
-/** `running` is still open. `ok` and `failed` are finished. */
-export type SpanStatus = "running" | "ok" | "failed";
-
 /** Opens a span. The returned id is what children use as `parentId`. */
 export type TraceObserver = {
   start(span: {

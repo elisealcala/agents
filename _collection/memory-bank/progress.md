@@ -75,3 +75,13 @@ Next: product work stays in `ingest-classifier/memory-bank/` and `studio/memory-
 
 - `studio/` exists. It is a local Next.js app. Its design and progress stay in `studio/memory-bank/`.
 - GitHub Actions gains a `studio` job (`pnpm check`, `pnpm build`) beside the classifier job.
+
+### 2026-10-01 — project-manager
+
+- Registered `project-manager/` from `_template`. Product work uses its own bank.
+
+### 2026-10-01 — Scope correction
+- `project-manager/` is a design-only scaffold. Its unrequested runtime and CI registration were removed after user clarification. Product design stays in its own bank.
+
+### 2026-10-01 — Publication
+- User authorized committing and pushing remaining local work to GitHub `main`.

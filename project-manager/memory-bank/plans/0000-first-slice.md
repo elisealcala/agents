@@ -1,0 +1,2 @@
+# First slice
+Create projects and collect Studio notes into the classifier library. Retain retryable intake state. Analyze notes and retrieved evidence through bounded tool turns; validate source references. Persist projects, reports, conversational turns, and traces in manager SQLite. Register a dedicated Studio workspace and CI. Verification is delegated after all implementation and test writing.
