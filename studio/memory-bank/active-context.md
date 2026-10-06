@@ -1,6 +1,8 @@
 # Active context — studio
 
 ## Current focus
+Clean-checkout CI typechecking is repaired: typecheck now runs `next typegen` before `tsc` (DEC-005). The verifier reproduced the original LayoutProps error and passed the complete check twice in a fresh copy, including after removing generated types and compiler cache.
+
 Verified local UI for classifier and the accuracy-first project-manager pilot. The optional registry kind selects a dedicated manager workspace; omitted kinds preserve classifier navigation and behavior.
 
 The Studio development server is currently running at `http://localhost:3000` for local use.

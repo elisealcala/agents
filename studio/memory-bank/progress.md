@@ -50,3 +50,9 @@ Next: Configure the live local pilot and measure real-model behavior separately.
 ### 2026-10-05 — Local Studio session
 - Started the Studio development server at `http://localhost:3000` and confirmed the home page responds successfully.
 - Confirmed the same Studio process remains available alongside classifier port 8787, manager port 8788 and dedicated project-evidence classifier port 8789. All agent identity endpoints returned successfully.
+
+### 2026-10-05 — Clean-checkout CI type generation
+- CI reported TS2304 for LayoutProps because checks run before Next.js has generated framework types. Local cached dev/build types masked the failure.
+- Updated the typecheck script to run next typegen before tsc, following the installed Next.js CLI documentation. Added README guidance and DEC-005.
+- Verifier reproduced the original LayoutProps failure with the old command. Updated pnpm check passed twice in a fresh temporary copy, including after deleting generated types and compiler cache: typecheck, lint and format all passed. All 25 dependency specifiers match the lockfile; git diff --check passed.
+- Generated routes.d.ts contains global LayoutProps and next-env.d.ts imports the generated types. The running Studio and its generated files were untouched; temporary verification files were removed. Unrelated publication notes remain outside this fix.

@@ -48,4 +48,6 @@ pnpm check
 pnpm build
 ```
 
+`pnpm typecheck` generates Next.js route/layout types before running TypeScript, so `pnpm check` also works in a clean checkout without a prior development server or build.
+
 Verified on 2026-10-01: `pnpm check` and `pnpm build` pass. The classifier server tests cover config, corrections, and an offline ingest whose trace includes `list_categories` and `file_existing`. No live model call is required for those checks.
