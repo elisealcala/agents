@@ -1,0 +1,38 @@
+{
+  "name": "project-manager",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server": "./src/server/router.ts",
+    "./contracts": "./src/application/contracts.ts"
+  },
+  "scripts": {
+    "serve": "tsx src/server/main.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint --error-on-warnings .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check",
+    "test": "vitest run",
+    "eval:accuracy": "tsx evals/accuracy.ts"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "packageManager": "pnpm@10.9.0",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.123.0",
+    "@trpc/client": "^11.19.0",
+    "@trpc/server": "^11.19.0",
+    "dotenv": "^17.4.2",
+    "ingest-classifier": "file:../ingest-classifier",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@types/node": "^26.4.1",
+    "tsx": "^4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.11"
+  }
+}

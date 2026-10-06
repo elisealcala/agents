@@ -6,6 +6,8 @@ export type RegisteredAgent = {
   id: string;
   name: string;
   url: string;
+  /** Older registries omit kind and continue to open the classifier workspace. */
+  kind?: "ingest-classifier" | "project-manager";
 };
 
 /** Prefer a local override, then the checked-in example. */
@@ -28,6 +30,9 @@ function isAgent(value: unknown): value is RegisteredAgent {
     agent.id.length > 0 &&
     typeof agent.name === "string" &&
     typeof agent.url === "string" &&
-    agent.url.startsWith("http")
+    agent.url.startsWith("http") &&
+    (agent.kind === undefined ||
+      agent.kind === "ingest-classifier" ||
+      agent.kind === "project-manager")
   );
 }

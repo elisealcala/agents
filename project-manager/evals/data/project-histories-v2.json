@@ -1,0 +1,4592 @@
+{
+  "version": "project-histories-v2",
+  "frozenAt": "2026-10-05",
+  "description": "Synthetic labeled pilot histories. Fixture grammar and adapter validate deterministic controls, not language-model accuracy. Never tune using holdout labels.",
+  "projects": [
+    {
+      "id": "project-01",
+      "name": "Atlas",
+      "split": "development",
+      "documents": [
+        {
+          "id": "project-01-note-01",
+          "sourceId": "project-01-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Atlas: note 1\n\nTeam kickoff for Atlas. This project has a distinct scope and identifier.\n\nTask \"Atlas release checklist\" has description \"Publish the Atlas release checklist\" effective 2026-01-01.\nTask \"Atlas release checklist\" has owner \"Ana Rivera\" effective 2026-01-01.\nTask \"Atlas release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-01-note-01-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas release checklist\" has description \"Publish the Atlas release checklist\" effective 2026-01-01.",
+              "start": 92,
+              "end": 198,
+              "decision": "accept"
+            },
+            {
+              "id": "project-01-note-01-fact-2",
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas release checklist\" has owner \"Ana Rivera\" effective 2026-01-01.",
+              "start": 199,
+              "end": 274,
+              "decision": "accept"
+            },
+            {
+              "id": "project-01-note-01-fact-3",
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 275,
+              "end": 353,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-01-note-02",
+          "sourceId": "project-01-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Atlas: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Atlas release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-01-note-02-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Atlas release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 101,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-01-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-01-note-03",
+          "sourceId": "project-01-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Atlas: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Atlas release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-01-note-03-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Atlas release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 119,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-01-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-01-note-04",
+          "sourceId": "project-01-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Atlas: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Atlas release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-01-note-04-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 95,
+              "end": 173,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-01-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-01-note-05",
+          "sourceId": "project-01-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Atlas: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Atlas release checklist\" has owner \"Ben Chen\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-01-note-05-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas release checklist\" has owner \"Ben Chen\" effective 2026-01-01.",
+              "start": 107,
+              "end": 180,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-01-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-01-note-06",
+          "sourceId": "project-01-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Atlas: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Atlas release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-01-note-06-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Atlas release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 80,
+              "end": 151,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-01-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-01-note-07",
+          "sourceId": "project-01-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Atlas: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Atlas release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Atlas handover\" has description \"Transfer the Atlas operations guide\" effective 2026-01-08.\nTask \"Atlas handover\" has owner \"Ana Rivera\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-01-note-07-fact-1",
+              "entity": "Atlas release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 79,
+              "end": 149,
+              "decision": "accept"
+            },
+            {
+              "id": "project-01-note-07-fact-2",
+              "entity": "Atlas handover",
+              "field": "description",
+              "value": "Transfer the Atlas operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas handover\" has description \"Transfer the Atlas operations guide\" effective 2026-01-08.",
+              "start": 150,
+              "end": 247,
+              "decision": "accept"
+            },
+            {
+              "id": "project-01-note-07-fact-3",
+              "entity": "Atlas handover",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas handover\" has owner \"Ana Rivera\" effective 2026-01-08.",
+              "start": 248,
+              "end": 314,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-01-note-06"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            },
+            {
+              "entity": "Atlas handover",
+              "field": "description",
+              "value": "Transfer the Atlas operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            },
+            {
+              "entity": "Atlas handover",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-01-note-08",
+          "sourceId": "project-01-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Atlas: note 8\n\nThe handover deadline is unknown and must remain unknown.\n\nTask \"Atlas handover\" has description \"Transfer the Atlas operations guide\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-01-note-08-fact-1",
+              "entity": "Atlas handover",
+              "field": "description",
+              "value": "Transfer the Atlas operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas handover\" has description \"Transfer the Atlas operations guide\" effective 2026-01-08.",
+              "start": 76,
+              "end": 173,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "description",
+              "value": "Publish the Atlas release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-01-note-01"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-01-note-06"
+            },
+            {
+              "entity": "Atlas release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            },
+            {
+              "entity": "Atlas handover",
+              "field": "description",
+              "value": "Transfer the Atlas operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            },
+            {
+              "entity": "Atlas handover",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-01-q1",
+          "question": "Who is the owner of Atlas release checklist?",
+          "required": [],
+          "retrievalSources": ["project-01-note-01", "project-01-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-01-q2",
+          "question": "What is the due date for Atlas release checklist?",
+          "required": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-01-note-03"
+            }
+          ],
+          "retrievalSources": ["project-01-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-01-q3",
+          "question": "What is the blocker status for Atlas release checklist?",
+          "required": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-01-note-06"
+            }
+          ],
+          "retrievalSources": ["project-01-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-01-q4",
+          "question": "Is Atlas release checklist complete?",
+          "required": [
+            {
+              "entity": "Atlas release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            }
+          ],
+          "retrievalSources": ["project-01-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-01-q5",
+          "question": "Who is the owner and what is the due date for Atlas handover?",
+          "required": [
+            {
+              "entity": "Atlas handover",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-01-note-07"
+            }
+          ],
+          "retrievalSources": ["project-01-note-07"],
+          "clarificationRequired": true,
+          "reason": "An owner is approved, but the requested due date is not stated in the source. Answer the owner and clarify the missing date."
+        }
+      ]
+    },
+    {
+      "id": "project-02",
+      "name": "Atlas Plus",
+      "split": "development",
+      "documents": [
+        {
+          "id": "project-02-note-01",
+          "sourceId": "project-02-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Atlas Plus: note 1\n\nTeam kickoff for Atlas Plus. This project has a distinct scope and identifier.\n\nTask \"Atlas Plus release checklist\" has description \"Publish the Atlas Plus release checklist\" effective 2026-01-01.\nTask \"Atlas Plus release checklist\" has owner \"Ben Chen\" effective 2026-01-01.\nTask \"Atlas Plus release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-02-note-01-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas Plus release checklist\" has description \"Publish the Atlas Plus release checklist\" effective 2026-01-01.",
+              "start": 102,
+              "end": 218,
+              "decision": "accept"
+            },
+            {
+              "id": "project-02-note-01-fact-2",
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas Plus release checklist\" has owner \"Ben Chen\" effective 2026-01-01.",
+              "start": 219,
+              "end": 297,
+              "decision": "accept"
+            },
+            {
+              "id": "project-02-note-01-fact-3",
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas Plus release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 298,
+              "end": 381,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-02-note-02",
+          "sourceId": "project-02-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Atlas Plus: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Atlas Plus release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-02-note-02-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Atlas Plus release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 106,
+              "end": 207,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-02-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-02-note-03",
+          "sourceId": "project-02-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Atlas Plus: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Atlas Plus release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-02-note-03-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Atlas Plus release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 124,
+              "end": 207,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-02-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-02-note-04",
+          "sourceId": "project-02-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Atlas Plus: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Atlas Plus release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-02-note-04-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas Plus release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 100,
+              "end": 183,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-02-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-02-note-05",
+          "sourceId": "project-02-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Atlas Plus: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Atlas Plus release checklist\" has owner \"Cara Singh\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-02-note-05-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Atlas Plus release checklist\" has owner \"Cara Singh\" effective 2026-01-01.",
+              "start": 112,
+              "end": 192,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-02-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-02-note-06",
+          "sourceId": "project-02-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Atlas Plus: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Atlas Plus release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-02-note-06-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Atlas Plus release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 85,
+              "end": 161,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-02-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-02-note-07",
+          "sourceId": "project-02-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Atlas Plus: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Atlas Plus release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Atlas Plus handover\" has description \"Transfer the Atlas Plus operations guide\" effective 2026-01-08.\nTask \"Atlas Plus handover\" has owner \"Ben Chen\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-02-note-07-fact-1",
+              "entity": "Atlas Plus release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas Plus release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 84,
+              "end": 159,
+              "decision": "accept"
+            },
+            {
+              "id": "project-02-note-07-fact-2",
+              "entity": "Atlas Plus handover",
+              "field": "description",
+              "value": "Transfer the Atlas Plus operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas Plus handover\" has description \"Transfer the Atlas Plus operations guide\" effective 2026-01-08.",
+              "start": 160,
+              "end": 267,
+              "decision": "accept"
+            },
+            {
+              "id": "project-02-note-07-fact-3",
+              "entity": "Atlas Plus handover",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Atlas Plus handover\" has owner \"Ben Chen\" effective 2026-01-08.",
+              "start": 268,
+              "end": 337,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-02-note-06"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "description",
+              "value": "Transfer the Atlas Plus operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-02-note-08",
+          "sourceId": "project-02-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Atlas Plus: note 8\n\nThe handover deadline was explicitly confirmed.\n\nTask \"Atlas Plus handover\" has due date \"2026-02-20\" effective 2026-01-10.\n",
+          "facts": [
+            {
+              "id": "project-02-note-08-fact-1",
+              "entity": "Atlas Plus handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "quote": "Task \"Atlas Plus handover\" has due date \"2026-02-20\" effective 2026-01-10.",
+              "start": 71,
+              "end": 145,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "description",
+              "value": "Publish the Atlas Plus release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-02-note-01"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-02-note-06"
+            },
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "description",
+              "value": "Transfer the Atlas Plus operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-02-note-08"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-02-q1",
+          "question": "Who is the owner of Atlas Plus release checklist?",
+          "required": [],
+          "retrievalSources": ["project-02-note-01", "project-02-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-02-q2",
+          "question": "What is the due date for Atlas Plus release checklist?",
+          "required": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-02-note-03"
+            }
+          ],
+          "retrievalSources": ["project-02-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-02-q3",
+          "question": "What is the blocker status for Atlas Plus release checklist?",
+          "required": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-02-note-06"
+            }
+          ],
+          "retrievalSources": ["project-02-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-02-q4",
+          "question": "Is Atlas Plus release checklist complete?",
+          "required": [
+            {
+              "entity": "Atlas Plus release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            }
+          ],
+          "retrievalSources": ["project-02-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-02-q5",
+          "question": "Who is the owner and what is the due date for Atlas Plus handover?",
+          "required": [
+            {
+              "entity": "Atlas Plus handover",
+              "field": "owner",
+              "value": "Ben Chen",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-02-note-07"
+            },
+            {
+              "entity": "Atlas Plus handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-02-note-08"
+            }
+          ],
+          "retrievalSources": ["project-02-note-07", "project-02-note-08"],
+          "clarificationRequired": false
+        }
+      ]
+    },
+    {
+      "id": "project-03",
+      "name": "Beacon",
+      "split": "development",
+      "documents": [
+        {
+          "id": "project-03-note-01",
+          "sourceId": "project-03-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Beacon: note 1\n\nTeam kickoff for Beacon. This project has a distinct scope and identifier.\n\nTask \"Beacon release checklist\" has description \"Publish the Beacon release checklist\" effective 2026-01-01.\nTask \"Beacon release checklist\" has owner \"Cara Singh\" effective 2026-01-01.\nTask \"Beacon release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-03-note-01-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon release checklist\" has description \"Publish the Beacon release checklist\" effective 2026-01-01.",
+              "start": 94,
+              "end": 202,
+              "decision": "accept"
+            },
+            {
+              "id": "project-03-note-01-fact-2",
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon release checklist\" has owner \"Cara Singh\" effective 2026-01-01.",
+              "start": 203,
+              "end": 279,
+              "decision": "accept"
+            },
+            {
+              "id": "project-03-note-01-fact-3",
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 280,
+              "end": 359,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-03-note-02",
+          "sourceId": "project-03-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Beacon: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Beacon release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-03-note-02-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Beacon release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 102,
+              "end": 199,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-03-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-03-note-03",
+          "sourceId": "project-03-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Beacon: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Beacon release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-03-note-03-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Beacon release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 120,
+              "end": 199,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-03-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-03-note-04",
+          "sourceId": "project-03-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Beacon: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Beacon release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-03-note-04-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 96,
+              "end": 175,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-03-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-03-note-05",
+          "sourceId": "project-03-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Beacon: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Beacon release checklist\" has owner \"Diego Torres\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-03-note-05-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon release checklist\" has owner \"Diego Torres\" effective 2026-01-01.",
+              "start": 108,
+              "end": 186,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-03-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-03-note-06",
+          "sourceId": "project-03-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Beacon: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Beacon release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-03-note-06-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Beacon release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 81,
+              "end": 153,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-03-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-03-note-07",
+          "sourceId": "project-03-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Beacon: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Beacon release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Beacon handover\" has description \"Transfer the Beacon operations guide\" effective 2026-01-08.\nTask \"Beacon handover\" has owner \"Cara Singh\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-03-note-07-fact-1",
+              "entity": "Beacon release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 80,
+              "end": 151,
+              "decision": "accept"
+            },
+            {
+              "id": "project-03-note-07-fact-2",
+              "entity": "Beacon handover",
+              "field": "description",
+              "value": "Transfer the Beacon operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon handover\" has description \"Transfer the Beacon operations guide\" effective 2026-01-08.",
+              "start": 152,
+              "end": 251,
+              "decision": "accept"
+            },
+            {
+              "id": "project-03-note-07-fact-3",
+              "entity": "Beacon handover",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon handover\" has owner \"Cara Singh\" effective 2026-01-08.",
+              "start": 252,
+              "end": 319,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-03-note-06"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "description",
+              "value": "Transfer the Beacon operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-03-note-08",
+          "sourceId": "project-03-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Beacon: note 8\n\nThe handover deadline was explicitly confirmed.\n\nTask \"Beacon handover\" has due date \"2026-02-20\" effective 2026-01-10.\n",
+          "facts": [
+            {
+              "id": "project-03-note-08-fact-1",
+              "entity": "Beacon handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "quote": "Task \"Beacon handover\" has due date \"2026-02-20\" effective 2026-01-10.",
+              "start": 67,
+              "end": 137,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "description",
+              "value": "Publish the Beacon release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-03-note-01"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-03-note-06"
+            },
+            {
+              "entity": "Beacon release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "description",
+              "value": "Transfer the Beacon operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-03-note-08"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-03-q1",
+          "question": "Who is the owner of Beacon release checklist?",
+          "required": [],
+          "retrievalSources": ["project-03-note-01", "project-03-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-03-q2",
+          "question": "What is the due date for Beacon release checklist?",
+          "required": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-03-note-03"
+            }
+          ],
+          "retrievalSources": ["project-03-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-03-q3",
+          "question": "What is the blocker status for Beacon release checklist?",
+          "required": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-03-note-06"
+            }
+          ],
+          "retrievalSources": ["project-03-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-03-q4",
+          "question": "Is Beacon release checklist complete?",
+          "required": [
+            {
+              "entity": "Beacon release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            }
+          ],
+          "retrievalSources": ["project-03-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-03-q5",
+          "question": "Who is the owner and what is the due date for Beacon handover?",
+          "required": [
+            {
+              "entity": "Beacon handover",
+              "field": "owner",
+              "value": "Cara Singh",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-03-note-07"
+            },
+            {
+              "entity": "Beacon handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-03-note-08"
+            }
+          ],
+          "retrievalSources": ["project-03-note-07", "project-03-note-08"],
+          "clarificationRequired": false
+        }
+      ]
+    },
+    {
+      "id": "project-04",
+      "name": "Beacon Mobile",
+      "split": "development",
+      "documents": [
+        {
+          "id": "project-04-note-01",
+          "sourceId": "project-04-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Beacon Mobile: note 1\n\nTeam kickoff for Beacon Mobile. This project has a distinct scope and identifier.\n\nTask \"Beacon Mobile release checklist\" has description \"Publish the Beacon Mobile release checklist\" effective 2026-01-01.\nTask \"Beacon Mobile release checklist\" has owner \"Diego Torres\" effective 2026-01-01.\nTask \"Beacon Mobile release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-04-note-01-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon Mobile release checklist\" has description \"Publish the Beacon Mobile release checklist\" effective 2026-01-01.",
+              "start": 108,
+              "end": 230,
+              "decision": "accept"
+            },
+            {
+              "id": "project-04-note-01-fact-2",
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon Mobile release checklist\" has owner \"Diego Torres\" effective 2026-01-01.",
+              "start": 231,
+              "end": 316,
+              "decision": "accept"
+            },
+            {
+              "id": "project-04-note-01-fact-3",
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon Mobile release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 317,
+              "end": 403,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-04-note-02",
+          "sourceId": "project-04-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Beacon Mobile: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Beacon Mobile release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-04-note-02-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Beacon Mobile release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 109,
+              "end": 213,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-04-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-04-note-03",
+          "sourceId": "project-04-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Beacon Mobile: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Beacon Mobile release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-04-note-03-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Beacon Mobile release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 127,
+              "end": 213,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-04-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-04-note-04",
+          "sourceId": "project-04-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Beacon Mobile: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Beacon Mobile release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-04-note-04-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon Mobile release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 103,
+              "end": 189,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-04-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-04-note-05",
+          "sourceId": "project-04-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Beacon Mobile: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Beacon Mobile release checklist\" has owner \"Eva Park\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-04-note-05-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Beacon Mobile release checklist\" has owner \"Eva Park\" effective 2026-01-01.",
+              "start": 115,
+              "end": 196,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-04-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-04-note-06",
+          "sourceId": "project-04-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Beacon Mobile: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Beacon Mobile release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-04-note-06-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Beacon Mobile release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 88,
+              "end": 167,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-04-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-04-note-07",
+          "sourceId": "project-04-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Beacon Mobile: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Beacon Mobile release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Beacon Mobile handover\" has description \"Transfer the Beacon Mobile operations guide\" effective 2026-01-08.\nTask \"Beacon Mobile handover\" has owner \"Diego Torres\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-04-note-07-fact-1",
+              "entity": "Beacon Mobile release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon Mobile release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 87,
+              "end": 165,
+              "decision": "accept"
+            },
+            {
+              "id": "project-04-note-07-fact-2",
+              "entity": "Beacon Mobile handover",
+              "field": "description",
+              "value": "Transfer the Beacon Mobile operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon Mobile handover\" has description \"Transfer the Beacon Mobile operations guide\" effective 2026-01-08.",
+              "start": 166,
+              "end": 279,
+              "decision": "accept"
+            },
+            {
+              "id": "project-04-note-07-fact-3",
+              "entity": "Beacon Mobile handover",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon Mobile handover\" has owner \"Diego Torres\" effective 2026-01-08.",
+              "start": 280,
+              "end": 356,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-04-note-06"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            },
+            {
+              "entity": "Beacon Mobile handover",
+              "field": "description",
+              "value": "Transfer the Beacon Mobile operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            },
+            {
+              "entity": "Beacon Mobile handover",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-04-note-08",
+          "sourceId": "project-04-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Beacon Mobile: note 8\n\nThe handover deadline is unknown and must remain unknown.\n\nTask \"Beacon Mobile handover\" has description \"Transfer the Beacon Mobile operations guide\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-04-note-08-fact-1",
+              "entity": "Beacon Mobile handover",
+              "field": "description",
+              "value": "Transfer the Beacon Mobile operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Beacon Mobile handover\" has description \"Transfer the Beacon Mobile operations guide\" effective 2026-01-08.",
+              "start": 84,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "description",
+              "value": "Publish the Beacon Mobile release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-04-note-01"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-04-note-06"
+            },
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            },
+            {
+              "entity": "Beacon Mobile handover",
+              "field": "description",
+              "value": "Transfer the Beacon Mobile operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            },
+            {
+              "entity": "Beacon Mobile handover",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-04-q1",
+          "question": "Who is the owner of Beacon Mobile release checklist?",
+          "required": [],
+          "retrievalSources": ["project-04-note-01", "project-04-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-04-q2",
+          "question": "What is the due date for Beacon Mobile release checklist?",
+          "required": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-04-note-03"
+            }
+          ],
+          "retrievalSources": ["project-04-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-04-q3",
+          "question": "What is the blocker status for Beacon Mobile release checklist?",
+          "required": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-04-note-06"
+            }
+          ],
+          "retrievalSources": ["project-04-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-04-q4",
+          "question": "Is Beacon Mobile release checklist complete?",
+          "required": [
+            {
+              "entity": "Beacon Mobile release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            }
+          ],
+          "retrievalSources": ["project-04-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-04-q5",
+          "question": "Who is the owner and what is the due date for Beacon Mobile handover?",
+          "required": [
+            {
+              "entity": "Beacon Mobile handover",
+              "field": "owner",
+              "value": "Diego Torres",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-04-note-07"
+            }
+          ],
+          "retrievalSources": ["project-04-note-07"],
+          "clarificationRequired": true,
+          "reason": "An owner is approved, but the requested due date is not stated in the source. Answer the owner and clarify the missing date."
+        }
+      ]
+    },
+    {
+      "id": "project-05",
+      "name": "Cedar",
+      "split": "development",
+      "documents": [
+        {
+          "id": "project-05-note-01",
+          "sourceId": "project-05-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Cedar: note 1\n\nTeam kickoff for Cedar. This project has a distinct scope and identifier.\n\nTask \"Cedar release checklist\" has description \"Publish the Cedar release checklist\" effective 2026-01-01.\nTask \"Cedar release checklist\" has owner \"Eva Park\" effective 2026-01-01.\nTask \"Cedar release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-05-note-01-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar release checklist\" has description \"Publish the Cedar release checklist\" effective 2026-01-01.",
+              "start": 92,
+              "end": 198,
+              "decision": "accept"
+            },
+            {
+              "id": "project-05-note-01-fact-2",
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar release checklist\" has owner \"Eva Park\" effective 2026-01-01.",
+              "start": 199,
+              "end": 272,
+              "decision": "accept"
+            },
+            {
+              "id": "project-05-note-01-fact-3",
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 273,
+              "end": 351,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-05-note-02",
+          "sourceId": "project-05-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Cedar: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Cedar release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-05-note-02-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Cedar release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 101,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-05-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-05-note-03",
+          "sourceId": "project-05-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Cedar: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Cedar release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-05-note-03-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Cedar release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 119,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-05-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-05-note-04",
+          "sourceId": "project-05-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Cedar: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Cedar release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-05-note-04-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 95,
+              "end": 173,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-05-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-05-note-05",
+          "sourceId": "project-05-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Cedar: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Cedar release checklist\" has owner \"Fatima Ali\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-05-note-05-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar release checklist\" has owner \"Fatima Ali\" effective 2026-01-01.",
+              "start": 107,
+              "end": 182,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-05-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-05-note-06",
+          "sourceId": "project-05-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Cedar: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Cedar release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-05-note-06-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Cedar release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 80,
+              "end": 151,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-05-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-05-note-07",
+          "sourceId": "project-05-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Cedar: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Cedar release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Cedar handover\" has description \"Transfer the Cedar operations guide\" effective 2026-01-08.\nTask \"Cedar handover\" has owner \"Eva Park\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-05-note-07-fact-1",
+              "entity": "Cedar release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 79,
+              "end": 149,
+              "decision": "accept"
+            },
+            {
+              "id": "project-05-note-07-fact-2",
+              "entity": "Cedar handover",
+              "field": "description",
+              "value": "Transfer the Cedar operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar handover\" has description \"Transfer the Cedar operations guide\" effective 2026-01-08.",
+              "start": 150,
+              "end": 247,
+              "decision": "accept"
+            },
+            {
+              "id": "project-05-note-07-fact-3",
+              "entity": "Cedar handover",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar handover\" has owner \"Eva Park\" effective 2026-01-08.",
+              "start": 248,
+              "end": 312,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-05-note-06"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "description",
+              "value": "Transfer the Cedar operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-05-note-08",
+          "sourceId": "project-05-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Cedar: note 8\n\nThe handover deadline was explicitly confirmed.\n\nTask \"Cedar handover\" has due date \"2026-02-20\" effective 2026-01-10.\n",
+          "facts": [
+            {
+              "id": "project-05-note-08-fact-1",
+              "entity": "Cedar handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "quote": "Task \"Cedar handover\" has due date \"2026-02-20\" effective 2026-01-10.",
+              "start": 66,
+              "end": 135,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "description",
+              "value": "Publish the Cedar release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-05-note-01"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-05-note-06"
+            },
+            {
+              "entity": "Cedar release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "description",
+              "value": "Transfer the Cedar operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-05-note-08"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-05-q1",
+          "question": "Who is the owner of Cedar release checklist?",
+          "required": [],
+          "retrievalSources": ["project-05-note-01", "project-05-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-05-q2",
+          "question": "What is the due date for Cedar release checklist?",
+          "required": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-05-note-03"
+            }
+          ],
+          "retrievalSources": ["project-05-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-05-q3",
+          "question": "What is the blocker status for Cedar release checklist?",
+          "required": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-05-note-06"
+            }
+          ],
+          "retrievalSources": ["project-05-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-05-q4",
+          "question": "Is Cedar release checklist complete?",
+          "required": [
+            {
+              "entity": "Cedar release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            }
+          ],
+          "retrievalSources": ["project-05-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-05-q5",
+          "question": "Who is the owner and what is the due date for Cedar handover?",
+          "required": [
+            {
+              "entity": "Cedar handover",
+              "field": "owner",
+              "value": "Eva Park",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-05-note-07"
+            },
+            {
+              "entity": "Cedar handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-05-note-08"
+            }
+          ],
+          "retrievalSources": ["project-05-note-07", "project-05-note-08"],
+          "clarificationRequired": false
+        }
+      ]
+    },
+    {
+      "id": "project-06",
+      "name": "Cedar Next",
+      "split": "holdout",
+      "documents": [
+        {
+          "id": "project-06-note-01",
+          "sourceId": "project-06-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Cedar Next: note 1\n\nTeam kickoff for Cedar Next. This project has a distinct scope and identifier.\n\nTask \"Cedar Next release checklist\" has description \"Publish the Cedar Next release checklist\" effective 2026-01-01.\nTask \"Cedar Next release checklist\" has owner \"Fatima Ali\" effective 2026-01-01.\nTask \"Cedar Next release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-06-note-01-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar Next release checklist\" has description \"Publish the Cedar Next release checklist\" effective 2026-01-01.",
+              "start": 102,
+              "end": 218,
+              "decision": "accept"
+            },
+            {
+              "id": "project-06-note-01-fact-2",
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar Next release checklist\" has owner \"Fatima Ali\" effective 2026-01-01.",
+              "start": 219,
+              "end": 299,
+              "decision": "accept"
+            },
+            {
+              "id": "project-06-note-01-fact-3",
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar Next release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 300,
+              "end": 383,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-06-note-02",
+          "sourceId": "project-06-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Cedar Next: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Cedar Next release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-06-note-02-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Cedar Next release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 106,
+              "end": 207,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-06-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-06-note-03",
+          "sourceId": "project-06-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Cedar Next: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Cedar Next release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-06-note-03-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Cedar Next release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 124,
+              "end": 207,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-06-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-06-note-04",
+          "sourceId": "project-06-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Cedar Next: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Cedar Next release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-06-note-04-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar Next release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 100,
+              "end": 183,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-06-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-06-note-05",
+          "sourceId": "project-06-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Cedar Next: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Cedar Next release checklist\" has owner \"Gabe Wilson\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-06-note-05-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Cedar Next release checklist\" has owner \"Gabe Wilson\" effective 2026-01-01.",
+              "start": 112,
+              "end": 193,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-06-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-06-note-06",
+          "sourceId": "project-06-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Cedar Next: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Cedar Next release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-06-note-06-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Cedar Next release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 85,
+              "end": 161,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-06-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-06-note-07",
+          "sourceId": "project-06-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Cedar Next: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Cedar Next release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Cedar Next handover\" has description \"Transfer the Cedar Next operations guide\" effective 2026-01-08.\nTask \"Cedar Next handover\" has owner \"Fatima Ali\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-06-note-07-fact-1",
+              "entity": "Cedar Next release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar Next release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 84,
+              "end": 159,
+              "decision": "accept"
+            },
+            {
+              "id": "project-06-note-07-fact-2",
+              "entity": "Cedar Next handover",
+              "field": "description",
+              "value": "Transfer the Cedar Next operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar Next handover\" has description \"Transfer the Cedar Next operations guide\" effective 2026-01-08.",
+              "start": 160,
+              "end": 267,
+              "decision": "accept"
+            },
+            {
+              "id": "project-06-note-07-fact-3",
+              "entity": "Cedar Next handover",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Cedar Next handover\" has owner \"Fatima Ali\" effective 2026-01-08.",
+              "start": 268,
+              "end": 339,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-06-note-06"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "description",
+              "value": "Transfer the Cedar Next operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-06-note-08",
+          "sourceId": "project-06-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Cedar Next: note 8\n\nThe handover deadline was explicitly confirmed.\n\nTask \"Cedar Next handover\" has due date \"2026-02-20\" effective 2026-01-10.\n",
+          "facts": [
+            {
+              "id": "project-06-note-08-fact-1",
+              "entity": "Cedar Next handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "quote": "Task \"Cedar Next handover\" has due date \"2026-02-20\" effective 2026-01-10.",
+              "start": 71,
+              "end": 145,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "description",
+              "value": "Publish the Cedar Next release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-06-note-01"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-06-note-06"
+            },
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "description",
+              "value": "Transfer the Cedar Next operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-06-note-08"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-06-q1",
+          "question": "Who is the owner of Cedar Next release checklist?",
+          "required": [],
+          "retrievalSources": ["project-06-note-01", "project-06-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-06-q2",
+          "question": "What is the due date for Cedar Next release checklist?",
+          "required": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-06-note-03"
+            }
+          ],
+          "retrievalSources": ["project-06-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-06-q3",
+          "question": "What is the blocker status for Cedar Next release checklist?",
+          "required": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-06-note-06"
+            }
+          ],
+          "retrievalSources": ["project-06-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-06-q4",
+          "question": "Is Cedar Next release checklist complete?",
+          "required": [
+            {
+              "entity": "Cedar Next release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            }
+          ],
+          "retrievalSources": ["project-06-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-06-q5",
+          "question": "Who is the owner and what is the due date for Cedar Next handover?",
+          "required": [
+            {
+              "entity": "Cedar Next handover",
+              "field": "owner",
+              "value": "Fatima Ali",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-06-note-07"
+            },
+            {
+              "entity": "Cedar Next handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-06-note-08"
+            }
+          ],
+          "retrievalSources": ["project-06-note-07", "project-06-note-08"],
+          "clarificationRequired": false
+        }
+      ]
+    },
+    {
+      "id": "project-07",
+      "name": "Delta",
+      "split": "holdout",
+      "documents": [
+        {
+          "id": "project-07-note-01",
+          "sourceId": "project-07-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Delta: note 1\n\nTeam kickoff for Delta. This project has a distinct scope and identifier.\n\nTask \"Delta release checklist\" has description \"Publish the Delta release checklist\" effective 2026-01-01.\nTask \"Delta release checklist\" has owner \"Gabe Wilson\" effective 2026-01-01.\nTask \"Delta release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-07-note-01-fact-1",
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta release checklist\" has description \"Publish the Delta release checklist\" effective 2026-01-01.",
+              "start": 92,
+              "end": 198,
+              "decision": "accept"
+            },
+            {
+              "id": "project-07-note-01-fact-2",
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta release checklist\" has owner \"Gabe Wilson\" effective 2026-01-01.",
+              "start": 199,
+              "end": 275,
+              "decision": "accept"
+            },
+            {
+              "id": "project-07-note-01-fact-3",
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 276,
+              "end": 354,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-07-note-02",
+          "sourceId": "project-07-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Delta: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Delta release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-07-note-02-fact-1",
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Delta release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 101,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-07-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-07-note-03",
+          "sourceId": "project-07-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Delta: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Delta release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-07-note-03-fact-1",
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Delta release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 119,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-07-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-07-note-04",
+          "sourceId": "project-07-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Delta: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Delta release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-07-note-04-fact-1",
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 95,
+              "end": 173,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-07-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-07-note-05",
+          "sourceId": "project-07-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Delta: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Delta release checklist\" has owner \"Hana Ito\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-07-note-05-fact-1",
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta release checklist\" has owner \"Hana Ito\" effective 2026-01-01.",
+              "start": 107,
+              "end": 180,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-07-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-07-note-06",
+          "sourceId": "project-07-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Delta: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Delta release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-07-note-06-fact-1",
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Delta release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 80,
+              "end": 151,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-07-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-07-note-07",
+          "sourceId": "project-07-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Delta: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Delta release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Delta handover\" has description \"Transfer the Delta operations guide\" effective 2026-01-08.\nTask \"Delta handover\" has owner \"Gabe Wilson\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-07-note-07-fact-1",
+              "entity": "Delta release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 79,
+              "end": 149,
+              "decision": "accept"
+            },
+            {
+              "id": "project-07-note-07-fact-2",
+              "entity": "Delta handover",
+              "field": "description",
+              "value": "Transfer the Delta operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta handover\" has description \"Transfer the Delta operations guide\" effective 2026-01-08.",
+              "start": 150,
+              "end": 247,
+              "decision": "accept"
+            },
+            {
+              "id": "project-07-note-07-fact-3",
+              "entity": "Delta handover",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta handover\" has owner \"Gabe Wilson\" effective 2026-01-08.",
+              "start": 248,
+              "end": 315,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-07-note-06"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            },
+            {
+              "entity": "Delta handover",
+              "field": "description",
+              "value": "Transfer the Delta operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            },
+            {
+              "entity": "Delta handover",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-07-note-08",
+          "sourceId": "project-07-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Delta: note 8\n\nThe handover deadline is unknown and must remain unknown.\n\nTask \"Delta handover\" has description \"Transfer the Delta operations guide\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-07-note-08-fact-1",
+              "entity": "Delta handover",
+              "field": "description",
+              "value": "Transfer the Delta operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta handover\" has description \"Transfer the Delta operations guide\" effective 2026-01-08.",
+              "start": 76,
+              "end": 173,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta release checklist",
+              "field": "description",
+              "value": "Publish the Delta release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-07-note-01"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-07-note-06"
+            },
+            {
+              "entity": "Delta release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            },
+            {
+              "entity": "Delta handover",
+              "field": "description",
+              "value": "Transfer the Delta operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            },
+            {
+              "entity": "Delta handover",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-07-q1",
+          "question": "Who is the owner of Delta release checklist?",
+          "required": [],
+          "retrievalSources": ["project-07-note-01", "project-07-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-07-q2",
+          "question": "What is the due date for Delta release checklist?",
+          "required": [
+            {
+              "entity": "Delta release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-07-note-03"
+            }
+          ],
+          "retrievalSources": ["project-07-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-07-q3",
+          "question": "What is the blocker status for Delta release checklist?",
+          "required": [
+            {
+              "entity": "Delta release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-07-note-06"
+            }
+          ],
+          "retrievalSources": ["project-07-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-07-q4",
+          "question": "Is Delta release checklist complete?",
+          "required": [
+            {
+              "entity": "Delta release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            }
+          ],
+          "retrievalSources": ["project-07-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-07-q5",
+          "question": "Who is the owner and what is the due date for Delta handover?",
+          "required": [
+            {
+              "entity": "Delta handover",
+              "field": "owner",
+              "value": "Gabe Wilson",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-07-note-07"
+            }
+          ],
+          "retrievalSources": ["project-07-note-07"],
+          "clarificationRequired": true,
+          "reason": "An owner is approved, but the requested due date is not stated in the source. Answer the owner and clarify the missing date."
+        }
+      ]
+    },
+    {
+      "id": "project-08",
+      "name": "Delta Integration",
+      "split": "holdout",
+      "documents": [
+        {
+          "id": "project-08-note-01",
+          "sourceId": "project-08-note-01",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-01",
+          "markdown": "# Delta Integration: note 1\n\nTeam kickoff for Delta Integration. This project has a distinct scope and identifier.\n\nTask \"Delta Integration release checklist\" has description \"Publish the Delta Integration release checklist\" effective 2026-01-01.\nTask \"Delta Integration release checklist\" has owner \"Hana Ito\" effective 2026-01-01.\nTask \"Delta Integration release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-08-note-01-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta Integration release checklist\" has description \"Publish the Delta Integration release checklist\" effective 2026-01-01.",
+              "start": 116,
+              "end": 246,
+              "decision": "accept"
+            },
+            {
+              "id": "project-08-note-01-fact-2",
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta Integration release checklist\" has owner \"Hana Ito\" effective 2026-01-01.",
+              "start": 247,
+              "end": 332,
+              "decision": "accept"
+            },
+            {
+              "id": "project-08-note-01-fact-3",
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta Integration release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 333,
+              "end": 423,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-08-note-02",
+          "sourceId": "project-08-note-02",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-03",
+          "markdown": "# Delta Integration: note 2\n\nSecurity review is still outstanding. Intake may fail once before durable storage.\n\nTask \"Delta Integration release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.\n",
+          "facts": [
+            {
+              "id": "project-08-note-02-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "quote": "Task \"Delta Integration release checklist\" has blocker \"Waiting for security approval\" effective 2026-01-03.",
+              "start": 113,
+              "end": 221,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-08-note-02"
+            }
+          ],
+          "challenge": "retry-storage"
+        },
+        {
+          "id": "project-08-note-03",
+          "sourceId": "project-08-note-03",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-05",
+          "markdown": "# Delta Integration: note 3\n\nThe delivery date was rescheduled after review. Submit this exact source twice to challenge retries.\n\nTask \"Delta Integration release checklist\" has due date \"2026-02-14\" effective 2026-01-05.\n",
+          "facts": [
+            {
+              "id": "project-08-note-03-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "quote": "Task \"Delta Integration release checklist\" has due date \"2026-02-14\" effective 2026-01-05.",
+              "start": 131,
+              "end": 221,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-08-note-02"
+            }
+          ],
+          "challenge": "duplicate-submit"
+        },
+        {
+          "id": "project-08-note-04",
+          "sourceId": "project-08-note-04",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Delta Integration: note 4\n\nHistorical quotation from the kickoff follows; it is not a new commitment.\n\n> Task \"Delta Integration release checklist\" has due date \"2026-02-10\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-08-note-04-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-10",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta Integration release checklist\" has due date \"2026-02-10\" effective 2026-01-01.",
+              "start": 107,
+              "end": 197,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-08-note-02"
+            }
+          ],
+          "challenge": "missing-embedding-and-historical-quote"
+        },
+        {
+          "id": "project-08-note-05",
+          "sourceId": "project-08-note-05",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-06",
+          "markdown": "# Delta Integration: note 5\n\nTwo notes disagree about responsibility. Leave this assertion pending for clarification.\n\nTask \"Delta Integration release checklist\" has owner \"Ana Rivera\" effective 2026-01-01.\n",
+          "facts": [
+            {
+              "id": "project-08-note-05-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Ana Rivera",
+              "effectiveDate": "2026-01-01",
+              "quote": "Task \"Delta Integration release checklist\" has owner \"Ana Rivera\" effective 2026-01-01.",
+              "start": 119,
+              "end": 206,
+              "decision": "pending"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "Waiting for security approval",
+              "effectiveDate": "2026-01-03",
+              "sourceId": "project-08-note-02"
+            }
+          ],
+          "challenge": "unresolved-conflict"
+        },
+        {
+          "id": "project-08-note-06",
+          "sourceId": "project-08-note-06",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-07",
+          "markdown": "# Delta Integration: note 6\n\nSecurity approved the work and the blocker has been resolved.\n\nTask \"Delta Integration release checklist\" has blocker \"none\" effective 2026-01-07.\n",
+          "facts": [
+            {
+              "id": "project-08-note-06-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "quote": "Task \"Delta Integration release checklist\" has blocker \"none\" effective 2026-01-07.",
+              "start": 92,
+              "end": 175,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-08-note-06"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-08-note-07",
+          "sourceId": "project-08-note-07",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-08",
+          "markdown": "# Delta Integration: note 7\n\nThe checklist was delivered. Begin a separate handover task.\n\nTask \"Delta Integration release checklist\" has status \"done\" effective 2026-01-08.\nTask \"Delta Integration handover\" has description \"Transfer the Delta Integration operations guide\" effective 2026-01-08.\nTask \"Delta Integration handover\" has owner \"Hana Ito\" effective 2026-01-08.\n",
+          "facts": [
+            {
+              "id": "project-08-note-07-fact-1",
+              "entity": "Delta Integration release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta Integration release checklist\" has status \"done\" effective 2026-01-08.",
+              "start": 91,
+              "end": 173,
+              "decision": "accept"
+            },
+            {
+              "id": "project-08-note-07-fact-2",
+              "entity": "Delta Integration handover",
+              "field": "description",
+              "value": "Transfer the Delta Integration operations guide",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta Integration handover\" has description \"Transfer the Delta Integration operations guide\" effective 2026-01-08.",
+              "start": 174,
+              "end": 295,
+              "decision": "accept"
+            },
+            {
+              "id": "project-08-note-07-fact-3",
+              "entity": "Delta Integration handover",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-08",
+              "quote": "Task \"Delta Integration handover\" has owner \"Hana Ito\" effective 2026-01-08.",
+              "start": 296,
+              "end": 372,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-08-note-06"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "description",
+              "value": "Transfer the Delta Integration operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            }
+          ],
+          "challenge": null
+        },
+        {
+          "id": "project-08-note-08",
+          "sourceId": "project-08-note-08",
+          "sourceVersion": "1",
+          "sourceDate": "2026-01-10",
+          "markdown": "# Delta Integration: note 8\n\nThe handover deadline was explicitly confirmed.\n\nTask \"Delta Integration handover\" has due date \"2026-02-20\" effective 2026-01-10.\n",
+          "facts": [
+            {
+              "id": "project-08-note-08-fact-1",
+              "entity": "Delta Integration handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "quote": "Task \"Delta Integration handover\" has due date \"2026-02-20\" effective 2026-01-10.",
+              "start": 78,
+              "end": 159,
+              "decision": "accept"
+            }
+          ],
+          "checkpoint": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "description",
+              "value": "Publish the Delta Integration release checklist",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-01",
+              "sourceId": "project-08-note-01"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-08-note-06"
+            },
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "description",
+              "value": "Transfer the Delta Integration operations guide",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-08-note-08"
+            }
+          ],
+          "challenge": null
+        }
+      ],
+      "questions": [
+        {
+          "id": "project-08-q1",
+          "question": "Who is the owner of Delta Integration release checklist?",
+          "required": [],
+          "retrievalSources": ["project-08-note-01", "project-08-note-05"],
+          "clarificationRequired": true,
+          "reason": "Owner has an unresolved conflicting assertion; do not present the last approved owner as definitive."
+        },
+        {
+          "id": "project-08-q2",
+          "question": "What is the due date for Delta Integration release checklist?",
+          "required": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "due_date",
+              "value": "2026-02-14",
+              "effectiveDate": "2026-01-05",
+              "sourceId": "project-08-note-03"
+            }
+          ],
+          "retrievalSources": ["project-08-note-03"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-08-q3",
+          "question": "What is the blocker status for Delta Integration release checklist?",
+          "required": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "blocker",
+              "value": "none",
+              "effectiveDate": "2026-01-07",
+              "sourceId": "project-08-note-06"
+            }
+          ],
+          "retrievalSources": ["project-08-note-06"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-08-q4",
+          "question": "Is Delta Integration release checklist complete?",
+          "required": [
+            {
+              "entity": "Delta Integration release checklist",
+              "field": "status",
+              "value": "done",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            }
+          ],
+          "retrievalSources": ["project-08-note-07"],
+          "clarificationRequired": false
+        },
+        {
+          "id": "project-08-q5",
+          "question": "Who is the owner and what is the due date for Delta Integration handover?",
+          "required": [
+            {
+              "entity": "Delta Integration handover",
+              "field": "owner",
+              "value": "Hana Ito",
+              "effectiveDate": "2026-01-08",
+              "sourceId": "project-08-note-07"
+            },
+            {
+              "entity": "Delta Integration handover",
+              "field": "due_date",
+              "value": "2026-02-20",
+              "effectiveDate": "2026-01-10",
+              "sourceId": "project-08-note-08"
+            }
+          ],
+          "retrievalSources": ["project-08-note-07", "project-08-note-08"],
+          "clarificationRequired": false
+        }
+      ]
+    }
+  ]
+}

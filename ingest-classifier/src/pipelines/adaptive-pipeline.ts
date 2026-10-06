@@ -174,6 +174,21 @@ export class AdaptiveIngestPipeline {
     );
   }
 
+  /**
+   * Organize precisely one known inbox path, without scanning unrelated notes.
+   * Application callers must hold the ingestion lock, as with scanOnce().
+   */
+  async ingestFile(sourcePath: string): Promise<AdaptiveProcessResult> {
+    const resolved = path.resolve(sourcePath);
+    if (path.dirname(resolved) !== this.paths.inbox) {
+      throw new Error(
+        "Targeted ingestion requires a file in the library inbox.",
+      );
+    }
+    await this.initialize();
+    return this.processDetectedPath(resolved);
+  }
+
   async watch(signal?: AbortSignal): Promise<void> {
     await this.scanOnce();
     while (!signal?.aborted) {

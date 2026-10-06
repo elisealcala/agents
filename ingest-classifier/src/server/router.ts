@@ -31,6 +31,12 @@ import { DocumentStore } from "../storage/documents.ts";
 import type { StudioStore, StudioRun, StudioSpan } from "../storage/studio.ts";
 import { DEFAULT_CATEGORY_DEDUP_THRESHOLD } from "../taxonomy/category-dedup.ts";
 import { getLibraryPaths } from "../taxonomy/taxonomy.ts";
+import { createEvidenceAgent, type EvidenceAgent } from "../evidence/agent.ts";
+import {
+  evidenceIngestInputSchema,
+  evidenceReadInputSchema,
+  evidenceSearchInputSchema,
+} from "../evidence/contracts.ts";
 
 /** How often the SSE stream pings so a quiet run is not treated as dead. */
 const SSE_PING_MS = 15_000;
@@ -90,6 +96,28 @@ const followInput = z.object({
 });
 
 export const appRouter = t.router({
+  evidence: t.router({
+    ingest: t.procedure
+      .input(evidenceIngestInputSchema)
+      .mutation(({ ctx, input }) =>
+        withEvidence(ctx, (agent) => agent.ingest(input)),
+      ),
+    read: t.procedure
+      .input(evidenceReadInputSchema)
+      .query(({ ctx, input }) =>
+        withEvidence(ctx, (agent) => agent.read(input)),
+      ),
+    search: t.procedure
+      .input(evidenceSearchInputSchema)
+      .query(({ ctx, input }) =>
+        withEvidence(ctx, (agent) => agent.search(input)),
+      ),
+    retryIndex: t.procedure
+      .input(evidenceReadInputSchema)
+      .mutation(({ ctx, input }) =>
+        withEvidence(ctx, (agent) => agent.retryIndex(input)),
+      ),
+  }),
   agent: t.router({
     identity: t.procedure.query(({ ctx }) => {
       let model: { provider: string; model: string } | null = null;
@@ -265,6 +293,26 @@ export const appRouter = t.router({
 });
 
 export type AppRouter = typeof appRouter;
+
+async function withEvidence<T>(
+  ctx: StudioContext,
+  operation: (agent: EvidenceAgent) => Promise<T>,
+): Promise<T> {
+  const config = effectiveConfig(ctx);
+  const agent = createEvidenceAgent({
+    root: ctx.root,
+    createModel: ctx.createModel,
+    fitThreshold: config.fitThreshold,
+    dedupThreshold: config.dedupThreshold,
+    exampleLimit: config.exampleLimit,
+    promptTemplate: ctx.store.readSettings().promptTemplate ?? undefined,
+  });
+  try {
+    return await operation(agent);
+  } finally {
+    await agent.close();
+  }
+}
 
 /** Build a caller for tests. The HTTP server uses the same router. */
 export function createStudioCaller(

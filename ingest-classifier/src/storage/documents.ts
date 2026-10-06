@@ -8,9 +8,10 @@
  */
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { isCompletedAuditRecord, type AuditStore } from "./audit.ts";
 import type { EmbeddingProvider } from "../search/embeddings.ts";
-import { parseMarkdownFile } from "../files/markdown.ts";
+import { markdownToText, parseMarkdownFile } from "../files/markdown.ts";
 
 /** `missing` marks a document whose embedding failed and needs a backfill. */
 export type EmbeddingStatus = "ready" | "missing";
@@ -121,6 +122,32 @@ export class DocumentStore {
     return row ? mapRow(row) : null;
   }
 
+  /** A project-evidence backfill must never reread an editable category copy. */
+  immutableMarkdown(auditId: number): string | null {
+    const table = this.db
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'project_evidence'",
+      )
+      .get();
+    if (!table) return null;
+    const row = this.db
+      .prepare(`SELECT e.markdown, e.checksum FROM project_evidence e
+      LEFT JOIN audit_records a ON a.id = ?
+      WHERE e.audit_id = ? OR (a.source_sha256 = e.checksum AND
+        a.source_path LIKE '%/' || e.document_ref || '.md')
+      LIMIT 1`)
+      .get(auditId, auditId) as
+      | { markdown: string; checksum: string }
+      | undefined;
+    if (!row) return null;
+    const checksum = createHash("sha256")
+      .update(row.markdown, "utf8")
+      .digest("hex");
+    if (checksum !== row.checksum)
+      throw new Error("Immutable evidence checksum verification failed.");
+    return row.markdown;
+  }
+
   list(status?: EmbeddingStatus): StoredDocument[] {
     const rows = status
       ? (this.db
@@ -216,15 +243,19 @@ export async function backfillDocumentEmbeddings(
       continue;
     }
     try {
-      const parsed = await parseMarkdownFile(record.destinationPath);
-      const embedding = await options.embeddingProvider.embed(parsed.cleanText);
+      const snapshot = options.documents.immutableMarkdown(record.id);
+      const cleanText =
+        snapshot !== null
+          ? markdownToText(snapshot)
+          : (await parseMarkdownFile(record.destinationPath)).cleanText;
+      const embedding = await options.embeddingProvider.embed(cleanText);
       options.documents.upsert({
         auditId: record.id,
         sourcePath: record.sourcePath,
         destinationPath: record.destinationPath,
         categoryId: record.category,
         summary: record.summary,
-        cleanText: parsed.cleanText,
+        cleanText,
         embedding,
         embeddingProvider: options.embeddingProvider.id,
       });

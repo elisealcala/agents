@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: `studio/` is a local Next.js app for `ingest-classifier`. Product work stays in each agent's bank.
-Next: product work stays in `ingest-classifier/memory-bank/` and `studio/memory-bank/`.
+Current: `project-manager/` is authorized for implementation alongside `ingest-classifier/` and `studio/`. Product work stays in each agent's bank.
+Next: verify collection CI registration; keep product work in owning banks.
 
 ## Checklist
 
@@ -85,3 +85,17 @@ Next: product work stays in `ingest-classifier/memory-bank/` and `studio/memory-
 
 ### 2026-10-01 — Publication
 - User authorized committing and pushing remaining local work to GitHub `main`.
+
+### 2026-10-05 — Authorized project-manager registration
+- User explicitly authorized implementing `project-manager/`; its product details remain in its own bank.
+- Added its independent CI job and updated the collection README. Existing classifier, Studio and template CI jobs remain.
+- Verification pending; no publication requested in this task.
+
+### 2026-10-05 — Verification complete
+- Registered packages pass their verifier checks. The project-manager job has an independent lockfile/test/control-evaluation path; original classifier evaluations and Studio/template jobs are preserved.
+- Product measurement details remain in owning banks. No commit/push requested or performed.
+
+### 2026-10-05 — Atomic integration authorized
+- User requested the verified project-manager work as one atomic commit on a new branch, then integration into `main`.
+- Created `codex/project-manager` from synchronized local `main`. Pre-commit verifier audit passed scope, whitespace, formatting and commit-candidate checks; existing full verification remains applicable.
+- Integration uses a single feature commit and a fast-forward of local `main`, keeping the feature branch as a reference. No remote push is requested.

@@ -63,3 +63,17 @@ Status: accepted
 Context: New agents need a consistent source layout and ready-to-use quality tools without imposing a language on the collection.
 Decision: Keep the general template language-neutral and ship a self-contained TypeScript preset. Group source by responsibility, colocate tests, and place evaluation runners/fixtures in evals/. Use ESLint for code rules, Biome only for formatting, and TypeScript 6.0 for compatible type checks. Every TypeScript agent owns its dependencies and lockfile; GitHub Actions verifies the existing product and an assembled starter separately.
 Consequences: New agents can opt into the preset, replace its package name, and remove copied presets. Adding a product also requires adding its own CI job. The collection has no root runtime package or shared product memory.
+
+## DEC-009: Register authorized project-manager pilot
+Date: 2026-10-05
+Status: accepted
+Context: User explicitly authorized project-manager implementation after the design-only scope correction.
+Decision: Register its independent quality/test/control-evaluation CI job and link its setup from the collection README.
+Consequences: Keep its architecture, measurement and runtime details in project-manager's own memory bank. Preserve existing classifier, Studio and starter jobs.
+
+## DEC-010: Atomic project-manager integration
+Date: 2026-10-05
+Status: accepted
+Context: User requested a new project-manager branch, an atomic commit and a merge into main.
+Decision: Use `codex/project-manager` with one feature commit; fast-forward local `main` to preserve that single-commit integration.
+Consequences: Keep the branch reference. Remote publication requires its own authorization.

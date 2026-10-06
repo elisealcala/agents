@@ -1,0 +1,2247 @@
+{
+  "id": "5ab553cb-42cd-4d7d-b16e-422d4d23444d",
+  "createdAt": "2026-10-06T03:25:33.946Z",
+  "datasetVersion": "project-histories-v2",
+  "datasetChecksum": "77a13fe5fa87cf8a24e919dfdb613aa7855384580dc3c631804391f9d912d99e",
+  "mode": "fixture",
+  "model": "fixture-grammar-v1",
+  "promptVersion": "fixture-grammar-v1",
+  "split": "all",
+  "metrics": {
+    "registration.failure_no_false_confirmation": {
+      "numerator": 17,
+      "denominator": 17,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "registration.retry_recovery": {
+      "numerator": 1,
+      "denominator": 1,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "registration.missing_embedding_visible": {
+      "numerator": 1,
+      "denominator": 1,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "registration.embedding_repair": {
+      "numerator": 1,
+      "denominator": 1,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "registration.review_isolation": {
+      "numerator": 128,
+      "denominator": 128,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.registration.review_isolation": {
+      "numerator": 80,
+      "denominator": 80,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "registration.source_integrity": {
+      "numerator": 128,
+      "denominator": 128,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.registration.source_integrity": {
+      "numerator": 80,
+      "denominator": 80,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.precision": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.description.precision": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.owner.precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.due_date.precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.recall": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.description.recall": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.owner.recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.due_date.recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.precision": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.description.precision": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.owner.precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.due_date.precision": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.recall": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.description.recall": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.owner.recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.due_date.recall": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.precision": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.description.precision": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.owner.precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.due_date.precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.recall": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.description.recall": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.owner.recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.due_date.recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.precision": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.description.precision": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.owner.precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.due_date.precision": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.recall": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.description.recall": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.owner.recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.due_date.recall": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.proposal_precision": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.change_precision": {
+      "numerator": 77,
+      "denominator": 77,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.conflict_precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.history_precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.description.proposal_precision": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.owner.proposal_precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.due_date.proposal_precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.proposal_recall": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.change_recall": {
+      "numerator": 77,
+      "denominator": 77,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.conflict_recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.history_recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.no_stale_reversions": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.description.proposal_recall": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.owner.proposal_recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.due_date.proposal_recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.proposal_precision": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.change_precision": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.conflict_precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.history_precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.description.proposal_precision": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.owner.proposal_precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.due_date.proposal_precision": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.proposal_recall": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.change_recall": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.conflict_recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.history_recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.no_stale_reversions": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.description.proposal_recall": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.owner.proposal_recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.due_date.proposal_recall": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.approved_state.precision": {
+      "numerator": 301,
+      "denominator": 301,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.approved_state.recall": {
+      "numerator": 301,
+      "denominator": 301,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 64,
+      "denominator": 64,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.approved_state.precision": {
+      "numerator": 188,
+      "denominator": 188,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.approved_state.recall": {
+      "numerator": 188,
+      "denominator": 188,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 40,
+      "denominator": 40,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.registration.failure_no_false_confirmation": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.blocker.precision": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.blocker.recall": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.blocker.precision": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.blocker.recall": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.blocker.precision": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.blocker.recall": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.blocker.precision": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.blocker.recall": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.blocker.proposal_precision": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.blocker.proposal_recall": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.blocker.proposal_precision": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.blocker.proposal_recall": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "registration.duplicate_free_retry": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.registration.duplicate_free_retry": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.status.precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.extraction.status.recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.status.precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.extraction.status.recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.status.precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.extraction.status.recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.status.precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.extraction.status.recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.status.proposal_precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.reconciliation.status.proposal_recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.status.proposal_precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.reconciliation.status.proposal_recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.retrieval.required_evidence": {
+      "numerator": 53,
+      "denominator": 53,
+      "target": 0.95,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.retrieval.required_evidence": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 0.95,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.retrieval.project_filter": {
+      "numerator": 40,
+      "denominator": 40,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.retrieval.project_filter": {
+      "numerator": 25,
+      "denominator": 25,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.precision": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.completeness": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.necessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 87,
+      "denominator": 87,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 87,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "integrated.answers.one_pass.whole_case": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.precision": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.completeness": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.necessary_clarification": {
+      "numerator": 21,
+      "denominator": 21,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 54,
+      "denominator": 54,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 54,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "development.integrated.answers.one_pass.whole_case": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.precision": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.completeness": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.necessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 87,
+      "denominator": 87,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 87,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "integrated.answers.bounded.whole_case": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.precision": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.completeness": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.necessary_clarification": {
+      "numerator": 21,
+      "denominator": 21,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 54,
+      "denominator": 54,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 54,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "development.integrated.answers.bounded.whole_case": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "integrated.answers.bounded.timeouts_or_errors": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.integrated.answers.bounded.timeouts_or_errors": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.proposal_precision": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.change_precision": {
+      "numerator": 77,
+      "denominator": 77,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.conflict_precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.history_precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.description.proposal_precision": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.owner.proposal_precision": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.due_date.proposal_precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.proposal_recall": {
+      "numerator": 96,
+      "denominator": 96,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.change_recall": {
+      "numerator": 77,
+      "denominator": 77,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.conflict_recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.history_recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.no_stale_reversions": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.description.proposal_recall": {
+      "numerator": 19,
+      "denominator": 19,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.owner.proposal_recall": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.due_date.proposal_recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.proposal_precision": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.change_precision": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.conflict_precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.history_precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.description.proposal_precision": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.owner.proposal_precision": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.due_date.proposal_precision": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.proposal_recall": {
+      "numerator": 60,
+      "denominator": 60,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.change_recall": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.conflict_recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.history_recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.no_stale_reversions": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.description.proposal_recall": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.owner.proposal_recall": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.due_date.proposal_recall": {
+      "numerator": 18,
+      "denominator": 18,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.approved_state.precision": {
+      "numerator": 301,
+      "denominator": 301,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.approved_state.recall": {
+      "numerator": 301,
+      "denominator": 301,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 64,
+      "denominator": 64,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.approved_state.precision": {
+      "numerator": 188,
+      "denominator": 188,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.approved_state.recall": {
+      "numerator": 188,
+      "denominator": 188,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 40,
+      "denominator": 40,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.blocker.proposal_precision": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.blocker.proposal_recall": {
+      "numerator": 16,
+      "denominator": 16,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.blocker.proposal_precision": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.blocker.proposal_recall": {
+      "numerator": 10,
+      "denominator": 10,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.status.proposal_precision": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.reconciliation.status.proposal_recall": {
+      "numerator": 8,
+      "denominator": 8,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.status.proposal_precision": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.reconciliation.status.proposal_recall": {
+      "numerator": 5,
+      "denominator": 5,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.precision": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.completeness": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.necessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 87,
+      "denominator": 87,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 87,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "isolated.answers.one_pass.whole_case": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.precision": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.completeness": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.necessary_clarification": {
+      "numerator": 21,
+      "denominator": 21,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 54,
+      "denominator": 54,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 54,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "development.isolated.answers.one_pass.whole_case": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.precision": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.completeness": {
+      "numerator": 111,
+      "denominator": 111,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.necessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 87,
+      "denominator": 87,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 87,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "isolated.answers.bounded.whole_case": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.precision": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.completeness": {
+      "numerator": 69,
+      "denominator": 69,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.necessary_clarification": {
+      "numerator": 21,
+      "denominator": 21,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 54,
+      "denominator": 54,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 54,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "development.isolated.answers.bounded.whole_case": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "isolated.answers.bounded.timeouts_or_errors": {
+      "numerator": 120,
+      "denominator": 120,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "development.isolated.answers.bounded.timeouts_or_errors": {
+      "numerator": 75,
+      "denominator": 75,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.registration.review_isolation": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.registration.source_integrity": {
+      "numerator": 48,
+      "denominator": 48,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.precision": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.description.precision": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.owner.precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.due_date.precision": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.recall": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.description.recall": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.owner.recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.due_date.recall": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.precision": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.description.precision": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.owner.precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.due_date.precision": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.recall": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.description.recall": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.owner.recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.due_date.recall": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.proposal_precision": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.change_precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.conflict_precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.history_precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.description.proposal_precision": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.owner.proposal_precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.due_date.proposal_precision": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.proposal_recall": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.change_recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.conflict_recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.history_recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.no_stale_reversions": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.description.proposal_recall": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.owner.proposal_recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.due_date.proposal_recall": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.approved_state.precision": {
+      "numerator": 113,
+      "denominator": 113,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.approved_state.recall": {
+      "numerator": 113,
+      "denominator": 113,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.registration.failure_no_false_confirmation": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.blocker.precision": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.blocker.recall": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.blocker.precision": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.blocker.recall": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.blocker.proposal_precision": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.blocker.proposal_recall": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.registration.duplicate_free_retry": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.status.precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.extraction.status.recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.status.precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.extraction.status.recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.status.proposal_precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.reconciliation.status.proposal_recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.retrieval.required_evidence": {
+      "numerator": 20,
+      "denominator": 20,
+      "target": 0.95,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.retrieval.project_filter": {
+      "numerator": 15,
+      "denominator": 15,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.precision": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.completeness": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.necessary_clarification": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 33,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "holdout.integrated.answers.one_pass.whole_case": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.precision": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.completeness": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.necessary_clarification": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 33,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "holdout.integrated.answers.bounded.whole_case": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.integrated.answers.bounded.timeouts_or_errors": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.proposal_precision": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.change_precision": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.conflict_precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.history_precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.description.proposal_precision": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.owner.proposal_precision": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.due_date.proposal_precision": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.proposal_recall": {
+      "numerator": 36,
+      "denominator": 36,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.change_recall": {
+      "numerator": 29,
+      "denominator": 29,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.conflict_recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.history_recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.no_stale_reversions": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.description.proposal_recall": {
+      "numerator": 7,
+      "denominator": 7,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.owner.proposal_recall": {
+      "numerator": 9,
+      "denominator": 9,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.due_date.proposal_recall": {
+      "numerator": 11,
+      "denominator": 11,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.approved_state.precision": {
+      "numerator": 113,
+      "denominator": 113,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.approved_state.recall": {
+      "numerator": 113,
+      "denominator": 113,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.approved_state.exact_checkpoint": {
+      "numerator": 24,
+      "denominator": 24,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.blocker.proposal_precision": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.blocker.proposal_recall": {
+      "numerator": 6,
+      "denominator": 6,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.status.proposal_precision": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.reconciliation.status.proposal_recall": {
+      "numerator": 3,
+      "denominator": 3,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.precision": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.completeness": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.necessary_clarification": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.avoids_unnecessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 33,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "holdout.isolated.answers.one_pass.whole_case": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.one_pass.timeouts_or_errors": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.precision": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.98,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.completeness": {
+      "numerator": 42,
+      "denominator": 42,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.necessary_clarification": {
+      "numerator": 12,
+      "denominator": 12,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.avoids_unnecessary_clarification": {
+      "numerator": 33,
+      "denominator": 33,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.unnecessary_clarification_rate": {
+      "numerator": 0,
+      "denominator": 33,
+      "target": null,
+      "value": 0,
+      "passed": null
+    },
+    "holdout.isolated.answers.bounded.whole_case": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 0.9,
+      "value": 1,
+      "passed": true
+    },
+    "holdout.isolated.answers.bounded.timeouts_or_errors": {
+      "numerator": 45,
+      "denominator": 45,
+      "target": 1,
+      "value": 1,
+      "passed": true
+    }
+  },
+  "failures": [],
+  "metadata": {
+    "measurement": "Fixture grammar and lexical boundary simulator validate controls only. These scores are not LLM accuracy evidence.",
+    "datasetFrozenAt": "2026-10-05",
+    "selectedProjects": [
+      "project-01",
+      "project-02",
+      "project-03",
+      "project-04",
+      "project-05",
+      "project-06",
+      "project-07",
+      "project-08"
+    ],
+    "documents": 64,
+    "questions": 40,
+    "repetitions": 3,
+    "turns": [1, 6],
+    "topK": 5,
+    "totalRetrievalPassageBudget": 5,
+    "timeoutMs": 120000,
+    "database": "/tmp/project-manager-verifier-v2-20261005.sqlite",
+    "workerRoot": "fixture://isolated-project-evidence",
+    "workerMode": "in-memory lexical simulator",
+    "modelUsage": null,
+    "budget": {
+      "maxCostUsd": 0,
+      "scope": "offline fixture adapter"
+    },
+    "firstFailingModule": {},
+    "traceProjects": {},
+    "isolatedInputs": "Reconciliation receives gold extraction inputs. Answering receives known approved reference state. Integrated proposals are scored before review; review rejects errors and never fills omissions.",
+    "comparison": {
+      "development": {
+        "onePassWholeCase": {
+          "numerator": 75,
+          "denominator": 75,
+          "target": 0.9,
+          "value": 1,
+          "passed": true
+        },
+        "boundedWholeCase": {
+          "numerator": 75,
+          "denominator": 75,
+          "target": 0.9,
+          "value": 1,
+          "passed": true
+        },
+        "additionalTurnsSupported": false,
+        "decision": "Use additional turns only if holdout case success improves without reducing supported-claim precision. Fixture results cannot select a live orchestration policy."
+      },
+      "holdout": {
+        "onePassWholeCase": {
+          "numerator": 45,
+          "denominator": 45,
+          "target": 0.9,
+          "value": 1,
+          "passed": true
+        },
+        "boundedWholeCase": {
+          "numerator": 45,
+          "denominator": 45,
+          "target": 0.9,
+          "value": 1,
+          "passed": true
+        },
+        "additionalTurnsSupported": false,
+        "decision": "Use additional turns only if holdout case success improves without reducing supported-claim precision. Fixture results cannot select a live orchestration policy."
+      }
+    },
+    "allDefinedGatesPassed": true
+  }
+}

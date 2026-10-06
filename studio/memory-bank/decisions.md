@@ -17,7 +17,14 @@ Consequences: Studio remains a client of independent servers. Local registry ove
 
 ## DEC-003: Project-manager integration is design only
 Date: 2026-10-01
-Status: accepted
+Status: superseded
 Context: User clarified the request was for system design, not implementation.
 Decision: Remove the unrequested workspace/router dependency/registry additions. Treat the independent-manager workspace as a future proposal until implementation is requested.
 Consequences: Studio runtime remains as before this request. DEC-002 records an abandoned implementation and is not active.
+
+## DEC-004: Typed review-first project-manager workspace
+Date: 2026-10-05
+Status: accepted
+Context: The user explicitly requested implementation of the accuracy-first manager plan, including Studio note intake, review, grounded chat and evaluation inspection.
+Decision: Register the independent project-manager server on port 8788 using an optional registry kind, with omitted kinds retaining classifier behavior. Import its router as a type, keep project selection keyed to reset local state, and reuse the existing TraceView.
+Consequences: Studio proposes no state changes itself. It sends versioned review decisions to the manager, displays precise citations and human confirmations, polls persisted run state, and exposes evaluation reports read-only. Existing local registries must opt into the manager entry.

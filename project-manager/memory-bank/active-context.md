@@ -1,12 +1,20 @@
 # Active context — project-manager
 
 ## Current focus
-First local version is implemented and verified offline: 17 tests, type/lint/format checks, typed HTTP integration and Studio Webpack build passed. Input is Studio notes and existing classifier library retrieval.
+Accuracy-first local pilot implemented and verified on 2026-10-05. The independent TypeScript/tRPC/SQLite manager integrates immutable classifier evidence, reviewed versioned state, approved-fact questions and a dedicated Studio workspace.
+
+The local manager is running on port 8788 for the current Studio session, backed by the dedicated classifier on port 8789 and `project-manager/.data/evidence`.
+
+## Verified baseline
+- Manager checks and 85 tests pass; classifier checks, 223 tests and four existing evaluations pass; Studio checks and Webpack build pass.
+- HTTP and browser coverage passes review isolation, retry/recovery contracts, human provenance, project switching, citations and evaluation-to-trace navigation.
+- Corpus v2 has 64 documents/40 questions and five development/three frozen holdout projects. The fixture replay has zero failures; counts and limitations are in docs/verification.md and the recorded report.
+- Models select approved fact IDs; disputed current fields remain withheld. Intake/state writes are sequential; questions allow up to six model turns/twelve tools with five total retrieved passages.
 
 ## Next steps
-1. Configure the library path and API key; start classifier, manager and Studio using README instructions.
-2. Run real intake and model analysis; evaluate Sonnet 5.5 against Opus 5.5 on sanitized project histories.
-3. Add connectors or durable scheduling only when required.
+1. Configure the Anthropic model/key and the dedicated classifier library without a watcher, then run the documented manual live baseline.
+2. Compare policies/models using the frozen holdout and explicit budget/settings; retain extra turns only for improved live results without increased unsupported claims.
+3. Label and freeze representative sanitized project notes separately before real-world accuracy claims.
 
-## Limits
-Default Turbopack build hit this environment’s PostCSS port-binding restriction; Webpack production build passed. Live model quality, real classifier integration and browser interaction remain unverified.
+## Measurement boundary
+The recorded fixture grammar/evidence simulation measures controlled behavior, not LLM accuracy or live embedding relevance. Live gates and representative-note accuracy remain unmeasured. Manager-model evaluation caps do not include separate classifier costs. The user authorized an atomic commit on `codex/project-manager` and integration into local `main`; remote publication remains separate.

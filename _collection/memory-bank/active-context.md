@@ -1,9 +1,7 @@
 # Active context — _collection
 
 ## Current focus
-
-`studio/` and `ingest-classifier/` remain the runnable products. `project-manager/` contains a system-design proposal and its own memory bank, with no runtime.
+The verified project-manager pilot is prepared for the user-authorized atomic integration through `codex/project-manager` into local `main`. Integration uses one feature commit and a fast-forward (DEC-010). Product details and measurement results remain in owning banks.
 
 ## Next steps
-
-Keep product details in owning banks. Implement project-manager only after the user requests implementation. Local `main` was published to `origin/main` on 2026-10-01.
+Keep future product work in owning banks. Remote publication is a separate user action; Git references record the resulting commit and merge state.

@@ -32,6 +32,10 @@ See the [`ingest-classifier` README](ingest-classifier/README.md) for setup, the
 
 The [`studio`](studio/) is a local Next.js app for running that agent, editing its prompt and thresholds, reading library memory, and inspecting tool calls. Start the classifier server with `pnpm serve` inside `ingest-classifier`, then `pnpm dev` inside `studio`.
 
+## Project manager
+
+[`project-manager`](project-manager/) adds a local Studio workspace for project notes, proposed facts, human review, approved state and grounded questions. It stores evidence through a dedicated classifier library, preserves immutable citations and keeps pending conflicts outside definitive answers. Its evaluation runner includes 64 labeled synthetic documents, 40 questions and a project-level holdout. Fixture results validate controls; live and representative-note accuracy remain separate measurements. See its README for setup and evaluation commands.
+
 ## Coding-agent collection
 
 The repository is also structured as a collection of independent, runnable agents. Each agent can use a different stack (LangGraph, custom orchestration, or anything else). What they share is a **memory-bank process**, not a runtime.
@@ -85,10 +89,10 @@ rsync -a --exclude=node_modules --exclude=dist --exclude=coverage _template/ my-
 
 Follow the [template's project structure and optional TypeScript starter](_template/README.md#project-structure). Keep code grouped by responsibility, tests beside their modules, and evaluations in `evals/`. The TypeScript preset includes Biome linting and formatting, type checking, and tests without imposing TypeScript on other agents.
 
-GitHub Actions checks the current agent and a newly assembled TypeScript starter on pull requests and pushes to `main`. Run `pnpm check` and `pnpm test` inside either TypeScript package to reproduce the quality gates; `ingest-classifier` also has its three offline milestone evaluations.
+GitHub Actions checks the classifier, project manager, Studio and a newly assembled TypeScript starter on pull requests and pushes to `main`. Each package owns its checks; the classifier retains its four offline evaluations and the manager adds a synthetic control replay.
 
 Full loop: [`AGENTS.md`](AGENTS.md).
 
 ## Status
 
-The memory-bank protocol is in place, and [`ingest-classifier/`](ingest-classifier/) is the current product agent. Its classification, adaptive-taxonomy, clustering, and retrieval milestones are represented in the implementation and nested documentation.
+The collection includes [`ingest-classifier/`](ingest-classifier/), [`project-manager/`](project-manager/) and their local [`Studio`](studio/). Each keeps its own runtime and memory bank.

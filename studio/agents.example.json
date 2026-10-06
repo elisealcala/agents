@@ -3,7 +3,14 @@
     {
       "id": "ingest-classifier",
       "name": "Ingest classifier",
-      "url": "http://127.0.0.1:8787"
+      "url": "http://127.0.0.1:8787",
+      "kind": "ingest-classifier"
+    },
+    {
+      "id": "project-manager",
+      "name": "Project manager",
+      "url": "http://127.0.0.1:8788",
+      "kind": "project-manager"
     }
   ]
 }

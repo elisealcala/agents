@@ -3,7 +3,7 @@
 ## Status
 
 Current: One organizer agent. The adaptive classifier is a PreToolUse hook, and recent filings are a tool (DEC-027).
-Next: Try a live library run from the studio and confirm the trace shows `list_recent_filings` before a placement.
+Next: Manually validate live project-evidence relevance with the manager pilot, preserving the existing classifier behavior.
 
 ## Checklist
 
@@ -212,3 +212,20 @@ Next: Try a live library run from the studio and confirm the trace shows `list_r
 ### 2026-10-01 — Unused type
 
 - Removed `SpanStatus` from `src/observability/trace.ts`. Nothing referenced it. Every other source file still has a caller, including the fixed-taxonomy pipeline and classifier.
+
+### 2026-10-05 — Project evidence boundary
+
+- Added `ingest-classifier/evidence` contracts and a bounded worker with immutable SQLite Markdown snapshots, stable document references, original-content checksums, source-version identity and idempotency-key bindings.
+- Added targeted one-file adaptive ingestion under the existing library lock; snapshots persist before model construction/classification. Storage and indexing are reported separately, failed indexing remains readable, and retries recover interrupted filing without re-ingesting unrelated notes.
+- Added project-scoped search and full source reading. SQL project filtering precedes ranking and embedding checks; persisted paragraph-aware chunks preserve source UTF-16 offsets, cap each passage at 1,500 units and each search at five passages. Incomplete or incompatible embedding coverage remains visible.
+- Embedding repair reads original snapshots, including the existing backfill for associated evidence. Added tRPC `evidence.ingest/read/search/retryIndex`; existing CLI/MCP commands and discovery remain unchanged.
+- Recorded DEC-028. This implementation phase did not run checks or tests. Parent task owns test-writer coverage and verifier validation after all coordinated edits finish.
+
+### 2026-10-05 — Project-evidence verification
+- Verifier passed types/lint/format, 223/223 tests and all four existing offline evaluations. Ten new evidence scenarios exercise actual pipeline/SQLite boundaries with deterministic providers.
+- Batched cleanup repair preserves original operation failures while closing all resources. Targeted immutable storage/index separation, retries, project filters, snapshot-based repair and lock behavior are covered.
+- No live model call or live project retrieval accuracy claim. Dedicated project libraries still run without a watcher.
+
+### 2026-10-05 — Local servers
+- Started the ordinary classifier Studio server on `127.0.0.1:8787` with `my-library` and a separate project-evidence server on `127.0.0.1:8789` with `project-manager/.data/evidence`.
+- Both identity endpoints responded successfully with the configured Anthropic model. No ingestion or live model call was made.

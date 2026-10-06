@@ -1,59 +1,64 @@
-# Project manager architecture and stack
+# Accuracy-first project manager
 
-Decision recorded 2026-10-01. This is a local first version, with Studio notes as input and the existing classifier library as retrieval evidence. External connectors, scheduling, task assignment, and long-running autonomous execution are future scope.
+Implemented local-pilot architecture, updated 2026-10-05. The numerical acceptance gates remain provisional; offline fixture results measure controls, not LLM accuracy.
 
-## Structure: supervisor turns, sequential persistence
+## Boundaries and execution
+
+The manager owns projects, notes, candidate facts, approved state/history, review decisions, conversations, runs and evaluation reports in its SQLite database. The classifier owns immutable evidence snapshots, filing audits and project-scoped passage embeddings in a dedicated library. Studio calls each independent server through a typed tRPC client.
 
 ```mermaid
 flowchart LR
-  U[Studio project workspace] --> PM[Project manager supervisor]
-  PM --> DB[(Project SQLite: notes, reports, turns)]
-  PM --> IN[Capture unique Markdown inbox note]
-  IN --> IC[Ingest classifier server]
-  IC --> LIB[(Classifier library and index)]
-  PM --> S[Search evidence tool]
-  S --> IC
-  S --> PM
-  PM --> R[Validate cited report]
-  R --> DB
+    N[Studio Markdown note and selected project] --> R[Register immutable snapshot]
+    R --> X[Read snapshot directly and extract facts]
+    X --> C[Propose changes and conflicts]
+    C --> U[Human review]
+    U --> S[(Approved state and history)]
+    Q[Project question] --> S
+    S --> A[Select approved facts]
+    A --> T[Bounded search and source inspection]
+    T --> O[Answer with citations or clarify]
 ```
 
-The manager owns project identity and the user conversation. The classifier is a worker invoked by the manager and returns an operation result; it does not take over the conversation. This preserves responsibility and makes failures understandable.
+Intake and state updates are sequential. A per-project guard serializes intake, review and questions; review also checks the expected revision. Operations return persistent run IDs before asynchronous work starts. Startup marks interrupted runs/intakes as failed and retains the same source identity for retry. One manager process owns each database.
 
-Writes use a fixed sequence: capture a note and persistent request ID → write uniquely named Markdown → request classifier ingestion → inspect the exact note result → mark stored. A partial batch can still store this note, so batch status alone does not determine success. Pending notes are excluded from model evidence. Retrying reuses a known worker run and checks existing inbox content before reuse.
+Extraction reads the entire submitted snapshot directly, independently of question-time retrieval. Questions allow one to six model turns, at most twelve tool calls, and a **total** budget of five raw retrieved passages. Search/read can address an evidence gap but cannot update approved state. The one-pass versus bounded comparison uses the same model, corpus, passage budget and three repetitions. Keeping extra turns requires improved holdout case success without decreased supported-claim precision.
 
-Analysis uses up to six model turns. A turn can search for more evidence, receive results, and revise its answer; the final report tool validates its schema and source paths. Unknown evidence is recorded as questions. Successful user turns and reports persist and enter subsequent analysis as context. The latest 30 stored notes and six conversation turns bound initial context. The supervisor may retrieve older evidence from the library. Runs and tool/model traces persist; interrupted analysis becomes a visible failure at restart.
+## Five measurable modules
 
-One mutation per project is allowed in a manager process. Run one manager process per database. Classifier locking governs library ingestion. The first version polls tRPC run records; it does not add a graph framework, queue, or second agent wire protocol. Model messages retain complete assistant blocks, including thinking blocks, during the current tool loop.
+| Module | Implemented contract | Pilot gate |
+|---|---|---|
+| Registration | Project/source/version/key-bound immutable receipt; independent storage/index status; checksum validation | Correct project association; zero lost sources, false confirmations or duplicate retry results |
+| Retrieval/read | Project SQL filter before ranking; snapshot chunks and offsets; read stable references; visible missing embedding count | Required evidence coverage ≥95% within five passages; zero project violations |
+| Extraction | Entity, field/value, effective date and exact supporting passage; unknown values omitted | Supported precision ≥98%, required recall ≥90%, separately by field |
+| Reconciliation | Pending proposals, conflicts, revision-checked review, append-only approval history | Change precision ≥98%, required recall ≥90%; zero stale reversions or duplicate updates |
+| Answering | Approved fact IDs and citations, pending-review/coverage warnings and clarification | Supported precision ≥98%, completeness ≥90%, whole-case success ≥90% |
 
-## Stack choice
+Observed fields are task description, owner, explicit due date, blocker and status/completion. Dates use ISO `YYYY-MM-DD`; status uses `open`, `in_progress`, `blocked`, `done`, or `cancelled`. `none` represents an explicitly resolved blocker. Suggestions are a separate answer output; the first version does not generate autonomous actions.
 
-| Layer | Initial choice | Reason |
-| --- | --- | --- |
-| Runtime | TypeScript, Node 22.22+, custom bounded loop | Fits both existing agents and Studio's typed router contract; only two supervisor tools are needed |
-| Model | Anthropic SDK, configurable Sonnet 5.5, adaptive thinking at medium effort | Good knowledge-work performance/cost starting point; compatible with existing provider choice |
-| Interface | Independent tRPC server on localhost:8788 | Studio never runs agent workflows in Next.js |
-| Persistence | Own SQLite/WAL database | Durable local project state, notes, turns and runs; classifier remains document storage owner |
-| UI | Existing Next.js/React/shadcn Studio | Dedicated projects workspace and shared trace viewer |
-| Verification | Vitest with fake model and classifier, Biome, TypeScript | Reproducible behavior checks without model API spend |
+Exact quote validation verifies that a passage exists. It does **not** establish that the passage semantically supports the proposed value. Reference labels, human review and proposal precision/recall measure that distinction.
 
-Model benchmarks measure a model plus a harness; they do not establish that LangGraph, an SDK agent runner, or a custom loop is the best framework. The runtime choice follows this repository's boundaries and the small workflow. Adopt a durable workflow engine if multi-process execution, suspended human decisions, or scheduled jobs become requirements. Add PostgreSQL when multi-user access or concurrent server replicas are needed.
+## Evidence contract
 
-## Model selection evidence
+`evidence.ingest` accepts Markdown, selected project ID, source ID/version, idempotency key and optional source date. It commits immutable bytes before classification and returns the stable document reference/checksum with separate storage and indexing status. Retry cannot bind the same key or source version to different content or metadata. A stored snapshot remains readable even if classification or embeddings fail.
 
-[AA-Briefcase v1.1](https://artificialanalysis.ai/evaluations/aa-briefcase) evaluates 91 tasks across four knowledge-work scenarios, including product management, evidence use and conflicting source resolution. At the time of research, its leaderboard reports Opus 5.5 Max at 1822 Elo (±12) and Sonnet 5.5 Max at 1811 (±11). These intervals overlap. This is stronger task-fit evidence than a coding benchmark alone, and does not establish a statistically clear winner between these two entries.
+`evidence.search` applies the project predicate before ranking raw Markdown chunks using the existing embedding baseline. Legacy documents without a project association are excluded. `evidence.read` checks the selected project and snapshot checksum. Citation reads and embedding repair use immutable snapshots, including legacy backfill for associated documents, rather than editable taxonomy files. Missing indexes remain visible and can be retried.
 
-[Anthropic's Sonnet 5.5 release](https://www.anthropic.com/claude-sonnet-5-5) reports GDPval-AA 1844 for Sonnet versus 1846 for Opus, and prices Sonnet at $2/$10 per million input/output tokens versus $4/$20 for Opus. The vendor says Opus remains stronger at complex open-ended judgment. These claims justify Sonnet as an initial cost-conscious default, with Opus as a candidate for harder conflict analysis rather than an automatic second model on every request. The AA values here were accessed directly on its benchmark page; GDPval comparisons come from Anthropic's report. Published Max-effort scores do not predict this implementation's medium-effort accuracy.
+The existing classifier commands and six MCP tools remain available. Run the project library's classifier server separately without its watcher, because the watcher owns the ingestion lock.
 
-[Sonnet model documentation](https://platform.claude.com/docs/en/models/sonnet-5-5/overview) confirms model ID `claude-sonnet-5-5`. [Migration guidance](https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide) requires retaining full assistant content across tool turns and explains adaptive thinking defaults.
+## Review and questions
 
-Before treating any model as the best for this project, evaluate it on sanitized project histories: field extraction, unsupported claims, cited evidence coverage, handling stale/conflicting dates, project mix-ups, missing-information questions, cost per valid report, and latency. Compare Sonnet and Opus at the actual configured effort. The current offline suite verifies orchestration behavior only. No live model benchmark was run.
+Submission never changes approved state. Accepting a candidate appends its approved event; newer values replace the current field while older dated events stay historical. Different nonhistorical values remain pending conflicts until review. Disputed keys are excluded from definitive current answers; rejecting the conflicting proposal restores use of the last approved value.
 
-## Practical limits
+Editing creates a human-confirmation evidence reference containing the correction. The review retains the original document-supported candidate and the correction separately. It never presents a reviewer correction as a quotation from the original note.
 
-- The manager and classifier must share the configured filesystem library root. Identity is checked before capture and analysis. Intake triggers a batch of the whole classifier inbox, including other pending documents.
-- The classifier's existing local hash-vector search remains unchanged. This is useful for initial integration, but needs a separate retrieval-quality evaluation before choosing a learned embedding provider.
-- Library search is library-wide; project IDs are included in queries, but this is not an access-control boundary. Use separate libraries for separate trust domains. The model must judge whether retrieved evidence actually concerns this project.
-- Citation validation checks that a path was supplied; it cannot prove that every claim is entailed by the text. Reports are proposals for user review.
-- No distributed transaction spans capture, filesystem writes and classifier runs. If a worker response is lost after a successful move, a retry may need manual reconciliation with classifier audit history. Known run IDs survive timeouts. Recovery does not silently mark unconfirmed notes stored.
-- Analysis is restart-detectable rather than resumable mid-model-turn. Intake is retryable from pending state. There is no scheduler or durable asynchronous queue.
+The model receives approved facts and prior questions for conversation context. Retrieval outputs are restricted to approved supporting passages; source reads supplied to the answer model contain approved passages only. Public citation navigation reads the complete immutable snapshot and verifies checksum and offsets. The answer model selects relevant approved fact IDs; code renders the corresponding field/value claims. Unapproved IDs fail the run. Pending-review and incomplete-index warnings persist with the answer.
+
+## Evaluation and release boundary
+
+The frozen corpus has 64 documents and 40 questions across eight synthetic projects, with five development and three held-out projects. Labels include project association, explicit facts, supporting spans, effective dates, review dispositions, state checkpoints and expected answers/clarification. Challenge cases cover similar names, changed deadlines, historical quotations, conflicting notes, resolved blockers, duplicate submissions and ingestion failures.
+
+Score proposals before review; simulated review accepts correct candidates and rejects wrong ones without filling omissions. Isolate extraction with source snapshots, reconciliation with correct reference facts and answering with known approved state. Replay complete histories separately to expose upstream error propagation. Report denominators, field/split results, omissions, unnecessary clarification, errors/timeouts, first failing module, model/prompt/corpus settings and policy comparison. Empty predictions have undefined precision and fail required recall.
+
+See [evaluation-data.md](evaluation-data.md) for corpus and manual live commands. The fixture parser/worker validate controls and scoring. Model benchmarks only shortlist later candidates; the initial baseline uses the configured Anthropic model without a hidden default. No representative real-world accuracy claim follows from synthetic control results.
+
+This version uses the existing TypeScript/Node, tRPC, SQLite and Studio foundation. Connectors, scheduling, forecasting, automatic assignment and external actions are excluded.

@@ -1,66 +1,73 @@
 # Project manager
 
-A local supervisor agent for collecting project notes, storing evidence through `ingest-classifier`, and producing cited status reports with blockers, next actions, and open questions. It appears in Studio as a separate agent.
+Local project workspace with immutable note evidence, reviewed facts, versioned state, and grounded questions. The manager delegates storage and passage search to `ingest-classifier`; its own SQLite database holds projects, proposals, review decisions, conversations, runs and evaluation reports.
 
-The manager can make up to six analysis turns, retrieving more evidence when useful. Intake writes follow a fixed sequence and only mark a note stored after the classifier confirms that exact file. Project state and conversation history live in the manager's own SQLite database.
+## Start the local pilot
 
-## Setup
+Requires Node 22.22 or newer and pnpm 10.9.0. Install dependencies in `ingest-classifier`, `project-manager` and `studio` independently. Copy `.env.example` to `.env` in the manager folder and set `PROJECT_MANAGER_MODEL`, `ANTHROPIC_API_KEY`, and an **absolute** `PROJECT_MANAGER_LIBRARY_ROOT`. There is no hidden model choice. Use the same library root in both server processes.
 
-Requires Node 22.22+, pnpm 10.9.0, and an Anthropic API key. Start the existing classifier on the same absolute library path first:
+Start a dedicated classifier server in another terminal. Configure its model/key using the classifier's `.env` or `--env-file`:
 
 ```bash
 cd ingest-classifier
-pnpm install --frozen-lockfile
-pnpm serve -- --root /absolute/path/to/my-library
+pnpm install
+pnpm serve -- --root /absolute/path/to/project-evidence --port 8789
 ```
 
-In another terminal, from the collection root:
+Keep this library separate from the ordinary classifier library, and do not run its watcher: the watcher holds the ingestion lock.
 
 ```bash
 cd project-manager
-pnpm install --frozen-lockfile
+pnpm install
 cp .env.example .env
-# Set ANTHROPIC_API_KEY and PROJECT_MANAGER_LIBRARY_ROOT in .env.
+# Fill the model, key and absolute library root in .env.
 pnpm serve
 ```
 
-Then start Studio:
-
 ```bash
 cd studio
-pnpm install --frozen-lockfile
+pnpm install
 pnpm dev
 ```
 
-Open Project manager, create a project, submit a note, and analyze it. If `studio/agents.local.json` exists, add the project-manager entry from `agents.example.json` to that override. The default manager URL is `http://127.0.0.1:8788`.
+Open Studio at `http://localhost:3000` and choose **Project manager**. The example registry includes port 8788. If `studio/agents.local.json` overrides it, add the manager entry from `studio/agents.example.json`, including `"kind": "project-manager"`.
 
-## Example
+Run one manager service per database. Stop that service before replaying evaluations into its database, then restart it to inspect saved results. Startup recovery marks interrupted runs and intakes as failures that can be inspected and retried; it does not silently confirm them.
 
-Create **Website launch**, then submit this synthetic note:
+## Try a reviewed fact
 
-```text
-2026-10-01: Website launch is blocked on approved homepage copy.
-Elizabeth owns the copy review. The design is ready.
-Next step: review the homepage draft. Launch date is not confirmed.
+Create a project named Atlas, then submit this Markdown with source name `kickoff`, version `1`, and source date `2026-01-01`:
+
+```markdown
+# Atlas kickoff
+Task "Launch checklist" has owner "Ana Rivera" effective 2026-01-01.
+Task "Launch checklist" has due date "2026-01-12" effective 2026-01-01.
 ```
 
-After intake confirms storage, ask: **What is blocked and what should happen next?** A report should identify approved copy as a blocker, propose reviewing the homepage draft, and ask about the launch date, citing the actual stored note path. This is an expected outcome, not a recorded live-model result. Follow-up questions include previous reports and stored notes in context. Pending notes have a Retry intake action.
+The intake run stores the exact source, extracts candidate facts and opens the review queue. Approved state stays empty until you accept or edit a proposal. After accepting both facts, ask “Who is the owner and what is the due date for Launch checklist?” The answer selects approved facts and shows their values with immutable source citations. Open a citation to inspect the exact passage, or a run to inspect its trace. More replayable notes are in [examples/atlas](examples/atlas/).
 
-## Evaluation evidence
+Conflicting current fields require review before a definitive answer. Undated values stay undated. An older approved event remains in history without reverting current state. Reviewer edits cite an explicit human confirmation, while retaining the original candidate and correction in review history.
 
-Offline behavioral verification and its results are documented in [verification.md](docs/verification.md). These tests use fake model responses and classifier results; they do not measure model quality. Live-model evaluation is still pending.
+## Accuracy evaluation
 
 ```bash
-pnpm check
-pnpm test
+pnpm eval:accuracy --mode fixture --split all \
+  --database /tmp/project-manager-evaluation.sqlite \
+  --output /tmp/project-manager-evaluation.json
 ```
 
-See [architecture.md](docs/architecture.md) for the benchmark-backed model recommendation, process boundaries, recovery limits, and future scaling choices.
+The frozen corpus contains eight projects, eight documents each and five questions each; five projects are for development and three are held out. Module evaluations and complete replays report counts, denominators, omissions, errors, source coverage and the first failing module. One-pass and six-turn answers share a total budget of five retrieved passages and run three times. Review never fills omissions before scoring.
 
-## Source layout
+Fixture mode uses a grammar parser and evidence simulator. It validates deterministic controls and scoring; its results do not establish LLM accuracy. Live mode uses the configured Anthropic model and the actual classifier, with explicit model prices and a manager-model cost cap. Classifier-model costs are separate. See [evaluation data and live commands](docs/evaluation-data.md), [architecture](docs/architecture.md), and [verification evidence](docs/verification.md).
 
-- `src/application/`: contracts and intake/analysis orchestration.
-- `src/providers/`: Anthropic supervisor and typed classifier client.
-- `src/storage/`: project and run persistence.
-- `src/server/`: manager tRPC router and localhost server.
-- Tests live beside their modules. Development memory is in `memory-bank/`.
+The initial release is a local pilot. The proposed precision/recall gates require live measurement; representative sanitized project notes require a separate frozen evaluation before real-world accuracy claims.
+
+## Package boundaries
+
+- `src/application`: typed contracts, evidence validation, intake, review and answering.
+- `src/storage`: manager-owned state, recovery, run traces and reports.
+- `src/providers`: typed classifier client and Anthropic adapter.
+- `src/server`: localhost tRPC operations consumed by Studio.
+- `evals`: frozen corpus, scoring and manual replay runner.
+
+Questions use approved state and approved source passages. Models select fact IDs; code renders their factual values. Additional retrieval never modifies state. Connectors, scheduling, forecasting, automatic assignment and external actions are outside this version.

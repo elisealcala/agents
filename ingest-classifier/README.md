@@ -330,3 +330,21 @@ pnpm ask -- --root ./my-library --question "What were the Q3 cache takeaways?"
 ```
 
 `pnpm eval:retrieval-and-clustering` creates a mixed architecture library, proves a caching/authentication split suggestion without moving anything, records a correction, and answers a known caching question with citations to retrieved fixture files.
+
+## Project evidence worker
+
+The additive `ingest-classifier/evidence` entry point exports a bounded worker for the project manager. Its `ingest`, `read`, `search`, and `retryIndex` operations use the same validated `OperationResult` envelopes as the classifier. The Studio server also exposes these as `evidence.ingest`, `evidence.read`, `evidence.search`, and `evidence.retryIndex` procedures.
+
+Use a dedicated library and no watcher:
+
+```bash
+pnpm serve -- --root ./project-evidence --port 8789
+```
+
+Intake accepts `projectId`, `sourceId`, `sourceVersion`, `idempotencyKey`, unchanged `markdown`, and an optional `sourceDate` (`YYYY-MM-DD`). An immutable SQLite snapshot and source association are committed before model construction or classification. Only that note is organized through the existing adaptive pipeline while the library lock is held. Neither unrelated inbox files nor legacy unassociated notes enter project evidence searches.
+
+Receipts return `documentRef`, the original SHA-256 `checksum`, and separate `storageStatus` and `indexStatus`. A stored note with failed classification or indexing returns a partial receipt; the snapshot remains readable. Repeated source versions or retry keys reuse the same reference, and conflicting content is rejected. `retryIndex({projectId, documentRef})` retries classification if needed and repairs embeddings from the original snapshot, including after an interrupted filing.
+
+`search({projectId, question, topK?, minimumScore?})` filters associations in SQL before checking embedding compatibility or ranking. It returns at most five paragraph-aware chunks of at most 1,500 UTF-16 units, each with exact `start`/`end` offsets and a verbatim `quote`, using the existing local hash embedding method. `missingEmbeddings` counts project documents whose retrieval coverage is incomplete or incompatible. `read({projectId, documentRef})` retrieves the full immutable snapshot. Taxonomy-file edits do not change citations or project embedding repair; the legacy backfill also uses snapshots when available.
+
+The existing CLI operations and six-tool MCP discovery contract are preserved. The project manager owns facts, reviews and conversations; this worker owns source evidence, classification and indexing.

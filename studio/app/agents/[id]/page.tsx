@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Workspace } from "@/components/workspace";
+import { ProjectManagerWorkspace } from "@/components/project-manager-workspace";
 import { loadAgents } from "@/lib/registry";
 
 export default async function AgentPage({
@@ -33,7 +34,15 @@ export default async function AgentPage({
           ))}
         </nav>
       </aside>
-      <Workspace name={agent.name} url={agent.url} />
+      {agent.kind === "project-manager" ? (
+        <ProjectManagerWorkspace
+          key={agent.id}
+          name={agent.name}
+          url={agent.url}
+        />
+      ) : (
+        <Workspace key={agent.id} name={agent.name} url={agent.url} />
+      )}
     </div>
   );
 }
