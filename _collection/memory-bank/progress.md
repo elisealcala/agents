@@ -99,3 +99,13 @@ Next: verify collection CI registration; keep product work in owning banks.
 - User requested the verified project-manager work as one atomic commit on a new branch, then integration into `main`.
 - Created `codex/project-manager` from synchronized local `main`. Pre-commit verifier audit passed scope, whitespace, formatting and commit-candidate checks; existing full verification remains applicable.
 - Integration uses a single feature commit and a fast-forward of local `main`, keeping the feature branch as a reference. No remote push is requested.
+
+### 2026-10-05 — Project-manager publication
+- User authorized pushing the integrated work. Published `7e5a940` to `origin/main` and created `origin/codex/project-manager` in one atomic push.
+- Both local branches track their corresponding remote branches. The project-manager implementation remains one atomic feature commit.
+- Publication bookkeeping was refreshed locally after the push.
+
+### 2026-10-07 — Publication bookkeeping cleanup
+- Reviewed the two pending collection memory-bank files: both contain completed publication bookkeeping, with no pending code changes.
+- Refreshed the current context to include the published Studio CI correction at 2b1b45d. Commit these notes separately from the published implementation commits.
+- Documentation-only change; runtime verification is unchanged.

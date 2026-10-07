@@ -1,7 +1,7 @@
 # Active context — _collection
 
 ## Current focus
-The verified project-manager pilot is prepared for the user-authorized atomic integration through `codex/project-manager` into local `main`. Integration uses one feature commit and a fast-forward (DEC-010). Product details and measurement results remain in owning banks.
+The project-manager pilot was published at `7e5a940` through a single feature commit and fast-forward (DEC-010). Main also includes the Studio CI correction at `2b1b45d`. Publication bookkeeping is recorded separately; product details remain in owning banks.
 
 ## Next steps
-Keep future product work in owning banks. Remote publication is a separate user action; Git references record the resulting commit and merge state.
+Keep future product work and live accuracy measurement in owning banks. Include completed publication notes in version control without amending published implementation commits.
