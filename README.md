@@ -14,7 +14,7 @@ The agent also stores document summaries, clean text, and embeddings so it can:
 - suggest splits for crowded categories without moving files automatically;
 - answer natural-language questions with citations to the source files.
 
-OpenAI, Anthropic, and xAI models are selectable through environment variables. Offline evaluation commands cover the zero-loss pipeline, adaptive taxonomy, clustering suggestions, and grounded retrieval.
+Anthropic is the supported model provider; set `INGEST_MODEL` and `ANTHROPIC_API_KEY`. Offline evaluation commands cover the zero-loss pipeline, adaptive taxonomy, clustering suggestions, and grounded retrieval.
 
 ```bash
 cd ingest-classifier

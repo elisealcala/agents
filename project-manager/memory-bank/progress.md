@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: Authorized accuracy-first local pilot implemented and verified.
-Next: Run a manual live baseline, then representative-note evaluation.
+Current: Local pilot and chat MCP bridge implemented; source/memory audit refreshed on 2026-10-28. User authorized publication of the MCP work and audit on 2026-10-28.
+Next: Address labeled demo quality gaps, then measure the manual live baseline and representative-note accuracy.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -58,3 +58,34 @@ Next: Run a manual live baseline, then representative-note evaluation.
 ### 2026-10-05 — Atomic commit preparation
 - User authorized a new `codex/project-manager` branch, one atomic commit containing the verified pilot and supporting integrations, and a merge into local `main`.
 - Pre-commit verifier audit passed; runtime behavior and the recorded measurement boundary are unchanged. Git references record integration outcome; remote publication remains separate.
+
+### 2026-10-07 — Local chat connection
+- Inspected the manager's existing tRPC interface: no manager MCP tools existed, and the previous local service was stopped.
+- Added a stdio MCP bridge with eleven typed tools delegating to the existing manager service. It shares Studio state and preserves pending reviews, project isolation, immutable citations, conversation IDs and persisted run status.
+- Documented local host registration and explicit versioned repository/chat-note submissions. Task extraction remains deliberately scoped; source code/architecture knowledge and automatic chat synchronization are not implemented.
+- Test-writer added twenty MCP cases. Verifier passed typecheck, lint, format and all 105 manager tests, including actual HTTP shared-state checks and real stdio discovery/shutdown. Fixture replay had zero failures; frozen lockfile compatibility passed. Initial test helper typing, immediate-terminal run assumptions and stdio working-directory errors were repaired in one batch before re-verification.
+- Registered `agents-project-manager` on the local Codex host using Node's direct tsx loader. Started manager port 8788, dedicated evidence server 8789 and Studio 3000 with existing credentials kept outside bridge configuration. Native app UI automation cannot refresh this chat's MCP tool catalog; client reconnection may be needed to expose the newly registered tools.
+- Live MCP demo submitted only the public root README at b9fd369, stored/indexed it successfully and read back identical Markdown. Twelve candidates stayed pending; zero review decisions/approved facts. Two questions persisted in one conversation and returned clarification with pending-review warnings. Runtime IDs and actual responses are recorded in docs/chat-demo-2026-10-07.md; raw report remains ignored runtime data.
+- The live example revealed unsupported status inference from component existence/procedural instructions, plus an answer-context gap (model asked which repository despite selected project). These remain quality follow-ups, not live accuracy claims. No code commit or push performed for this connection task.
+
+### 2026-10-28 — Memory-bank accuracy audit
+
+- Compared all six decisions with manager orchestration/storage, provider bounds, the service-only MCP bridge and recorded corpus/control report. Core choices are represented; bridge delegates to typed tRPC without opening a second Store, requires project IDs and explicit review, and preserves approved-only answers.
+- Corrected accepted DEC-004's obsolete design-only scope, retained its measurement principles, dated the 85-test baseline separately from the later 105-test MCP verification, and removed session-specific tool/server claims from current context.
+- Corrected AGENTS/CLAUDE attribution to a nonexistent root two-phase workflow while preserving local delegated verification. Existing MCP source, dependency, README, bank and demo changes were preserved; no approval/review or runtime data was changed.
+- The existing corpus/report supports 64 documents/40 questions and zero recorded fixture failures. The README demo's unsupported status proposals and missing project-name context remain documented quality follow-ups; fixture controls do not establish live accuracy.
+- Source/history inspection cannot prove every past conversational decision was saved. The current bridge/demo and this audit remain local until committed/published. Fresh verification of this checkout is recorded separately below.
+
+### 2026-10-28 — Audit verification result
+
+- Verifier reran the current checkout: typecheck and lint pass. Formatting fails only on existing Git-ignored `.data/chat-demo-report.json` (missing final newline) and `.data/chat-demo.mjs` formatting; those runtime artifacts were preserved.
+- Tests: 97/105 pass; eight MCP HTTP cases fail/time out because the environment rejects temporary `127.0.0.1` listeners with `listen EPERM`. Those eight cases are unverified here; the historical 2026-10-07 105/105 result remains dated historical evidence, not today's result. Test workers exited; no user services were changed.
+- Structural documentation validation and `git diff --check` pass. No runtime repair, live model call, approval of facts, commit or push was performed.
+
+### 2026-10-28 — Authorized MCP and audit publication
+
+- User requested committing and pushing the pending checkout. Include the existing eleven-tool MCP bridge, its tests/dependencies, setup README, recorded demo and decision/bank updates alongside the memory audit.
+- Preserve ignored `.data` reports, databases, credentials and local service state. Known demo quality gaps and measurement limits remain documented; publication does not approve candidate facts or claim live accuracy.
+- No source behavior changed during publication preparation. Final Git references identify the commit and push result.
+
+- Publication verification resolved the listener restriction: verifier reran all 20 MCP tests with local listener permissions and all passed. Together with the 85 non-MCP passes, current coverage is 105/105. Source/config formatting passes across 29 files and whitespace checks pass. Full-package formatting still sees the two ignored runtime demo artifacts; they remain unchanged and outside the commit. No live model calls.

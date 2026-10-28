@@ -62,12 +62,52 @@ Fixture mode uses a grammar parser and evidence simulator. It validates determin
 
 The initial release is a local pilot. The proposed precision/recall gates require live measurement; representative sanitized project notes require a separate frozen evaluation before real-world accuracy claims.
 
+## Connect a local chat through MCP
+
+The manager exposes a local stdio MCP bridge in addition to Studio's tRPC API.
+Start the manager and its dedicated classifier first using the instructions above.
+The bridge calls the existing manager service; it never opens a second database.
+Studio and chat therefore see the same projects, reviews, conversations and traces.
+
+Register it with a local Codex host, replacing both absolute paths:
+
+```bash
+codex mcp add agents-project-manager -- node --import \
+  /absolute/agents/project-manager/node_modules/tsx/dist/loader.mjs \
+  /absolute/agents/project-manager/src/mcp/main.ts
+```
+
+Use `--env PROJECT_MANAGER_URL=http://127.0.0.1:8788` before `--` to change the
+manager origin. Only local HTTP origins are accepted. The bridge needs no model
+credentials; the manager service holds them. Local Codex clients share MCP
+configuration. Reload the client's MCP connection if its current tool catalog
+does not include the new server. See [official MCP configuration guidance](https://developers.openai.com/codex/mcp).
+
+The tools are `list_projects`, `create_project`, `get_project`, `submit_note`,
+`retry_note`, `list_reviews`, `resolve_review`, `ask_project`, `get_run`,
+`list_runs` and `read_evidence`. Each project operation requires its project ID.
+Submission and questions return run IDs immediately; use `get_run` to inspect
+terminal results, errors, citations and traces. Follow-up questions reuse the
+persisted conversation ID found in `get_project`.
+
+Submit selected repository Markdown as versioned notes (use a commit SHA as the
+source version). This bridge has no filesystem crawler or implicit transcript
+sync: chat context becomes project evidence only when explicitly submitted.
+Candidate facts require an explicit human accept/edit/reject decision through
+Studio or `resolve_review`; tools must not accept candidates automatically.
+The manager extracts task descriptions, owners, due dates, blockers and status.
+An architecture README can produce no task facts, and broader code questions
+can require clarification even when its document was stored successfully.
+The [recorded repository demonstration](docs/chat-demo-2026-10-07.md) includes
+actual responses and observed extraction/clarification gaps.
+
 ## Package boundaries
 
 - `src/application`: typed contracts, evidence validation, intake, review and answering.
 - `src/storage`: manager-owned state, recovery, run traces and reports.
 - `src/providers`: typed classifier client and Anthropic adapter.
 - `src/server`: localhost tRPC operations consumed by Studio.
+- `src/mcp`: local chat tools delegating to the same manager service.
 - `evals`: frozen corpus, scoring and manual replay runner.
 
 Questions use approved state and approved source passages. Models select fact IDs; code renders their factual values. Additional retrieval never modifies state. Connectors, scheduling, forecasting, automatic assignment and external actions are outside this version.

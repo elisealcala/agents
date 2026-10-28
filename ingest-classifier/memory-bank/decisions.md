@@ -43,7 +43,7 @@ Consequences: Existing files are never overwritten and a failed destination writ
 ## DEC-006: Recommended M1 classification model
 
 Date: 2026-09-04
-Status: accepted
+Status: superseded (DEC-025; Anthropic-only configuration replaces this recommendation)
 Context: M1 calls for a fast, cost-efficient classifier while preserving the existing multi-provider picker.
 Decision: Recommend `openai` / `gpt-4o-mini` for M1, but keep `INGEST_PROVIDER` and `INGEST_MODEL` mandatory and explicit so Anthropic or xAI remains an environment-only swap.
 Consequences: Production has no hidden provider/model default; offline evals and tests use fixture clients without live network calls.
@@ -51,7 +51,7 @@ Consequences: Production has no hidden provider/model default; offline evals and
 ## DEC-007: Dedicated 80% live-category fit score
 
 Date: 2026-09-04
-Status: accepted
+Status: accepted (adaptive proposal rule superseded by DEC-019; threshold can be overridden under DEC-026)
 Context: Dynamic classification needs to distinguish certainty in the response from fit against the current taxonomy.
 Decision: Use a dedicated `fit_score`. Existing categories require `fit_score > 0.80`; proposals require `fit_score <= 0.80`. `confidence_score` continues to describe confidence in the overall classification response.
 Consequences: The rule is schema-enforced and every prompt is built from SQLite category rows rather than a hardcoded category list.
@@ -99,7 +99,7 @@ Consequences: A model cannot add unverified paths to the returned citation list;
 ## DEC-013: Responsibility folders and independent quality gates
 
 Date: 2026-09-08
-Status: accepted
+Status: accepted (lint/format split superseded by DEC-020; evaluation names updated by DEC-021)
 Context: The flat source folder became difficult to navigate, and the project had type checking but no lint or formatting gates.
 Decision: Group modules and colocated tests into classification, pipelines, files, storage, taxonomy, search, and providers; move evals out of src. Preserve CLI commands and src/index.ts exports. Pin TypeScript 6.0.3 for typescript-eslint compatibility, ESLint for recommended code rules, and Biome for formatting only. Run checks, tests, and M1-M3 evaluations locally and in GitHub Actions.
 Consequences: Internal import paths change, but runtime behavior and database formats do not. Code, tests, evaluation runners, and TypeScript tool configuration are type checked. Dependency and formatting changes remain local to this package.
@@ -126,7 +126,7 @@ Date: 2026-09-14
 Status: accepted
 Context: The user wants ingest-classifier to operate independently and beneath a supervisor using the orchestrator-worker pattern.
 Decision: Preserve standalone CLI operation and support a supervisor invoking the same classifier capabilities as bounded worker operations. The classifier retains ownership of classification, taxonomy, library files, and domain storage; the supervisor owns overall task planning and conversation state.
-Consequences: Share application behavior between entry points and preserve existing commands/exports. A validated operations interface, lifecycle handling, and per-library ingestion coordination are proposed integration work. This decision selects the pattern and dual-use goal, not MCP, a framework, or a deployment topology. No runtime changes are implemented yet.
+Consequences: Share application behavior between entry points and preserve existing commands/exports. A validated operations interface, lifecycle handling, and per-library ingestion coordination are proposed integration work. This decision selects the pattern and dual-use goal, not MCP, a framework, or a deployment topology. No runtime changes were implemented when this decision was adopted; DEC-017 and DEC-018 record the subsequent shared operations, MCP adapter and ingestion coordination.
 
 
 ## DEC-017: Local MCP over shared application operations
@@ -199,6 +199,8 @@ Date: 2026-09-29
 Status: accepted
 Context: Classification sent one user message and parsed JSON. A free-choice librarian that picks among ingest, search, ask, and clustering would need prompt guidance to stay on task, and it could still skip a step. Organizing a note already follows one sequence.
 Decision: Anthropic is the only model provider. `INGEST_MODEL` and `ANTHROPIC_API_KEY` are required; `INGEST_PROVIDER` is gone. Supersedes DEC-002 and the multi-provider half of DEC-006. The pipeline still parses, deduplicates, moves, and audits. The classify step is a system prompt plus a tool loop: `list_categories`, `search_similar_notes`, then exactly one of `file_existing` or `propose_child`. The fixed path omits `propose_child`. Terminal tools return a placement; they do not create folders or move files. Invalid tool input is a tool error and the loop continues. An attempt that ends without a placement uses the existing retry budget and does not keep that attempt's history. Grounded answers stay a system prompt plus a user message, with no tools.
+Consequences: Configuration and adapters support Anthropic only; offline clients keep tests independent of model credentials. DEC-027 subsequently updates the adaptive lookup instructions and placement hook. Lookup order is prompt guidance, while code validates and records the terminal placement.
+
 ## DEC-026: Local studio server records traces without changing CLI or MCP
 
 Date: 2026-10-01
@@ -212,7 +214,7 @@ Consequences: The studio imports `AppRouter` from `ingest-classifier/server` and
 Date: 2026-10-01
 Status: accepted
 Context: A second category agent would review the placement, but the review rules are already deterministic. The useful agent shape is the one in Claude's tool-use guide: a system prompt, tools, and a loop. Recent filings were not visible to that loop.
-Decision: The adaptive path is one agent. It calls `list_recent_filings`, then `search_similar_notes`, then `list_categories`, and finishes with `file_existing` or `propose_child`. The agent chooses the best existing category, or the parent of one new child. It does not open a new root. The adaptive classifier runs as a `PreToolUse` hook on the two finishing tools, using the Claude Agent SDK hook contract: allow, or deny with a reason the model sees. Lookup tools are not hooked. Sibling dedup, the folder, and the move stay in the pipeline. The worked example is `docs/building-the-agent.md`.
+Decision: The adaptive path is one agent. Its prompt instructs it to call `list_recent_filings`, then `search_similar_notes`, then `list_categories`, and finish with `file_existing` or `propose_child`. Code does not enforce lookup order or require every lookup before placement. The agent chooses the best existing category, or the parent of one new child. It does not open a new root. The adaptive classifier runs as a `PreToolUse` hook on the two finishing tools, using the Claude Agent SDK hook contract: allow, or deny with a reason the model sees. Lookup tools are not hooked. Sibling dedup, the folder, and the move stay in the pipeline. The worked example is `docs/building-the-agent.md`.
 Consequences: A recent streak of filings cannot by itself choose the category; the prompt tells the agent to follow similar notes and corrections when they disagree. A denied placement does not record and does not move the file. The fixed-taxonomy path does not register this hook and does not offer `list_recent_filings`.
 
 ## DEC-028: Immutable project evidence is an additive classifier boundary

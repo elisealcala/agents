@@ -229,3 +229,11 @@ Next: Manually validate live project-evidence relevance with the manager pilot, 
 ### 2026-10-05 — Local servers
 - Started the ordinary classifier Studio server on `127.0.0.1:8787` with `my-library` and a separate project-evidence server on `127.0.0.1:8789` with `project-manager/.data/evidence`.
 - Both identity endpoints responded successfully with the configured Anthropic model. No ingestion or live model call was made.
+
+### 2026-10-28 — Memory-bank accuracy audit
+
+- Compared the decision registry with provider/configuration, organizer/hook, pipeline/file movement, local embeddings/retrieval, ingestion locking, six MCP tools and additive immutable evidence source/tests. All 28 decision IDs are unique and source DEC references resolve.
+- Marked the old OpenAI recommendation superseded and annotated partial supersession of fit/tooling rules. Completed DEC-025's missing Consequences field. Clarified in DEC-027 that lookup order is prompt guidance, not a runtime-enforced sequence.
+- Removed the stale pending-verification statement from active context, dated the old server observation, and preserved original dated logs. No runtime code changed.
+- Reran `pnpm test`: 223/223 tests pass across 28 files. Quality gates, milestone evaluations, live model relevance and server availability were not rerun for this documentation audit.
+- No major architectural decision gap was identified in the inspected source paths. This does not establish capture of every past conversational decision; runtime library memory remains separate from this development bank.

@@ -59,7 +59,7 @@ Consequences: New agents replace placeholders with actual observed output and li
 ## DEC-008: Optional TypeScript preset and responsibility-based layout
 
 Date: 2026-09-08
-Status: accepted
+Status: accepted (lint/format split superseded by DEC-011)
 Context: New agents need a consistent source layout and ready-to-use quality tools without imposing a language on the collection.
 Decision: Keep the general template language-neutral and ship a self-contained TypeScript preset. Group source by responsibility, colocate tests, and place evaluation runners/fixtures in evals/. Use ESLint for code rules, Biome only for formatting, and TypeScript 6.0 for compatible type checks. Every TypeScript agent owns its dependencies and lockfile; GitHub Actions verifies the existing product and an assembled starter separately.
 Consequences: New agents can opt into the preset, replace its package name, and remove copied presets. Adding a product also requires adding its own CI job. The collection has no root runtime package or shared product memory.
@@ -77,3 +77,11 @@ Status: accepted
 Context: User requested a new project-manager branch, an atomic commit and a merge into main.
 Decision: Use `codex/project-manager` with one feature commit; fast-forward local `main` to preserve that single-commit integration.
 Consequences: Keep the branch reference. Remote publication requires its own authorization.
+
+## DEC-011: TypeScript preset uses Biome for lint and formatting
+
+Date: 2026-10-28
+Status: accepted
+Context: The memory audit found that DEC-008 still described ESLint, although commit `0ba86c7` (2026-09-28) already changed the optional preset to Biome. This entry records the existing implementation, not a new tooling migration.
+Decision: The optional TypeScript preset uses Biome for lint and formatting, with warnings failing the lint gate, and `tsc --noEmit` for types. Preserve independent package configuration, responsibility folders and the assembled-starter CI job from DEC-008.
+Consequences: DEC-008's ESLint/Biome split is superseded. Product tooling decisions remain in owning banks; no root runtime or shared product memory is introduced.

@@ -2,13 +2,15 @@
 
 ## Current focus
 
-Local classifier servers are running on ports 8787 (ordinary `my-library`) and 8789 (dedicated project evidence) for the current Studio session. Both identity endpoints responded on 2026-10-05.
+Memory/source audit completed on 2026-10-28. The classifier test suite was rerun: 223/223 tests pass across 28 files. Historical quality/evaluation results below retain their original date; no live relevance measurement was performed.
 
-Project evidence boundary (2026-10-05, DEC-028): `ingest-classifier/evidence` and additive tRPC `evidence.*` operations now support project-scoped immutable note registration, targeted adaptive filing, bounded passage search, full snapshot reading and retry/repair. Source identity, checksum and snapshots persist before classification. Project-manager state and reviews remain outside this package. Coordinated implementation is complete here; test-writer coverage and verifier checks are pending in the parent task.
+Local classifier servers on ports 8787 (ordinary `my-library`) and 8789 (dedicated project evidence) both responded on 2026-10-05. That is a historical observation; current process availability was not checked in this audit.
+
+Project evidence boundary (2026-10-05, DEC-028): `ingest-classifier/evidence` and additive tRPC `evidence.*` operations now support project-scoped immutable note registration, targeted adaptive filing, bounded passage search, full snapshot reading and retry/repair. Source identity, checksum and snapshots persist before classification. Project-manager state and reviews remain outside this package. Implementation and evidence verification completed on 2026-10-05, as recorded in progress and the verified baseline below.
 
 Unused-code pass (2026-10-01): removed `SpanStatus`. The rest of the package is still called from production, evals, or tests.
 
-Organizer agent (2026-10-01, DEC-027): one Claude tool-calling agent places each note. It starts with recent filings, then similar notes, then the taxonomy, and finishes with `file_existing` or `propose_child`. The adaptive classifier is a `PreToolUse` hook on those two finishing tools. The walkthrough is `docs/building-the-agent.md`.
+Organizer agent (2026-10-01, DEC-027): one Claude tool-calling agent places each note. The prompt directs recent filings, then similar notes, then the taxonomy; code validates terminal `file_existing` or `propose_child` placements but does not enforce the lookup order. The adaptive classifier is a `PreToolUse` hook on those two finishing tools. The walkthrough is `docs/building-the-agent.md`.
 
 Local studio server (2026-10-01, DEC-026): `pnpm serve` exposes the six operations, library memory, and an optional trace of the organizer tool loop. CLI and MCP stay unchanged when no trace or settings override is set.
 
@@ -40,6 +42,6 @@ Nested categories (2026-09-24, DEC-019): adaptive classification files a note in
 
 1. Manually evaluate project evidence retrieval with the manager's frozen corpus and configured model. Deterministic evidence tests and all four classifier evaluations pass; live project relevance remains unmeasured.
 
-1. Start `pnpm serve -- --root ./my-library` and the studio (`../studio`, `pnpm dev`). File a note and confirm the trace can show `list_recent_filings` and a finishing tool.
-2. Run `pnpm run -- --root ./my-library` with Markdown notes in `inbox/` and confirm a narrow technical note creates a child under the closest seed. `my-library/` is gitignored (DEC-024). Set `INGEST_MODEL` and `ANTHROPIC_API_KEY`.
-3. Configure a local MCP host with an explicit library root and model environment when ready for live use.
+2. Start `pnpm serve -- --root ./my-library` and the studio (`../studio`, `pnpm dev`). File a note and confirm the trace can show `list_recent_filings` and a finishing tool.
+3. Run `pnpm run -- --root ./my-library` with Markdown notes in `inbox/` and confirm a narrow technical note creates a child under the closest seed. `my-library/` is gitignored (DEC-024). Set `INGEST_MODEL` and `ANTHROPIC_API_KEY`.
+4. Configure a local MCP host with an explicit library root and model environment when ready for live use.

@@ -56,3 +56,9 @@ Next: Configure the live local pilot and measure real-model behavior separately.
 - Updated the typecheck script to run next typegen before tsc, following the installed Next.js CLI documentation. Added README guidance and DEC-005.
 - Verifier reproduced the original LayoutProps failure with the old command. Updated pnpm check passed twice in a fresh temporary copy, including after deleting generated types and compiler cache: typecheck, lint and format all passed. All 25 dependency specifiers match the lockfile; git diff --check passed.
 - Generated routes.d.ts contains global LayoutProps and next-env.d.ts imports the generated types. The running Studio and its generated files were untouched; temporary verification files were removed. Unrelated publication notes remain outside this fix.
+
+### 2026-10-28 — Memory-bank accuracy audit
+
+- Compared all five recorded decisions with `package.json`, `lib/registry.ts`, both typed tRPC clients, agent routing and project workspace/panel code. Independent process boundaries, optional-kind compatibility, `next typegen` before `tsc`, keyed project resets and citation identity checks are present.
+- Refreshed active context to distinguish dated verification/server observations from current source inspection. Original dated history and superseded design-only decisions are retained.
+- No missing major Studio architecture decision was identified in the inspected paths. This is static documentation verification, not a fresh build/browser test or proof that every prior chat-only decision was saved. No runtime code, user registry, server state or project data changed.

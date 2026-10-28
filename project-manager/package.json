@@ -8,6 +8,7 @@
   },
   "scripts": {
     "serve": "tsx src/server/main.ts",
+    "mcp": "tsx src/mcp/main.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
@@ -22,6 +23,7 @@
   "packageManager": "pnpm@10.9.0",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",
+    "@modelcontextprotocol/server": "^2.2.0",
     "@trpc/client": "^11.19.0",
     "@trpc/server": "^11.19.0",
     "dotenv": "^17.4.2",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "@modelcontextprotocol/client": "^2.2.0",
     "@types/node": "^26.4.1",
     "tsx": "^4.23.13",
     "typescript": "6.0.3",

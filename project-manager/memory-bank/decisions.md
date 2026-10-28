@@ -23,10 +23,10 @@ Consequences: Do not implement until explicitly requested. Classifier requires s
 
 ## DEC-004: Accuracy-first measurable modules
 Date: 2026-10-01
-Status: accepted
+Status: accepted (design-only scope superseded by DEC-005)
 Context: User requested a narrower technical design focused on measurable accuracy rather than stack selection.
 Decision: Define five logical modules with inspectable input/output contracts: evidence/project registration, retrieval/read, supported fact extraction, temporal reconciliation and grounded answers/clarification. Measure precision and required-fact recall together, isolate modules with reference inputs, then replay complete project histories. Compare one-pass versus bounded turns empirically. Stack and model choice remain supporting decisions rather than success criteria.
-Consequences: Targets are proposed and unmeasured. Annotated source spans, dated state checkpoints, project-held-out evaluation and per-field results are needed before accuracy claims. Empty answers and timeouts cannot improve apparent accuracy. Remain design-only.
+Consequences: Targets are proposed and unmeasured. Annotated source spans, dated state checkpoints, project-held-out evaluation and per-field results are needed before accuracy claims. Empty answers and timeouts cannot improve apparent accuracy. The design-only boundary applied at adoption; DEC-005 authorizes the implemented pilot while preserving these measurement principles.
 
 ## DEC-005: Authorized accuracy-first local pilot
 Date: 2026-10-05
@@ -34,3 +34,10 @@ Status: accepted
 Context: The user explicitly requested implementation of the build plan after the prior design-only clarification.
 Decision: Implement the five measurable modules with Studio Markdown/project selection, immutable targeted classifier storage, direct snapshot extraction, reviewed versioned state and approved-fact questions. Retain sequential intake/state writes and bounded question turns (six model turns, twelve tool calls, total five retrieved passages). Reuse TypeScript/Node, tRPC, SQLite and Studio; begin live evaluation with the configured Anthropic model, without a hidden model default.
 Consequences: DEC-003's design-only boundary is superseded. Candidate facts remain pending until review; conflicts cannot produce definitive current answers; human edits have separate confirmation evidence. Development memory stays separate from runtime data. The 64-document/40-question corpus has five development and three frozen holdout projects; proposals are scored before simulated review, which never repairs omissions. Fixture scores do not justify live accuracy claims. Dedicated classifier library runs without a watcher. Live evaluations are manual and manager cost caps exclude separate classifier calls. Connectors, scheduling, forecasting, assignment and external actions are excluded.
+
+## DEC-006: Local chat MCP bridge delegates to the existing service
+Date: 2026-10-07
+Status: accepted
+Context: User wants this chat connected to the manager, to submit the agents repository and inspect the manager's actual responses.
+Decision: Expose local stdio MCP tools as a typed tRPC client of the existing manager service. Keep Studio as a shared review/trace surface; retain explicit project IDs, source versions, human reviews, persisted conversation IDs and asynchronous run inspection. Register the bridge on the local Codex host.
+Consequences: Never open a second Store from MCP, so connection startup cannot interrupt active runs. Repository documents and selected chat notes are explicit evidence submissions, not implicit transcript synchronization or a shared development memory bank. Task-only extraction/approved-only answers remain unchanged; arbitrary code knowledge requires a separate capability. Service and dedicated classifier must be running. No credentials enter bridge configuration. Use localhost origins only and return failures visibly.

@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: `project-manager/` is authorized for implementation alongside `ingest-classifier/` and `studio/`. Product work stays in each agent's bank.
-Next: verify collection CI registration; keep product work in owning banks.
+Current: Collection memory/protocol audited against the local checkout on 2026-10-28. All registered folders have the required bank files; product audit details stay in owning banks.
+Next: Continue product work in owning banks; use Git branch references to verify publication status.
 
 ## Checklist
 
@@ -109,3 +109,19 @@ Next: verify collection CI registration; keep product work in owning banks.
 - Reviewed the two pending collection memory-bank files: both contain completed publication bookkeeping, with no pending code changes.
 - Refreshed the current context to include the published Studio CI correction at 2b1b45d. Commit these notes separately from the published implementation commits.
 - Documentation-only change; runtime verification is unchanged.
+
+### 2026-10-28 — Memory-bank accuracy audit
+
+- Checked collection protocol/rule pointers, required bank-file presence, tracked files, template commands, CI registration and Git history. All four CI jobs remain registered. Existing publication bookkeeping is already committed at `b9fd369`.
+- Backfilled the preset's existing Biome choice as DEC-011 and marked the affected portion of DEC-008 superseded. Corrected the root README's outdated multi-provider claim against the current provider configuration.
+- Product audits and corrections were recorded separately in owning banks; no product memory was copied into this bank and no bank was merged. Template placeholders remain intentional.
+- At audit start all 25 existing bank files were tracked. Local HEAD and cached `origin/main` matched; no remote freshness or backup claim is made. Existing uncommitted work was preserved. No commit/push or runtime change.
+- Limits: repository evidence cannot establish completeness of past conversational decisions. Static decision/file checks and whitespace verification are used for this documentation task; no new architectural behavior is authorized.
+
+- Final structural validation passes: all required bank files exist; 50 non-template decisions plus the intentional template placeholder have unique IDs and complete fields, and inspected source decision references resolve. Package verification outcomes are recorded only in their owning banks.
+
+### 2026-10-28 — Authorized publication
+
+- User explicitly requested committing and pushing the pending checkout, including the audit and previously local work. Fetched `origin` and confirmed local `main` matches remote `main` before preparing publication.
+- Prepared the reviewed source, documentation and separate memory-bank updates for one commit and a normal push to `origin/main`. Ignored runtime data remains excluded; no history rewrite or unrelated cleanup is included.
+- Package verification and product publication scope remain documented in owning banks. Git commit/branch references provide the resulting publication identity.
