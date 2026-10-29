@@ -125,3 +125,8 @@ Next: Continue product work in owning banks; use Git branch references to verify
 - User explicitly requested committing and pushing the pending checkout, including the audit and previously local work. Fetched `origin` and confirmed local `main` matches remote `main` before preparing publication.
 - Prepared the reviewed source, documentation and separate memory-bank updates for one commit and a normal push to `origin/main`. Ignored runtime data remains excluded; no history rewrite or unrelated cleanup is included.
 - Package verification and product publication scope remain documented in owning banks. Git commit/branch references provide the resulting publication identity.
+
+### 2026-10-29 — Repository cleanup
+
+- Reviewed the pending working-tree changes and removed out-of-scope draft documentation at the user's request. No application source changes remained.
+- Refreshed collection context; validated the documentation diff and working-tree scope before publication.

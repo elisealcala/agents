@@ -1,6 +1,8 @@
 # Active context — _collection
 
 ## Current focus
+On 2026-10-29, removed out-of-scope draft documentation from the working tree after reviewing the pending changes. No application code changes remained; the collection bank records this repository cleanup.
+
 Memory-bank audit completed on 2026-10-28 against local `main` at `b9fd369` and existing uncommitted work. Collection rules, template and CI registration were inspected. Each registered product/application has its own required bank files; detailed product findings remain in those banks.
 
 The optional TypeScript preset already uses Biome for lint and formatting. DEC-011 backfills this existing implementation and supersedes the tooling portion of DEC-008. The root README now reflects the implemented provider configuration.
