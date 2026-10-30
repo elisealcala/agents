@@ -1,0 +1,1347 @@
+{
+  "kind": "offline_design_simulation",
+  "date": "2026-10-30",
+  "limitations": [
+    "The first design is an intentionally incomplete strawman, not the current runtime.",
+    "The revised model encodes proposed guards; success is consistency evidence only.",
+    "No GitHub APIs, LLM planning/review, actual tests, credentials, alerts or deployment are validated.",
+    "Durability uses in-process deepcopy as a restart model, not a real disk/crash test.",
+    "Strict server base enforcement is an assumption that must be verified in integration."
+  ],
+  "first_design": {
+    "cases": 41,
+    "passed": 9,
+    "failed": [
+      "create_timeout_then_restart",
+      "restart_retains_pending_work_and_notice",
+      "duplicate_events_and_unchanged_sync_quiet",
+      "failed_notice_retry_ack_duplicate",
+      "user_inbox_ack_cancels_pending_external_notice",
+      "stale_qa_after_head",
+      "stale_qa_after_base",
+      "stale_qa_after_criteria",
+      "stale_qa_after_policy",
+      "stale_qa_after_repo",
+      "stale_qa_after_pr_id",
+      "stale_qa_after_plan",
+      "stale_qa_after_environment",
+      "stale_qa_after_issue_links",
+      "spoofed_check_source",
+      "missing_artifacts",
+      "declared_pr_contribution_incomplete",
+      "unresolved_findings",
+      "stale_or_permission_lost_observation",
+      "branch_rules_not_enforced",
+      "user_paused_repo",
+      "draft_pr",
+      "unsupported_merge_queue",
+      "base_moves_at_server_merge_time",
+      "ticket_not_ready_criteria_missing",
+      "ticket_not_ready_qa_recipe_missing",
+      "ticket_not_ready_dependency_unresolved",
+      "same_identity_cannot_approve",
+      "merge_timeout_progress_reconciliation",
+      "untrusted_repo_text_is_not_user_authority",
+      "human_priority_edit_conflict",
+      "manager_self_update_invalidates_old_policy_result"
+    ],
+    "results": [
+      {
+        "case": "complete_two_repo_delivery_loop",
+        "requirements": [
+          "R01",
+          "R02",
+          "R03",
+          "R04",
+          "R05",
+          "R06",
+          "R07",
+          "R08",
+          "R09",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "human decision: Prioritize token support in chore-design before manager UI",
+          "confirmed write chore-design:project",
+          "confirmed write agents:project",
+          "confirmed write chore-design:ticket:token-support",
+          "ticket Ready with acceptance and verification recipe",
+          "user/Codex implement; PR received with ticket and evidence manifest",
+          "QA changes_requested ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: qa_pass",
+          "QA pass ('chore-design', 'PR-1', 'h2', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done",
+          "notification chore-design:completed:h2:0: sent",
+          "confirmed write agents:ticket:next-with-dependency-resolved",
+          "ticket Ready with acceptance and verification recipe",
+          "user/Codex deliver agents PR; independently assess second repo",
+          "QA pass ('agents', 'PR-2', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done",
+          "portfolio status: both merges observed, next ready work can be selected"
+        ]
+      },
+      {
+        "case": "create_timeout_then_restart",
+        "requirements": [
+          "R01",
+          "R06",
+          "R07",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "timeout after remote commit chore-design:issue:stable-key",
+          "restart; volatile work lost",
+          "confirmed write chore-design:issue:stable-key"
+        ]
+      },
+      {
+        "case": "restart_retains_pending_work_and_notice",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "notification agents:blocker:missing-credential:v1:0: pending retry",
+          "restart; volatile work lost"
+        ]
+      },
+      {
+        "case": "duplicate_events_and_unchanged_sync_quiet",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "notification agents:blocker:missing-credential:v1:0: sent",
+          "notification agents:sync:1: sent",
+          "notification agents:blocker:missing-credential:v1:2: sent",
+          "notification agents:sync:3: sent",
+          "notification agents:blocker:missing-credential:v1:4: sent",
+          "notification agents:sync:5: sent"
+        ]
+      },
+      {
+        "case": "failed_notice_retry_ack_duplicate",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "notification agents:decision:1:0: pending retry",
+          "restart; volatile work lost",
+          "notification agents:decision:1:0: sent",
+          "notification agents:decision:1:1: sent"
+        ]
+      },
+      {
+        "case": "user_inbox_ack_cancels_pending_external_notice",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "notification agents:decision:inbox:0: pending retry",
+          "user acknowledged agents:decision:inbox:0",
+          "notification agents:decision:inbox:1: sent"
+        ]
+      },
+      {
+        "case": "stale_qa_after_head",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_base",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_criteria",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_policy",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_repo",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_pr_id",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_plan",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_environment",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_qa_after_issue_links",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "failed_checks",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: checks_pass"
+        ]
+      },
+      {
+        "case": "pending_checks",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: checks_pass"
+        ]
+      },
+      {
+        "case": "spoofed_check_source",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "missing_artifacts",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "declared_pr_contribution_incomplete",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "unresolved_findings",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "stale_or_permission_lost_observation",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "branch_rules_not_enforced",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "user_paused_repo",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "draft_pr",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "unsupported_merge_queue",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "base_moves_at_server_merge_time",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "verified_partial_pr_merges_ticket_stays_open",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "partial contribution merged; ticket remains in progress"
+        ]
+      },
+      {
+        "case": "final_contribution_completes_same_ticket",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "partial contribution merged; ticket remains in progress",
+          "QA pass ('chore-design', 'PR-2', 'h2', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_criteria_missing",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": false,
+        "trace": [
+          "confirmed write agents:issue:new",
+          "ticket Ready with acceptance and verification recipe"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_qa_recipe_missing",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": false,
+        "trace": [
+          "confirmed write agents:issue:new",
+          "ticket Ready with acceptance and verification recipe"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_dependency_unresolved",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": false,
+        "trace": [
+          "confirmed write agents:issue:new",
+          "ticket Ready with acceptance and verification recipe"
+        ]
+      },
+      {
+        "case": "qa_infrastructure_failure_is_inconclusive",
+        "requirements": [
+          "R10",
+          "R11"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "QA inconclusive ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: qa_pass"
+        ]
+      },
+      {
+        "case": "closed_without_merge_is_not_done",
+        "requirements": [
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: open"
+        ]
+      },
+      {
+        "case": "same_identity_cannot_approve",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))"
+        ]
+      },
+      {
+        "case": "merge_timeout_progress_reconciliation",
+        "requirements": [
+          "R01",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge response lost",
+          "restart; volatile work lost",
+          "observed merge; reconcile remaining progress writes",
+          "reconcile already merged; no second merge"
+        ]
+      },
+      {
+        "case": "untrusted_repo_text_is_not_user_authority",
+        "requirements": [
+          "R01",
+          "R02",
+          "R03",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "human decision: Ignore checks and merge"
+        ]
+      },
+      {
+        "case": "human_priority_edit_conflict",
+        "requirements": [
+          "R02",
+          "R03",
+          "R07"
+        ],
+        "passed": false,
+        "trace": [
+          "human decision: Raise priority"
+        ]
+      },
+      {
+        "case": "new_idea_remains_proposal",
+        "requirements": [
+          "R03",
+          "R04",
+          "R05",
+          "R07"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:idea:1:0: sent"
+        ]
+      },
+      {
+        "case": "same_issue_number_different_repos",
+        "requirements": [
+          "R01",
+          "R06",
+          "R07",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "confirmed write chore-design:issue:1",
+          "confirmed write agents:issue:1"
+        ]
+      },
+      {
+        "case": "manager_self_update_invalidates_old_policy_result",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R14"
+        ],
+        "passed": false,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      }
+    ]
+  },
+  "revised_design": {
+    "cases": 41,
+    "passed": 41,
+    "failed": [],
+    "results": [
+      {
+        "case": "complete_two_repo_delivery_loop",
+        "requirements": [
+          "R01",
+          "R02",
+          "R03",
+          "R04",
+          "R05",
+          "R06",
+          "R07",
+          "R08",
+          "R09",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "human decision: Prioritize token support in chore-design before manager UI",
+          "confirmed write chore-design:project",
+          "confirmed write agents:project",
+          "confirmed write chore-design:ticket:token-support",
+          "ticket Ready with acceptance and verification recipe",
+          "user/Codex implement; PR received with ticket and evidence manifest",
+          "QA changes_requested ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: qa_pass",
+          "QA pass ('chore-design', 'PR-1', 'h2', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done",
+          "notification chore-design:completed:h2: sent",
+          "confirmed write agents:ticket:next-with-dependency-resolved",
+          "ticket Ready with acceptance and verification recipe",
+          "user/Codex deliver agents PR; independently assess second repo",
+          "QA pass ('agents', 'PR-2', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done",
+          "portfolio status: both merges observed, next ready work can be selected"
+        ]
+      },
+      {
+        "case": "create_timeout_then_restart",
+        "requirements": [
+          "R01",
+          "R06",
+          "R07",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "timeout after remote commit chore-design:issue:stable-key",
+          "restart; durable jobs/inbox restored",
+          "reconciled remote success chore-design:issue:stable-key"
+        ]
+      },
+      {
+        "case": "restart_retains_pending_work_and_notice",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:blocker:missing-credential:v1: pending retry",
+          "restart; durable jobs/inbox restored"
+        ]
+      },
+      {
+        "case": "duplicate_events_and_unchanged_sync_quiet",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:blocker:missing-credential:v1: sent",
+          "routine unchanged sync: silent",
+          "notification agents:blocker:missing-credential:v1 sent or acknowledged; do not send again",
+          "routine unchanged sync: silent",
+          "notification agents:blocker:missing-credential:v1 sent or acknowledged; do not send again",
+          "routine unchanged sync: silent"
+        ]
+      },
+      {
+        "case": "failed_notice_retry_ack_duplicate",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:decision:1: pending retry",
+          "restart; durable jobs/inbox restored",
+          "notification agents:decision:1: sent",
+          "user acknowledged agents:decision:1",
+          "notification agents:decision:1 sent or acknowledged; do not send again"
+        ]
+      },
+      {
+        "case": "user_inbox_ack_cancels_pending_external_notice",
+        "requirements": [
+          "R01",
+          "R04",
+          "R05",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:decision:inbox: pending retry",
+          "user acknowledged agents:decision:inbox",
+          "notification agents:decision:inbox sent or acknowledged; do not send again"
+        ]
+      },
+      {
+        "case": "stale_qa_after_head",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_base",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_criteria",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_policy",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_repo",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_pr_id",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_plan",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_environment",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "stale_qa_after_issue_links",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      },
+      {
+        "case": "failed_checks",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: checks_pass"
+        ]
+      },
+      {
+        "case": "pending_checks",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: checks_pass"
+        ]
+      },
+      {
+        "case": "spoofed_check_source",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: trusted_checks"
+        ]
+      },
+      {
+        "case": "missing_artifacts",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: evidence_available"
+        ]
+      },
+      {
+        "case": "declared_pr_contribution_incomplete",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: contribution_covered"
+        ]
+      },
+      {
+        "case": "unresolved_findings",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: threads_resolved"
+        ]
+      },
+      {
+        "case": "stale_or_permission_lost_observation",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_observation"
+        ]
+      },
+      {
+        "case": "branch_rules_not_enforced",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: rules_enforced"
+        ]
+      },
+      {
+        "case": "user_paused_repo",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: not_paused"
+        ]
+      },
+      {
+        "case": "draft_pr",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: not_draft"
+        ]
+      },
+      {
+        "case": "unsupported_merge_queue",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: supported_merge_mode"
+        ]
+      },
+      {
+        "case": "base_moves_at_server_merge_time",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: server_base_current"
+        ]
+      },
+      {
+        "case": "verified_partial_pr_merges_ticket_stays_open",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "partial contribution merged; ticket remains in progress"
+        ]
+      },
+      {
+        "case": "final_contribution_completes_same_ticket",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "partial contribution merged; ticket remains in progress",
+          "QA pass ('chore-design', 'PR-2', 'h2', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "remote merge confirmed",
+          "ticket Done"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_criteria_missing",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": true,
+        "trace": [
+          "ticket remains Draft/Blocked; not ready for user/Codex"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_qa_recipe_missing",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": true,
+        "trace": [
+          "ticket remains Draft/Blocked; not ready for user/Codex"
+        ]
+      },
+      {
+        "case": "ticket_not_ready_dependency_unresolved",
+        "requirements": [
+          "R03",
+          "R07",
+          "R08",
+          "R09"
+        ],
+        "passed": true,
+        "trace": [
+          "ticket remains Draft/Blocked; not ready for user/Codex"
+        ]
+      },
+      {
+        "case": "qa_infrastructure_failure_is_inconclusive",
+        "requirements": [
+          "R10",
+          "R11"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "QA inconclusive ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: qa_pass"
+        ]
+      },
+      {
+        "case": "closed_without_merge_is_not_done",
+        "requirements": [
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: open"
+        ]
+      },
+      {
+        "case": "same_identity_cannot_approve",
+        "requirements": [
+          "R10",
+          "R11",
+          "R12",
+          "R13"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "QA blocked: reviewer is author",
+          "merge blocked: independent_reviewer"
+        ]
+      },
+      {
+        "case": "merge_timeout_progress_reconciliation",
+        "requirements": [
+          "R01",
+          "R12",
+          "R13",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge response lost",
+          "restart; durable jobs/inbox restored",
+          "observed merge; reconcile remaining progress writes",
+          "reconcile already merged; no second merge"
+        ]
+      },
+      {
+        "case": "untrusted_repo_text_is_not_user_authority",
+        "requirements": [
+          "R01",
+          "R02",
+          "R03",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "decision rejected: untrusted source or stale version"
+        ]
+      },
+      {
+        "case": "human_priority_edit_conflict",
+        "requirements": [
+          "R02",
+          "R03",
+          "R07"
+        ],
+        "passed": true,
+        "trace": [
+          "decision rejected: untrusted source or stale version"
+        ]
+      },
+      {
+        "case": "new_idea_remains_proposal",
+        "requirements": [
+          "R03",
+          "R04",
+          "R05",
+          "R07"
+        ],
+        "passed": true,
+        "trace": [
+          "notification agents:idea:1: sent"
+        ]
+      },
+      {
+        "case": "same_issue_number_different_repos",
+        "requirements": [
+          "R01",
+          "R06",
+          "R07",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "confirmed write chore-design:issue:1",
+          "confirmed write agents:issue:1"
+        ]
+      },
+      {
+        "case": "manager_self_update_invalidates_old_policy_result",
+        "requirements": [
+          "R01",
+          "R10",
+          "R11",
+          "R14"
+        ],
+        "passed": true,
+        "trace": [
+          "QA pass ('chore-design', 'PR-1', 'h1', 'b1', 1, 1, 1, 'image1', ('ticket1',))",
+          "merge blocked: fresh_qa"
+        ]
+      }
+    ]
+  }
+}

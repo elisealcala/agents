@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: Local pilot and chat MCP bridge implemented; source/memory audit refreshed on 2026-10-28. User authorized publication of the MCP work and audit on 2026-10-28.
-Next: Address labeled demo quality gaps, then measure the manual live baseline and representative-note accuracy.
+Current: Expanded GitHub planning/QA/delivery system design v1 completed and iteratively simulated on 2026-10-30 (DEC-008). Existing runtime remains the offline assisted pilot; expanded capabilities are not implemented.
+Next: Implement in the canonical design's phases, configure real integrations/hosting and verify the full controlled workflow plus planning/QA quality. Local startup and existing quality gaps remain open.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -12,6 +12,9 @@ Next: Address labeled demo quality gaps, then measure the manual live baseline a
 - [x] Implement evidence, review, grounded answers, Studio and evaluation modules
 - [x] Verify local pilot and classifier regression behavior
 - [ ] Measure live baseline and representative-note accuracy separately
+- [x] Capture two-repository GitHub planning/QA/delivery requirements (DEC-007)
+- [x] Design expanded delivery system and iteratively simulate workflow (DEC-008)
+- [ ] Implement and verify the expanded GitHub delivery loop
 
 ## Log
 ### 2026-10-01
@@ -89,3 +92,37 @@ Next: Address labeled demo quality gaps, then measure the manual live baseline a
 - No source behavior changed during publication preparation. Final Git references identify the commit and push result.
 
 - Publication verification resolved the listener restriction: verifier reran all 20 MCP tests with local listener permissions and all passed. Together with the 85 non-MCP passes, current coverage is 105/105. Source/config formatting passes across 29 files and whitespace checks pass. Full-package formatting still sees the two ignored runtime demo artifacts; they remain unchanged and outside the commit. No live model calls.
+
+### 2026-10-30 — Two-repository readiness check
+
+- User wants help managing two repositories and asks whether the agent is ready to run them. Repository identities and desired responsibilities were requested; no expanded execution design was selected.
+- Current MCP `list_projects` returns `fetch failed`; no listeners were found on ports 8788/8789. The manager has no `.env`, and this shell has no Anthropic key, manager model or dedicated library-root settings. Existing dependencies, manager database and evidence directory are present. Credentials elsewhere were not searched and persisted projects could not be listed through the service.
+- Reviewed current README, service/router and recorded live demo. Implemented scope is explicit Markdown evidence intake, pending human review, approved task facts and grounded questions. Automatic repository synchronization, scheduling, assignment and external/code actions are absent. Starting services alone would not provide autonomous repository management.
+- The live README demo's unsupported status proposals and missing project-name context remain documented; representative live accuracy is unmeasured. Historical tests were not rerun for this source/runtime inspection. No services started, model calls made, project records changed or facts approved. Updated only this agent's development bank; preserved unrelated checkout changes.
+
+### 2026-10-30 — GitHub delivery responsibilities clarified
+
+- User identified `elisealcala/chore-design` and `elisealcala/agents`. Wants direct manager conversations for status/next steps/priorities/blockers, proactive contact for blockers and new ideas, GitHub Projects and ticket descriptions, PR evidence intake, QA testing/reviews/change requests/approval, merging, and ongoing progress/backlog maintenance. The user/Codex own implementation from ticket to PR.
+- Captured requirements and missing capabilities in plans/0001-github-delivery-loop.md and accepted DEC-007 as product direction. QA may be an internal agent; exact architecture remains undecided. Existing pilot capability and live-accuracy limits are unchanged.
+- Read-only GitHub connector searches found both repos with pull/push/admin permissions in this session. Those permissions are not manager-process configuration. Issue/review/merge tools are available to this chat; no Projects tools were found in the current connector catalog. No GitHub writes, reviews, merges, service startup or code implementation occurred.
+- Updated only the manager bank and checked whitespace. Runtime tests were unnecessary for requirements-only changes; unrelated checkout edits were preserved.
+
+### 2026-10-30 — System design, orchestration and iterative workflow simulation
+
+- User explicitly requested system-design and orchestrator agents for the GitHub integration and QA workflow, iterative simulation/adjustment, and a clear final system design. Delegated two independent draft contributions, then synthesized docs/github-delivery-system-design.md and docs/github-delivery-workflow-validation.md with canonical R01–R15 requirements and a 16-step two-repo tabletop.
+- Verified primary GitHub documentation for personal Projects authentication/GraphQL operations, distinct reviewer identity, conditional head merge, strict branch checks/expected status sources, privileged PR-execution risk and webhook reconciliation. These informed explicit activation gates; no connected-chat permission was treated as manager-runtime access.
+- Chose durable single-owner orchestration, typed observed/human/proposal lanes, independent VM/microVM QA, contribution/whole-ticket completion separation, protected current-version merge, meaningful private/public-safe notification handling and external host health monitoring. Added DEC-008. Existing independent service/bank boundaries and pending note-fact review remain intact.
+- Created an offline executable design model and JSON trace report in docs/simulations/. The first incomplete strawman/tabletop exposed missing planning, freshness, recovery and attention guards. Independent review then found the model hid repeated notification sends behind a unique-record count; corrected actual delivery-attempt checks and retry/ack/dedup scenario. A second review found PR contribution readiness conflated with whole-ticket completion; split them and added partial/final contribution scenarios. Extended fingerprint invalidation across repo/PR/head/base/criteria/plan/policy/environment/linked issues.
+- Final model replay: 41/41 selected revised scenarios versus 9/41 for the intentionally incomplete strawman. These are finite proposed-design consistency results only, with fake remote effects and in-memory restart modeling; not actual GitHub, disk durability, QA/model accuracy, alert delivery or bank-isolation execution evidence. R15 is design/tabletop-only.
+- No runtime source changes, model calls, GitHub writes/reviews/merges, services, credentials, notifications or commits were made. Preserved unrelated collection/career-assistant changes. Final artifact verification follows below.
+
+- Artifact verifier found an additional model counterexample: user inbox acknowledgement during failed external delivery did not suppress a later send. Fixed the acknowledgement guard and added that scenario. Final replay now has 41/41 revised cases (9/41 incomplete strawman); earlier 40-case results were intermediate. Verification rerun requested.
+
+### 2026-10-30 — Final design artifact verification
+
+- Verifier reran the offline model: 41/41 revised scenarios pass and saved JSON matches fresh replay exactly. Python syntax, whitespace, Markdown local links, R01–R15 register and final counts pass. The acknowledgement-before-delivery counterexample and partial-PR completion scenarios pass. No material design contradictions found.
+- Added README links to the canonical design and workflow validation. Production TypeScript/lint/test/build and real integration checks were not run for this documentation/design-model task. No operational readiness or live semantic accuracy is claimed. Manager memory-bank update is complete; no unrelated banks were read or changed by this task.
+
+### 2026-10-30 — Authorized design commit
+
+- User requested committing the system design, then a phased technical implementation plan with a deployed web UI and no routine terminal interaction. Commit the manager design, validation/model artifacts, requirements and corresponding development-bank updates as one local documentation commit; unrelated collection/career-assistant changes remain outside it. Git history records the commit result; remote push was not requested.

@@ -111,3 +111,16 @@ actual responses and observed extraction/clarification gaps.
 - `evals`: frozen corpus, scoring and manual replay runner.
 
 Questions use approved state and approved source passages. Models select fact IDs; code renders their factual values. Additional retrieval never modifies state. Connectors, scheduling, forecasting, automatic assignment and external actions are outside this version.
+
+## Proposed GitHub delivery system
+
+The [system design](docs/github-delivery-system-design.md) specifies the expanded
+planning, GitHub Projects/ticket, independent QA, review/merge, progress and
+proactive-notification workflow for `elisealcala/chore-design` and
+`elisealcala/agents`. The user and Codex retain ticket-to-PR implementation.
+This expansion is designed, not implemented in the pilot above.
+
+The [workflow validation](docs/github-delivery-workflow-validation.md) traces
+15 requirements, two tabletop rounds and iterative independent review.
+The offline model passes 41 selected proposed-design scenarios; its report
+does not establish live GitHub access, QA quality or operational readiness.
