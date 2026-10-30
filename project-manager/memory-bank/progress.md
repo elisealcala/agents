@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: Expanded GitHub planning/QA/delivery system design v1 completed and iteratively simulated on 2026-10-30 (DEC-008). Existing runtime remains the offline assisted pilot; expanded capabilities are not implemented.
-Next: Implement in the canonical design's phases, configure real integrations/hosting and verify the full controlled workflow plus planning/QA quality. Local startup and existing quality gaps remain open.
+Current: System design committed locally as `52b7dae`; deployed-web-UI technical plan written in eight stages (DEC-009). Existing runtime remains the offline assisted pilot; new UI/integrations/hosting are not implemented.
+Next: Start Stage 1 contracts/persistence/UI slices, then deliver private hosted access in Stage 2. Follow the staged browser acceptance and real integration/quality gates; local startup and existing quality gaps remain open.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -14,6 +14,7 @@ Next: Implement in the canonical design's phases, configure real integrations/ho
 - [ ] Measure live baseline and representative-note accuracy separately
 - [x] Capture two-repository GitHub planning/QA/delivery requirements (DEC-007)
 - [x] Design expanded delivery system and iteratively simulate workflow (DEC-008)
+- [x] Commit system design and define deployed-web-UI implementation stages (DEC-009)
 - [ ] Implement and verify the expanded GitHub delivery loop
 
 ## Log
@@ -126,3 +127,15 @@ Next: Implement in the canonical design's phases, configure real integrations/ho
 ### 2026-10-30 — Authorized design commit
 
 - User requested committing the system design, then a phased technical implementation plan with a deployed web UI and no routine terminal interaction. Commit the manager design, validation/model artifacts, requirements and corresponding development-bank updates as one local documentation commit; unrelated collection/career-assistant changes remain outside it. Git history records the commit result; remote push was not requested.
+
+### 2026-10-30 — Deployed UI technical implementation plan
+
+- Committed the reviewed system design and validation/model/bank artifacts locally on `main`: `52b7dae` (`docs: design GitHub project delivery and QA workflow`), 11 scoped manager files. Unrelated collection/career-assistant work remained outside the commit; no push.
+- Inspected the existing Studio manager components/routes/client and manager package/server contracts without reading any other component's memory bank. Studio already provides a local Next.js/React/tRPC manager UI, but its browser client takes a direct agent URL and the server is localhost-only/unauthenticated. The plan makes authenticated same-origin server access and explicit hosted networking early work.
+- Added docs/implementation/README.md and eight stage files covering contracts/state/UI; hosted access; GitHub connections/sync/Projects; conversations/planning/tickets; isolated QA; reviews/merge/progress; proactive browser operation; and full production pilot. Every phase includes proposed files, ticket-sized planning IDs, dependencies, browser journeys, checks, exit and rollback. Added bank pointer plan 0002 and DEC-009; linked from README/canonical design.
+- Primary user requirement is a deployed website with no terminal dependency for daily operation. Hosting/auth arrives in Stage 2 rather than after all integrations; Stage 4 is a useful planning release. Provider/domain/budget and real secrets remain implementation inputs. Checked primary Next.js self-hosting and Auth.js session/route guidance; no packages installed or hosting provider selected.
+- No runtime source/empty scaffolds, GitHub tickets, infrastructure, services, credentials or external writes were created. The staged plan is a second local documentation change pending artifact verification/commit; preserved unrelated checkout changes.
+
+- Verifier checked eight stages, 12 documents and 38 local links/anchors; source/path claims and component boundaries match current code. Addressed two findings: hosted setup/health must survive missing provider configuration despite current bootstrap throwing before HTTP; Stage 6 merge exercises are controlled staging/pilot only, with unattended production dispatch gated on Stage 7 attention/operations and Stage 8 quality acceptance. No runtime tests were necessary for the documentation-only plan.
+
+- Final verifier recheck passes: 12 documents, 38 local links/anchors, all eight phase structures and whitespace; both findings resolved and no material contradictions remain. Save the staged technical plan and its scoped README/design/bank updates as a second local documentation commit; Git history identifies it. No remote publication or application implementation is included.

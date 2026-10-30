@@ -8,6 +8,8 @@ This document describes the target system. The existing local pilot implements e
 
 The user talks to one project manager about both repositories. The manager explains current status with links and freshness, keeps a small prioritized backlog, creates complete issues, and asks for decisions only when needed. The user selects an issue and works with Codex to open a PR. The manager notices the PR, commissions independent QA, publishes findings, waits for corrections, and merges the verified result when repository rules permit. It then updates progress and the next available ticket. When the user is away, the manager continues monitoring and sends a message for a blocker, required decision or useful new idea. An unchanged state produces no message.
 
+The user clarified that daily use must happen in a deployed web UI without terminal interaction. The primary product is a private, authenticated manager application reusing Studio's Next.js UI, with persisted conversations, work/QA views, inbox and browser setup/operations. MCP is optional integration tooling. The [eight-stage implementation plan](implementation/README.md) delivers the hosted UI early and defines browser acceptance for every phase (DEC-009).
+
 Planning and QA are reasoning roles. The orchestrator is a persistent application that controls state and actions. A model can propose a ticket or verdict, but cannot bypass readiness, identity, QA or merge rules by emitting text.
 
 **Chosen division:** one user-facing manager, one planner role, one independent QA role, and one deterministic orchestrator. The user/Codex implement. The manager prepares work, coordinates QA and merges eligible PRs. These are distinct responsibilities; they do not require a fleet of peer agents or a new orchestration framework. A repository integration and QA adapter extend the current manager rather than replacing its evidence/review foundation.
@@ -150,6 +152,8 @@ Use transactions to record observed event, reducer result and outbox intent toge
 Escalate repeated infrastructure/model failures under a bounded retry/time/cost policy. A proposed starting policy is two automatic QA reruns for transient infrastructure failures, then one user-visible blocker. Findings requiring code changes wait for a new user/Codex PR revision; no endless autonomous rewrite loop. Structured model output validation and per-job model/token/time budgets apply to planning and QA.
 
 ## Delivery sequence and proof of readiness
+
+The modules below describe the architecture. The detailed [implementation stages](implementation/README.md#stages-and-dependencies) govern coding order: foundation/UI → private deployment → GitHub connections → planning/tickets → QA → reviews/merge/progress → proactive operation → production acceptance. Hosting and owner sign-in arrive before GitHub automation, rather than being deferred until all modules are finished.
 
 1. **State and conversation:** migrate schemas, bind repos, inventory existing work, typed observed-state and user-decision APIs, portfolio status dossier, durable scheduler/outbox. Exit: stale data and source distinctions are visible; restart/replay preserves state.
 2. **Planning and GitHub Projects:** configure identity/owner permissions, adopt/create Projects, ready-ticket authoring, dependencies, revisions and priority handling. Exit: user can select one real issue without reconstructing context; duplicate creation/retry and human edits are exercised.

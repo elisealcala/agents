@@ -124,3 +124,9 @@ The [workflow validation](docs/github-delivery-workflow-validation.md) traces
 15 requirements, two tabletop rounds and iterative independent review.
 The offline model passes 41 selected proposed-design scenarios; its report
 does not establish live GitHub access, QA quality or operational readiness.
+
+The [implementation plan](docs/implementation/README.md) divides this expansion
+into eight stages, with a private hosted web UI in Stage 2, useful planning in
+Stage 4, then independent QA, protected merging, proactive operation and full
+production acceptance. Each stage lists implementation slices, proposed files,
+browser journeys and exit criteria. Routine use will require no terminal.
