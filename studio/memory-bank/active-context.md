@@ -1,6 +1,9 @@
 # Active context — studio
 
 ## Current focus
+
+Stage 1 of the project-manager work has a local implementation awaiting final verification and publication. The local `/manager` shell provides portfolio and local repository reference controls, read-only delivery state and the existing notes/review/evidence workspace. Responsive panels stack at mobile widths. GitHub connection, QA and automated delivery are not yet available. Browser checks used synthetic local data; this is not a deployed product.
+
 Memory/source audit completed on 2026-10-28. All five decisions are recorded and align with the inspected scripts, typed clients, optional registry kind, workspace reset and citation/review UI. No new Studio checks, browser flow or build was run for this documentation-only audit.
 
 Clean-checkout CI typechecking is repaired: typecheck now runs `next typegen` before `tsc` (DEC-005). The verifier reproduced the original LayoutProps error and passed the complete check twice in a fresh copy, including after removing generated types and compiler cache.

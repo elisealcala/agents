@@ -3,7 +3,7 @@
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "project-manager/server";
+import type { AppRouter } from "../../project-manager/src/server/router";
 
 export const { TRPCProvider: ProjectTRPCProvider, useTRPC: useProjectTRPC } =
   createTRPCContext<AppRouter>();

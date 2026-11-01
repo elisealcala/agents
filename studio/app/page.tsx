@@ -11,6 +11,12 @@ export default async function HomePage() {
           Local agents on this machine. Each one runs its own server.
         </p>
       </div>
+      <Link
+        href="/manager"
+        className="rounded-lg border px-4 py-3 font-medium hover:bg-muted"
+      >
+        Open project manager
+      </Link>
       <ul className="divide-y rounded-lg border">
         {agents.map((agent) => (
           <li key={agent.id}>

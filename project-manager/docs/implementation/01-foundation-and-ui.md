@@ -1,6 +1,6 @@
 # Stage 1 — Contracts, durable state and UI foundation
 
-Status: Planned. Prerequisite: committed system design. Next: [Stage 2](02-private-deployment-and-access.md).
+Status: Implemented locally; verification and publication are recorded in the project-manager memory bank. Prerequisite: committed system design. Next: [Stage 2](02-private-deployment-and-access.md).
 
 ## Outcome
 
@@ -16,7 +16,7 @@ A navigable manager web application and a durable delivery domain exist. The use
 | PM-104: Manager UI shell | `studio/app/manager/`, `studio/components/manager/{shell,project-switcher,status-state}.tsx` | Navigation, explicit portfolio scope, responsive/accessible states and capability flags using clearly labelled preview fixtures, then read-only real state. Depends on PM-101; integrate PM-102/103 before exit. |
 | PM-105: Legacy compatibility | Existing manager workspace/client/router and shared evidence panels | Preserve current review, conversations, source inspection and traces as tools within the new UI; no automatic candidate acceptance. Depends on PM-102/104. |
 
-These are planning IDs, not existing GitHub issue numbers. Resolve them to real issues in the implementation backlog.
+These are planning IDs; the whole stage is tracked by GitHub issue #21.
 
 ## Contracts and state
 
@@ -36,3 +36,9 @@ Navigate the new manager shell by keyboard at desktop/mobile widths; select each
 - Manager typecheck/lint/scoped tests and Studio typecheck/lint/build pass; browser navigation and legacy evidence flow pass.
 
 Exit: a real UI shell is integrated with durable state and legacy flows. No public deployment or GitHub mutation is enabled. Rollback: restore the pre-migration snapshot using the documented compatibility boundary; retain operation records needed to reconcile any later effects.
+
+## Implemented boundary
+
+The manager stores local references to the two selected repositories using stable GitHub numeric IDs. Saving a reference does not install or authorize a GitHub App, import issues, or establish a live connection. The Studio notes project remains independently selected and is not automatically associated with a repository. GitHub connection and inventory remain Stage 3 work.
+
+The scheduler starts with no registered external adapters. It can run explicitly injected fake adapters in tests, fences stale attempts, and marks timed-out or interrupted effects for reconciliation. Abort signals are cooperative: a future real adapter must honor cancellation or use enforced isolation, and an unknown effect must be reconciled before retry. No remote mutation or automatic QA/merging is enabled in Stage 1. See [migration and recovery](../operations/stage-1-migration.md).

@@ -62,3 +62,15 @@ Next: Configure the live local pilot and measure real-model behavior separately.
 - Compared all five recorded decisions with `package.json`, `lib/registry.ts`, both typed tRPC clients, agent routing and project workspace/panel code. Independent process boundaries, optional-kind compatibility, `next typegen` before `tsc`, keyed project resets and citation identity checks are present.
 - Refreshed active context to distinguish dated verification/server observations from current source inspection. Original dated history and superseded design-only decisions are retained.
 - No missing major Studio architecture decision was identified in the inspected paths. This is static documentation verification, not a fresh build/browser test or proof that every prior chat-only decision was saved. No runtime code, user registry, server state or project data changed.
+
+### 2026-11-01 — Manager foundation in progress
+
+- Added a local `/manager` shell with navigation, real read-only manager queries, labelled unconnected scopes, unavailable states and an entry to the existing notes, review, conversation and source panels. Scope selection survives browser refresh.
+- Tested the shell in a browser using a synthetic project and human confirmation, including exact source verification; adjusted the review/source panels to stack on a narrow viewport. Manager delivery and GitHub connection work remains incomplete, and the shell is not deployed.
+- Verification: Studio checks and a Webpack production build passed; browser checks also covered scope selection across refresh, offline state and a synthetic human-confirmation source. Further automated browser and Stage 1 acceptance coverage remains open.
+
+### 2026-11-01 — Stage 1 local repository references
+
+- Added controls to save the two verified repository IDs as local references, with explicit wording that GitHub is not connected or imported. Clarified that legacy notes projects are independently selected from repository scope.
+- In an isolated browser session, saved both references, refreshed the selected scope, and navigated by keyboard at desktop and mobile widths. Final verification and publication belong to the Stage 1 manager task.
+- Final verifier passed Studio typecheck, lint, format and Webpack production build; full manager suite passed 132 tests. Browser results above used isolated test data.

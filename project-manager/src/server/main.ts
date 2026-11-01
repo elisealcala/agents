@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { createHTTPHandler } from "@trpc/server/adapters/standalone";
 import { Manager } from "../application/manager.ts";
 import { Store } from "../storage/store.ts";
+import { DeliveryScheduler } from "../delivery/scheduler.ts";
 import { createAnthropicModel } from "../providers/anthropic.ts";
 import { createWorker } from "../providers/worker.ts";
 import { appRouter } from "./router.ts";
@@ -37,6 +38,8 @@ const origin = process.env.STUDIO_ORIGIN ?? "http://localhost:3000";
 const port = Number(process.env.PROJECT_MANAGER_PORT ?? "8788");
 if (!Number.isInteger(port) || port < 1 || port > 65535)
   throw new Error("Invalid PROJECT_MANAGER_PORT");
+// No external adapters are enabled in Stage 1. Unknown kinds remain queued.
+const scheduler = new DeliveryScheduler(store.delivery, {});
 const server = createServer((req, res) => {
   if (req.headers.origin && req.headers.origin !== origin) {
     res.writeHead(403);
@@ -53,12 +56,15 @@ const server = createServer((req, res) => {
   }
   handler(req, res);
 });
-server.listen(port, "127.0.0.1", () =>
-  console.log(`Project manager: http://127.0.0.1:${port}`),
-);
+server.listen(port, "127.0.0.1", () => {
+  scheduler.start();
+  console.log(`Project manager: http://127.0.0.1:${port}`);
+});
 for (const signal of ["SIGINT", "SIGTERM"] as const)
-  process.once(signal, () =>
+  process.once(signal, () => {
     server.close(() => {
-      void manager.close().finally(() => store.close());
-    }),
-  );
+      void Promise.allSettled([scheduler.stop(), manager.close()]).finally(() =>
+        store.close(),
+      );
+    });
+  });

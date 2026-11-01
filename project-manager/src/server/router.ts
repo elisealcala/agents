@@ -7,6 +7,53 @@ const id = z.string().uuid();
 const text = z.string().trim().min(1);
 const procedure = t.procedure;
 export const appRouter = t.router({
+  delivery: t.router({
+    bindKnownRepository: procedure
+      .input(z.strictObject({ name: z.enum(["agents", "chore-design"]) }))
+      .mutation(({ ctx, input }) => {
+        // Public repository identities observed via GitHub on 2026-11-01; this is a local reference, not a connection.
+        const ids = {
+          agents: "1355217430",
+          "chore-design": "1437904422",
+        } as const;
+        const identity = {
+          provider: "github" as const,
+          repositoryId: ids[input.name],
+          owner: "elisealcala",
+          name: input.name,
+        };
+        const existing = ctx.manager.store.delivery
+          .listRepositories()
+          .find((repo) => repo.identity.repositoryId === identity.repositoryId);
+        if (existing) {
+          if (
+            existing.identity.owner !== identity.owner ||
+            existing.identity.name !== identity.name ||
+            existing.identity.provider !== identity.provider
+          )
+            throw new TRPCError({
+              code: "CONFLICT",
+              message:
+                "The repository ID is already bound to a different local reference.",
+            });
+          return existing;
+        }
+        return ctx.manager.store.delivery.registerRepository(identity);
+      }),
+    repositories: procedure.query(({ ctx }) =>
+      ctx.manager.store.delivery.listRepositories(),
+    ),
+    work: procedure
+      .input(z.object({ repositoryId: text.max(200) }))
+      .query(({ ctx, input }) =>
+        ctx.manager.store.delivery.listWork(input.repositoryId),
+      ),
+    outbox: procedure
+      .input(z.object({ repositoryId: text.max(200) }))
+      .query(({ ctx, input }) =>
+        ctx.manager.store.delivery.listOutbox(input.repositoryId),
+      ),
+  }),
   agent: t.router({
     identity: procedure.query(({ ctx }) => ({
       id: "project-manager",

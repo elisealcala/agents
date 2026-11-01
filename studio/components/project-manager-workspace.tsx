@@ -5,7 +5,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   ApprovedPanel,
@@ -171,6 +171,14 @@ function ProjectView({
   onEvaluationRun: (projectId: string, runId: string) => void;
 }) {
   const trpc = useProjectTRPC();
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 767px)");
+    const update = () => setCompact(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
   const project = useQuery({
     ...trpc.projects.get.queryOptions({ projectId }),
     refetchInterval: 1500,
@@ -215,11 +223,14 @@ function ProjectView({
   ).length;
 
   return (
-    <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
+    <ResizablePanelGroup
+      orientation={compact ? "vertical" : "horizontal"}
+      className="min-h-0 flex-1"
+    >
       <ResizablePanel defaultSize={65} minSize={35}>
         <Tabs defaultValue="notes" className="h-full min-h-0 p-4">
           <div className="flex flex-wrap items-center gap-2">
-            <TabsList className="flex flex-wrap">
+            <TabsList className="flex h-auto! flex-wrap">
               <TabsTrigger value="notes">Notes</TabsTrigger>
               <TabsTrigger value="review">Review ({pending})</TabsTrigger>
               <TabsTrigger value="approved">Approved facts</TabsTrigger>

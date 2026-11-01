@@ -1,0 +1,7 @@
+# Delivery-state migration and recovery
+
+The local manager is the sole owner of its database. Before upgrading, stop and drain **all** older manager processes, including versions that do not know about the new owner lock. The lock only coordinates upgraded processes using the same database path; it cannot exclude older binaries or aliases of the path. Do not remove the `.owner` file while a manager is running.
+
+With the manager stopped, make a consistent backup of the SQLite database and its associated evidence library before starting the new binary. Use SQLite's online backup facilities if a clean stop is not possible; copying just the main database while WAL writes are active is not a consistent backup. Keep the backup independent of the live volume and verify it can be opened in an isolated location. Startup applies migrations 1 and 2 and creates delivery tables in a transaction; unsupported newer schema versions are rejected.
+
+For rollback, stop the manager, preserve the current database and evidence library as a separate snapshot, and restore the matching pre-migration database and evidence backup together. The old application must not open a database migrated by a newer release unless its compatibility has been established. A restore loses changes since that backup; compare the preserved post-migration copy before restoring. If any future release has performed remote actions, retain its outbox and reconcile those effects before retrying them; restoring a local database does not undo a remote action. Stage 1 does not enable remote dispatch.

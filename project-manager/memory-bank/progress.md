@@ -139,3 +139,29 @@ Next: Start Stage 1 contracts/persistence/UI slices, then deliver private hosted
 - Verifier checked eight stages, 12 documents and 38 local links/anchors; source/path claims and component boundaries match current code. Addressed two findings: hosted setup/health must survive missing provider configuration despite current bootstrap throwing before HTTP; Stage 6 merge exercises are controlled staging/pilot only, with unattended production dispatch gated on Stage 7 attention/operations and Stage 8 quality acceptance. No runtime tests were necessary for the documentation-only plan.
 
 - Final verifier recheck passes: 12 documents, 38 local links/anchors, all eight phase structures and whitespace; both findings resolved and no material contradictions remain. Save the staged technical plan and its scoped README/design/bank updates as a second local documentation commit; Git history identifies it. No remote publication or application implementation is included.
+
+### 2026-10-30 — GitHub implementation project
+
+- User requested one GitHub project and an issue per implementation stage. Created private Project Manager — Implementation at https://github.com/users/elisealcala/projects/3 and eight open `elisealcala/agents` issues #21–#28, one for each stage, with scope, acceptance and dependencies. Verified all eight appear on the project, currently Todo; dependencies are described in issue bodies, not GitHub dependency fields.
+- GitHub connector issue creation returned 403 and the local GitHub CLI authentication was invalid; used the signed-in browser to create and attach the project/issues. No implementation work or push occurred. Full detailed stage documents remain local at commit e2493d0 and are not yet available remotely; issue bodies contain standalone summaries.
+
+### 2026-11-01 — Stage 1 started
+
+- Began issue #21 with initial delivery schemas for repository and work identities, provenance lanes, capability state, QA fingerprints, work, decisions, observations, jobs, outbox intents, QA reports and notifications. These are groundwork only: no router, migration, executor or UI is implemented by this slice.
+- The existing eight stage issues remain open; complete and verify the full acceptance criteria before closing #21 or starting dependent stages. Existing unrelated working-tree changes remain preserved.
+- Verification: manager typecheck and lint pass; four focused schema tests pass. The QA report schema is only a summary and cannot authorize a pass or merge without criterion coverage, evidence and independent verification. Job and outbox shapes do not implement lease fencing.
+
+### 2026-11-01 — Stage 1 foundation continued
+
+- Added transactional versioned delivery migrations, repository-scoped observations, optimistic transitions and atomic outbox intents, leased jobs and outbox fencing, explicit unknown-outcome recovery, and fake-adapter executors. A GitHub observation alone cannot mark work delivered. Existing reviewed facts and note data are preserved; delivery actions are not exposed for remote dispatch.
+- Added read-only delivery queries and an initial Studio manager shell, with labelled unconnected repository scopes and access to the existing review and evidence workspace. Browser testing used an isolated synthetic database; it showed a reviewed human confirmation and exact source passage. The mobile evidence view was adjusted to stack panels.
+- Documented backup and rollback requirements. The ownership lock coordinates upgraded processes using the same path; older binaries do not honor it and must be stopped before migration. Version-1-to-2 upgrade and legacy data are covered in tests.
+- Remaining before #21 completion: integrate the job/outbox execution lifecycle safely with service startup, complete the real repository binding and durable delivery model, and finish comprehensive acceptance verification. Stage 1 is not closed or committed.
+- Verification during this slice: the full manager suite passed 119/119 before the final contribution-contract addition; manager typecheck/lint and Studio checks passed. The Studio Webpack production build passed with the existing font network access. Subsequent focused contract tests also passed. Browser checks covered an isolated saved repository selection across refresh, offline state, desktop and narrow layouts, and a synthetic approved fact with its exact human-confirmation source. The service now periodically recovers expired attempts to unknown/reconciling; it does not dispatch GitHub actions.
+
+### 2026-11-01 — Stage 1 execution and local references
+
+- Wired an adapter-gated delivery scheduler into startup/shutdown; it drains active work, fences attempts, respects paused repositories and revisions, and recovers expired jobs/outbox intents without blindly retrying unknown effects. No external adapter is registered in this phase. Timeout requests cooperative cancellation and leaves outcomes for reconciliation; future real adapters must honor cancellation or be isolated.
+- Verified the two selected repository numeric IDs with GitHub metadata and added explicit local reference controls (DEC-010). Saving them does not connect GitHub or import work. Notes projects are visibly independent of repository scope.
+- Browser checks used isolated data to save both references, select scopes, refresh, exercise desktop/mobile keyboard navigation, and inspect existing synthetic approved evidence. See the previous entry for migration/rollback and mobile coverage. Final verifier checks and publication are pending.
+- Final verification: manager typecheck and lint pass, all 132 manager tests pass; Studio typecheck, lint, format and Webpack production build pass. The scheduler suite passed ten consecutive focused runs. Browser acceptance used isolated data; no real GitHub mutations or model calls were made. Record Stage 1 in one scoped commit; its hash and GitHub issue state identify publication.
