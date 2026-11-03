@@ -1,6 +1,8 @@
 # Active context — project-manager
 
 ## Current focus
+Issue #108 is in progress. Signed-out and forged-header checks deny access, the storage address returns 404, and a bounded client-asset scan found no selected secret names or local/private targets. Owner-side checks and a real non-owner identity test remain outstanding; the owner reports no second GitHub account. The import lock prevents a successful project-state read before cutover. See docs/implementation/evidence/stage-2-boundary.md. #108 and #22 remain open.
+
 Issue #107 deployed source `511cae1ff0a23b6d606c3eebb07a06b840782ace` to the private storage and canonical web Workers. The storage import mode is required, and signed-out entry checks pass. The owner signed in, saw the setup page and a successful backup-status message through the private binding; ordinary manager data was unavailable before import. The generic manager error does not independently prove its cause; required-mode configuration and local tests support the import lock. No real data was imported. Earlier versions are placeholders, not compatible application rollbacks. See docs/implementation/evidence/stage-2-deployment.md. #107 and Stage 2 #22 remain open.
 
 The #106 staging secret names are configured and verified on the two placeholder Workers, including OAuth credentials entered directly by the owner. OAuth app URLs are owner-confirmed; secret values and provider app settings were not independently inspected. Placeholder Workers are not an application deployment. Real sign-in, access, and session expiry remain later acceptance work. #106 evidence is ready for review; #22 remains open.

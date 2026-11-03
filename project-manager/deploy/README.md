@@ -43,3 +43,7 @@ Delivery and backups share the manager Durable Object alarm. Once initialized, i
 ## Rollback
 
 Keep the last known-good deployed revision and original complete SQLite backups. Stop the new owner and prevent requests before promoting an older compatible revision or restoring a backup to a separate owner. Do not start old and new manager owners simultaneously. A failed or partial paired import remains locked and may only resume with the same snapshot pair; preserve the lock and investigate rather than deleting it. Durable Object point-in-time recovery and R2 retention have different scopes; neither replaces the original classifier backup containing non-evidence tables.
+
+## Staging private-boundary check
+
+After deployment and before importing real data, the signed-in owner can run `studio/tests/manager/stage-2-boundary.js` in the browser console on the canonical staging origin. It prints only status and cache headers and sends one deliberately invalid cross-origin mutation probe. Do not share cookies, tokens, request bodies or private state. The pre-import lock means a generic project error alone does not establish a successful read or its cause; browsers may hide cross-origin responses. A separate non-owner GitHub identity is still needed for the real sign-in denial check. Record bounded results in `docs/implementation/evidence/stage-2-boundary.md`.

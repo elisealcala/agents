@@ -266,3 +266,7 @@ Next: Complete hosted evidence and migration, backup/restore, durable scheduling
 ### 2026-11-03 — Owner-side staging smoke (#107)
 
 - Owner reported successful sign-in and setup page access, a backup status of not scheduled, and manager unavailable before import. The displayed backup status requires a successful authenticated private Durable Object call. The generic manager error is consistent with the import lock but does not distinguish it from other backend errors; the required-mode configuration and focused local tests supply additional evidence. No backup was uploaded and no real data imported. Full OAuth/boundary/backup acceptance remains later Stage 2 work.
+
+### 2026-11-03 — Deployed boundary verification in progress (#108)
+
+- Signed-out manager and forged actor/target attempts returned 401; direct storage returned 404. A signed-out foreign-origin invalid POST returned 401 but does not prove authenticated CSRF handling. Scanned 34 built static files for specified secret names and local/private endpoint markers with no matches; eight live login assets matched the scanned build. These are bounded checks, not proof that all secrets, assets or traffic are absent. The owner reported no second GitHub account, so real non-owner sign-in remains unverified. Prepared an owner-run redacted console check and deployment evidence; #108 and #22 remain open. No real data was imported.
