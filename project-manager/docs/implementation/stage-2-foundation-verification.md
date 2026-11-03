@@ -27,6 +27,8 @@ Hosted model extraction/answers, intake and search remain disabled. Delivery job
 The Manager check configuration now excludes ignored local runtime directories from package checks. The simulator's Python-generated JSON keeps its generator formatting; source lint/format remain enforced. No simulation report content or expected outcome changed.
 
 ## Remaining work
+Publication commit: `7b4beea5ce7960cd504705b6e8124032ea4b15a0` on `origin/main`. The initial hosted run 41565416133 found missing classifier/manager source dependencies in the clean-checkout CI jobs. The workflow repair installs sibling packages with their independent frozen lockfiles before checking the consuming package and keys its cache with all relevant lockfiles. No check is removed; hosted results must be recorded separately from the local passes above.
+
 
 Stage 2 stays open at [#22](https://github.com/elisealcala/agents/issues/22). Its 12 native child issues [#103–#114](https://github.com/elisealcala/agents/issues/22) cover reproducible Cloudflare CI, durable delivery wakeups, private R2/retention, OAuth/secrets, deployment, live private-boundary/auth verification, consistent data cutover, actual backup/restore drills, degraded setup and final hosted acceptance. See [small-session backlog](small-session-backlog.md).
 

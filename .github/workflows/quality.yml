@@ -59,7 +59,11 @@ jobs:
         with:
           node-version: 22.22.0
           cache: pnpm
-          cache-dependency-path: project-manager/pnpm-lock.yaml
+          cache-dependency-path: |
+            ingest-classifier/pnpm-lock.yaml
+            project-manager/pnpm-lock.yaml
+      - name: Install classifier source dependencies
+        run: pnpm --dir ../ingest-classifier install --frozen-lockfile
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
       - name: Types, lint, and formatting
@@ -86,7 +90,14 @@ jobs:
         with:
           node-version: 22.22.0
           cache: pnpm
-          cache-dependency-path: studio/pnpm-lock.yaml
+          cache-dependency-path: |
+            ingest-classifier/pnpm-lock.yaml
+            project-manager/pnpm-lock.yaml
+            studio/pnpm-lock.yaml
+      - name: Install sibling source dependencies
+        run: |
+          pnpm --dir ../ingest-classifier install --frozen-lockfile
+          pnpm --dir ../project-manager install --frozen-lockfile
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
       - name: Types, lint, and formatting
