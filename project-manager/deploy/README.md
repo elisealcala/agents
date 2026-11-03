@@ -2,6 +2,25 @@
 
 This is a release and recovery checklist, not evidence of a deployed application. The web Worker is configured for `https://project-manager.ezth.workers.dev`; the storage Worker has no public endpoint. Keep existing local manager and classifier processes stopped throughout the cutover. The approved 30-day expiration applies only to automatic objects under `manager-backups/`, not the original local backups.
 
+## Reproducible local validation
+
+The `Manager Cloudflare validation` GitHub Actions workflow installs each of the classifier, manager and Studio with its own frozen lockfile, runs manager and Studio checks, builds the checked-out Studio source for Cloudflare, and exercises the synthetic two-Worker import and alarm/R2 restart fixtures. The workflow publishes only a small JSON report containing the checked-out Git SHA, check names and result. Pull request runs identify the checked-out merge revision. No fixture database, backup, runtime log or credential is uploaded.
+
+To repeat the bounded checks from a clean checkout with Node 22.22 and pnpm 10.9:
+
+```sh
+pnpm --dir ingest-classifier install --frozen-lockfile
+pnpm --dir project-manager install --frozen-lockfile
+pnpm --dir studio install --frozen-lockfile
+pnpm --dir project-manager check
+pnpm --dir project-manager test
+pnpm --dir studio check
+pnpm --dir studio cloudflare:build
+pnpm --dir project-manager exec tsx tests/cloudflare/ci-check.ts
+```
+
+The runner refuses arguments, a dirty checkout and Cloudflare/Wrangler deployment environment settings. It starts only local Workers on loopback ports 8794 and 8795, checks fixture configuration, uses synthetic credentials and data, and removes its temporary state and processes. It requires those ports to be free. Optionally set `CI_REPORT_PATH` to a new file outside the checkout to save the non-sensitive report. These checks do not verify real OAuth, hosted bindings, deployment, retention or recovery. The next source prerequisite is #104; Stage 2 remains open until hosted acceptance.
+
 ## Before release
 
 1. Confirm the account, worker names, R2 activation, account spending and the selected GitHub owner (`elisealcala`, numeric ID `16949569`). Confirm GitHub OAuth registration uses the selected HTTPS origin and the exact callback `/api/auth/callback/github`. GitHub sign-in grants no Projects or repository integration authority.
