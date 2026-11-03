@@ -1,14 +1,18 @@
+import { isHostedMode } from "@/lib/manager-mode";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Workspace } from "@/components/workspace";
 import { ProjectManagerWorkspace } from "@/components/project-manager-workspace";
 import { loadAgents } from "@/lib/registry";
 
+export const dynamic = "force-dynamic";
+
 export default async function AgentPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  if (isHostedMode()) notFound();
   const { id } = await params;
   const agents = await loadAgents();
   const agent = agents.find((item) => item.id === id);

@@ -24,6 +24,17 @@ Next: Manually validate live project-evidence relevance with the manager pilot, 
 
 ## Log
 
+### 2026-11-02 — Cloudflare evidence storage foundation
+
+- Split the immutable evidence core from its Node SQLite driver and added a separate Durable Object SQLite adapter (DEC-029). Existing source identity, project isolation and chunk behavior are preserved.
+- Classifier checks, 227 tests and four offline evaluations passed. A synthetic local Workers fixture checked restart persistence, duplicate and conflict handling, isolation and Unicode offsets. A hosted evidence API, ingestion integration and verified migration remain open.
+
+### 2026-11-02 — Stage 2 evidence adapter publication verification
+
+- User requested publishing completed Stage 2 work while splitting the remainder into small tickets. Compared the evidence core extraction and Node adapter with the prior source: additive schema, immutable identity, project filtering, chunks and re-exports remain compatible. The Durable Object adapter uses synchronous owner transactions and materializes result cursors; no credentials or real project data are embedded in these five source/test files.
+- Fresh verification passed in order: both TypeScript projects, package lint and formatting, all 227 tests across 29 files, and all four offline evaluations (fixed taxonomy, adaptive taxonomy, retrieval/clustering and MCP worker). The four evaluation commands initially encountered the local temporary-pipe restriction; authorized reruns with local test pipes permitted all passed with zero live model calls.
+- No source fixes, actual user database access, original-service restart, cloud resource change, commit or push was performed by this verifier. These storage adapters do not implement hosted intake/search and this check does not prove deployed evidence access or a real hosted migration. The parent publication task owns the final Git result and manager Stage 2 remainder tickets.
+
 ### 2026-09-02
 
 - Copied from `_template/`.

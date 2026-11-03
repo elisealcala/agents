@@ -1,5 +1,5 @@
 /** Durable local delivery state. External dispatch is deliberately not enabled. */
-import type { DatabaseSync } from "node:sqlite";
+import type { SqlDriver } from "./sql-driver.ts";
 import { reduceRepositoryState } from "../delivery/reducer.ts";
 import {
   repositoryIdentitySchema,
@@ -25,7 +25,7 @@ type OutboxRow = {
 };
 
 export class DeliveryStore {
-  constructor(private readonly db: DatabaseSync) {}
+  constructor(private readonly db: SqlDriver) {}
 
   registerRepository(input: RepositoryIdentity): Repository {
     const identity = repositoryIdentitySchema.parse(input);
@@ -80,8 +80,7 @@ export class DeliveryStore {
       !intent.kind.trim()
     )
       throw new Error("Invalid transition");
-    this.db.exec("BEGIN IMMEDIATE");
-    try {
+    this.db.transaction(() => {
       const current = this.getRepository(repositoryId);
       if (current.revision !== expectedRevision)
         throw new Error("Revision conflict");
@@ -104,11 +103,7 @@ export class DeliveryStore {
           intent.kind,
           expectedRevision + 1,
         );
-      this.db.exec("COMMIT");
-    } catch (error) {
-      this.db.exec("ROLLBACK");
-      throw error;
-    }
+    });
     return this.getRepository(repositoryId);
   }
   claimOutbox(

@@ -2,6 +2,8 @@
 
 ## Current focus
 
+Publication verification (2026-11-02): the user requested committing/pushing completed Stage 2 foundations and ticketing the remainder. The independent evidence core and Node/Durable Object drivers pass both TypeScript projects, package lint/format, all 227 tests across 29 files and all four offline evaluations. The unchanged Node evidence schema, method behavior and public re-exports were compared with the prior implementation. No source fixes, real database access, live model calls or deployment occurred during this verification. Publish the five evidence source/test files with this component's bank updates; leave actual runtime data untracked. This adapter is storage support, not a hosted intake/search implementation or proof of deployed evidence/migration/access behavior.
+
 Memory/source audit completed on 2026-10-28. The classifier test suite was rerun: 223/223 tests pass across 28 files. Historical quality/evaluation results below retain their original date; no live relevance measurement was performed.
 
 Local classifier servers on ports 8787 (ordinary `my-library`) and 8789 (dedicated project evidence) both responded on 2026-10-05. That is a historical observation; current process availability was not checked in this audit.
@@ -39,6 +41,8 @@ Nested categories (2026-09-24, DEC-019): adaptive classification files a note in
 - Files already stored in a parent folder are not relocated when a more specific child is created later.
 
 ## Next steps
+
+Stage 2 Cloudflare work (2026-11-02): an independent Durable Object evidence storage adapter shares the existing immutable evidence core with the Node adapter. Synthetic local Workers checks covered idempotency, changed-content rejection, project isolation, Unicode offsets and persistence across restart. Classifier checks, 227 tests and four offline evaluations passed. The hosted evidence service and migration of existing evidence are not implemented; live retrieval relevance remains unmeasured.
 
 1. Manually evaluate project evidence retrieval with the manager's frozen corpus and configured model. Deterministic evidence tests and all four classifier evaluations pass; live project relevance remains unmeasured.
 

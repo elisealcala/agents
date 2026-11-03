@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "project-manager",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "MANAGER_HOSTED": "true",
+    "MANAGER_OWNER_ID": "16949569",
+    "MANAGER_IMPORT_ENABLED": "true",
+    "AUTH_URL": "https://project-manager.ezth.workers.dev",
+    "AUTH_TRUST_HOST": "true"
+  },
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MANAGER",
+        "class_name": "DurableManagerObject",
+        "script_name": "agents-manager-storage-staging"
+      }
+    ]
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

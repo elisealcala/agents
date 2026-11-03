@@ -2,7 +2,14 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { Manager } from "../application/manager.ts";
-const t = initTRPC.context<{ manager: Manager; model: string }>().create();
+import type { RuntimeCapabilities } from "./runtime-config.ts";
+const t = initTRPC
+  .context<{
+    manager: Manager;
+    model: string;
+    capabilities?: RuntimeCapabilities;
+  }>()
+  .create();
 const id = z.string().uuid();
 const text = z.string().trim().min(1);
 const procedure = t.procedure;
@@ -55,6 +62,15 @@ export const appRouter = t.router({
       ),
   }),
   agent: t.router({
+    configuration: procedure.query(
+      ({ ctx }) =>
+        ctx.capabilities ?? {
+          evidence: "unconfigured",
+          model: "unconfigured",
+          intake: "unconfigured",
+          conversation: "unconfigured",
+        },
+    ),
     identity: procedure.query(({ ctx }) => ({
       id: "project-manager",
       kind: "project-manager",

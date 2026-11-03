@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: System design committed locally as `52b7dae`; deployed-web-UI technical plan written in eight stages (DEC-009). Existing runtime remains the offline assisted pilot; new UI/integrations/hosting are not implemented.
-Next: Start Stage 1 contracts/persistence/UI slices, then deliver private hosted access in Stage 2. Follow the staged browser acceptance and real integration/quality gates; local startup and existing quality gaps remain open.
+Current: Stage 1 is published and issue #21 is closed. Stage 2 Cloudflare implementation is in progress; private staging has not been deployed and issue #22 remains open.
+Next: Complete hosted evidence and migration, backup/restore, durable scheduling and real owner-only staging acceptance. Follow the staged browser and integration gates; existing live accuracy gaps remain open.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -15,9 +15,40 @@ Next: Start Stage 1 contracts/persistence/UI slices, then deliver private hosted
 - [x] Capture two-repository GitHub planning/QA/delivery requirements (DEC-007)
 - [x] Design expanded delivery system and iteratively simulate workflow (DEC-008)
 - [x] Commit system design and define deployed-web-UI implementation stages (DEC-009)
+- [x] Split Stage 3–8 into 74 small-session GitHub subtasks with file scope and handoffs (DEC-013)
+- [x] Verify Stage 2 local foundation for authorized publication and split its hosted/scheduling remainder into 12 child issues (DEC-014)
 - [ ] Implement and verify the expanded GitHub delivery loop
 
 ## Log
+
+### 2026-11-02 — Stage 2 cutover, backups and access preparation
+
+- Implemented a private, resumable paired import with a durable lock, destination preflight, quiescent-input validation and owner-only browser upload. Independent review identified and prompted fixes for eager recovery and partial-import conflicts. Synthetic local Workers and real local cross-Worker tests passed access controls, interrupted import, retry and restart.
+- Confirmed original local services were not listening and no process had the original databases open. Created protected complete originals plus an upgraded manager copy at `.data/stage2-original-backup-2026-11-02/` and a validated paired import file. The original manager database used the older schema. An isolated local restore and restart of the actual backup passed checksum/pair comparison for one project and one evidence source; elapsed 10 ms locally. Original services must stay stopped during hosted cutover.
+- Added private verified R2 snapshots on Durable Object alarms, explicit retry, visible status and last-good download. Synthetic local Workers/R2 tests passed a locked state, alarm, readback and overdue alarm after restart; deployed R2 and real OAuth are not verified. User selected 30-day cloud retention (DEC-012); no bucket or lifecycle rule exists yet. Cloudflare API reported R2 is not enabled; dashboard returned to login. Prepared, but did not submit, the GitHub OAuth registration form for the selected address.
+- Configured staging Worker names, owner ID and import/backup flags; secrets remain unconfigured and no hosted resource or GitHub OAuth app was created. Full release, real owner/other-account browser access, hosted isolated restore and timings remain open.
+
+### 2026-11-02 — Stage 2 evidence and offline snapshot foundation
+
+- Added an authenticated, private, read-only Durable Object evidence owner and bound it to the manager. Model, intake and search remain disabled. Local Workers tests exercised a synthetic linked note across separate objects, denied unsigned and cross-project reads, and verified the read after restart. The deployed cross-script binding and real OAuth remain unverified.
+- Added offline manager/evidence SQL snapshot capture, pair validation, and transactional restore into empty stores, with schema, key, foreign-key and SHA-256 checks. Added a read-only exporter for already-quiesced matching database backups that creates a new private-permission file. Synthetic Node and Workers restore/restart tests passed; no real data was migrated. Snapshots omit classifier non-evidence tables, platform KV and alarms and are not complete backups or an orchestrated cutover.
+- Independent verification passed manager typecheck, focused lint, 192/192 tests with local listeners, and the Worker dry-run build. Package-wide lint is affected by pre-existing generated `.wrangler/tmp` files. Hosted import, backup/restore operations, scheduling, OAuth, deployment and real browser acceptance remain open; issue #22 stays open. See docs/implementation/02-cloudflare-native.md.
+
+### 2026-11-02 — Stage 2 staging name and binding probe
+
+- The user chose `project-manager` as the staging name. Cloudflare shows the existing `ezth.workers.dev` subdomain, making `https://project-manager.ezth.workers.dev` the intended address. It is not deployed. GitHub account settings showed no project-manager OAuth app; app registration and secret provisioning remain open.
+- Extended the synthetic local Workers fixture through Studio’s actual private transport and a Durable Object binding. The fixture rejected the wrong actor, created a project, and read it after restart; the disabled fixture returned 404. Independent verification repeated these checks and passed; manager typecheck and focused fixture lint passed. Package-wide lint remains affected by generated `.wrangler/tmp` files. This does not verify the deployed cross-script binding, Next.js route integration or real OAuth. Existing evidence migration, hosted evidence service, backup/restore and durable scheduling remain open; issue #22 stays open.
+
+### 2026-11-02 — Stage 2 access verification continued
+
+- Confirmed the existing Cloudflare account login and Workers write scope with a read-only account check. No resources were created or deployed. Hostname and GitHub OAuth configuration remain needed.
+- Added Studio route-level tests for rejected sessions and origins and successful same-origin mutation forwarding with mocked authentication and backend; these do not prove real OAuth or the private Cloudflare binding. Existing evidence migration, hosted evidence integration, backup/restore, durable scheduling and deployed browser acceptance remain open. Stage 2 issue #22 remains open.
+- Studio typecheck and lint passed; all 34 Studio tests passed. Manager typecheck and 38 focused tests passed. Manager package lint encountered generated `.wrangler/tmp` files; focused source lint passed. A full restricted manager test run passed 162 of 170; eight MCP cases could not bind localhost.
+
+### 2026-11-02 — Stage 2 Cloudflare foundations
+
+- Added Durable Object SQLite drivers for manager and delivery state, a private manager endpoint, and a synthetic local Workers fixture. Transaction rollback, fencing, recovery and restart persistence were exercised locally; affected-row accounting uses SQLite changes rather than Cloudflare billing counts.
+- A separate classifier evidence adapter was also tested locally. Data migration, backup/restore, hosted evidence integration, durable scheduling, deployment and real sign-in verification remain open. Stage 2 issue #22 remains open.
 ### 2026-10-01
 - Created project manager with its own TypeScript/tRPC process and SQLite state.
 - Intake delegates document storage to classifier, verifies per-note results, and retains pending worker run IDs.
@@ -165,3 +196,21 @@ Next: Start Stage 1 contracts/persistence/UI slices, then deliver private hosted
 - Verified the two selected repository numeric IDs with GitHub metadata and added explicit local reference controls (DEC-010). Saving them does not connect GitHub or import work. Notes projects are visibly independent of repository scope.
 - Browser checks used isolated data to save both references, select scopes, refresh, exercise desktop/mobile keyboard navigation, and inspect existing synthetic approved evidence. See the previous entry for migration/rollback and mobile coverage. Final verifier checks and publication are pending.
 - Final verification: manager typecheck and lint pass, all 132 manager tests pass; Studio typecheck, lint, format and Webpack production build pass. The scheduler suite passed ten consecutive focused runs. Browser acceptance used isolated data; no real GitHub mutations or model calls were made. Record Stage 1 in one scoped commit; its hash and GitHub issue state identify publication.
+
+- Stage 1 published as commit `cf37754` on `main`; GitHub issue #21 was closed as completed. Earlier system-design and implementation-plan commits were published with it. GitHub connector issue update returned 403; the authenticated GitHub CLI successfully closed and verified the issue.
+
+### 2026-11-02 — Stage 3–8 small-session GitHub backlog
+
+- User requested smaller tickets targeting 3–4 changed files because stage-sized sessions exhaust context, then specified starting at Stage 3. Reviewed current stage issues, local stage plans and Project Manager state; preserved ongoing Stage 2 changes and left issues #21–#22 untouched.
+- Created 74 native GitHub sub-issues #29–#102 under parents #23–#28: Stage 3 has 14, Stage 4 has 13, Stage 5 has 13, Stage 6 has 12, Stage 7 has 11 and Stage 8 has 11. The existing Project Manager — Implementation board was selected for every child. Added an ordered one-ticket-per-session guide to each parent.
+- Every child has 3–4 proposed implementation/test paths, observable completion checks, linked prerequisite issues, focused verification, explicit exclusions and fresh-session handoff instructions. Bank notes are additional. Acceptance/drill tickets collect evidence and create small defect follow-ups instead of absorbing new implementation scope. Original stage/capability gates remain intact; native blocked-by fields were not configured.
+- GitHub connector creation returned 403 and local CLI authentication was invalid; the signed-in browser successfully created and linked all children without credential changes. GitHub read-back confirmed 74 unique issues, correct parent references, 3–4 paths each, required sections and resolved intra-stage links. Native sub-issue counts and all six parent guides were verified. No product tests were needed for this planning-only task.
+- Added docs/implementation/small-session-backlog.md, refreshed active context and recorded DEC-013. Start the next Stage 3 session from #29 after Stage 2 #22 meets its exit gate. No implementation issue was closed and no product code, deployment or runtime fact changed.
+- Final independent documentation verification passed scoped whitespace, all 74 local index identities/ranges/parents, entry dependency, file scope and bank consistency with no findings. Product checks were skipped for this planning-only change. The live Project board shows the six parent progress totals and Stage 3 expands to all 14 new Todo children; a completion screenshot was saved for the user.
+
+### 2026-11-02 — Stage 2 publication preparation and remaining-work split
+
+- User explicitly authorized committing/pushing completed Stage 2 work and splitting the remainder. Reviewed the pending manager/Studio/classifier foundation and preserved unrelated collection/career work. No deployment, cloud activation, credential change, actual-data import or original-service startup was performed.
+- Fresh verification passed manager type/lint/format and 248/248 tests, Worker dry-run, Studio checks/51 tests/OpenNext production build, classifier checks/227 tests/four offline evaluations, actual local two-Worker import/restart and local backup alarm/R2 readback/restart probes. Local fixture sessions/data are synthetic. Updated Manager Biome exclusions for ignored runtime directories and retained Python-generated simulation JSON formatting without changing report content.
+- Created 12 native child issues #103–#114 under #22 on the implementation Project, each with 3–4 file scope, dependencies, checks and stopping points. The remainder includes CI reproducibility, lifecycle-independent delivery scheduling, R2/retention and OAuth/secrets, staging deployment, real access/cutover/backup/restore/degraded setup and final acceptance. #22 stays open; #103 is next. Existing hosted model/intake/search remain disabled.
+- Recorded DEC-014, refreshed active context, expanded the small-session index to 86 children across Stages 2–8, and added docs/implementation/stage-2-foundation-verification.md. Candidate publication excludes credentials, user databases/backups and generated output. Git references and a subsequent publication note identify the commit/push outcome.

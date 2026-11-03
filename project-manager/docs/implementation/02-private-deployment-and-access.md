@@ -1,6 +1,6 @@
 # Stage 2 — Private hosted application and access
 
-Status: Planned. Depends on [Stage 1](01-foundation-and-ui.md). Next: [Stage 3](03-github-connections-and-sync.md).
+Status: In progress; the Cloudflare-native target and migration boundary are described in [02-cloudflare-native.md](02-cloudflare-native.md). Depends on [Stage 1](01-foundation-and-ui.md). Next: [Stage 3](03-github-connections-and-sync.md).
 
 ## Outcome
 
@@ -15,6 +15,8 @@ The user opens a real HTTPS URL, signs in and uses the manager without starting 
 | PM-203: Hosted setup/health UI | `studio/app/manager/settings/`, `components/manager/{setup,health}.tsx`; existing manager `src/server/main.ts` and health/config-status routes | Setup checklist, server-config status, model availability, data volumes and integration placeholders; friendly errors/retry. Separate HTTP/bootstrap health from provider readiness so missing model/library config does not prevent setup access. Never return secret values. Depends on PM-202. |
 | PM-204: Deployable images and storage | `project-manager/deploy/`, image build definitions, scoped CI workflow | Root-context builds for local package dependencies, one manager replica, internal classifier/manager networking, HTTPS proxy, mounted data, backups, health/readiness, graceful drain and image rollback. |
 | PM-205: Private staging release | Deployment configuration and `deploy/README.md` | Choose host/domain/region/budget, provision through authorized account, supply server secrets, deploy from CI, verify browser journeys and restore drill. Depends on PM-203/204. |
+
+The persistent Linux-host deployment assumptions below are superseded by the Cloudflare-native direction; the security and acceptance requirements continue to apply.
 
 ## Hosting contract
 

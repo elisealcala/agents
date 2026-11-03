@@ -1,6 +1,5 @@
 /** Local-only manager service; drain active work before closing its SQLite database. */
 import { createServer } from "node:http";
-import path from "node:path";
 import { config } from "dotenv";
 import { createHTTPHandler } from "@trpc/server/adapters/standalone";
 import { Manager } from "../application/manager.ts";
@@ -9,30 +8,54 @@ import { DeliveryScheduler } from "../delivery/scheduler.ts";
 import { createAnthropicModel } from "../providers/anthropic.ts";
 import { createWorker } from "../providers/worker.ts";
 import { appRouter } from "./router.ts";
+import { resolveRuntimeConfig } from "./runtime-config.ts";
+import {
+  hasDuplicateSecurityHeaders,
+  parseHostedConfig,
+  verifyServiceRequest,
+} from "./auth.ts";
+import type { Worker, Model } from "../application/contracts.ts";
 config({ quiet: true });
-const libraryRoot = process.env.PROJECT_MANAGER_LIBRARY_ROOT;
-if (!libraryRoot || !path.isAbsolute(libraryRoot))
-  throw new Error(
-    "PROJECT_MANAGER_LIBRARY_ROOT must be an absolute dedicated library path",
-  );
-const model =
-  process.env.PROJECT_MANAGER_MODEL ??
-  process.env.INGEST_MODEL ??
-  "unconfigured";
+const hosted = parseHostedConfig(process.env);
+const runtime = resolveRuntimeConfig(process.env);
+const unavailable = async (): Promise<never> => {
+  throw new Error("The provider is not configured.");
+};
+const disabledWorker: Worker = {
+  identity: unavailable,
+  ingest: unavailable,
+  read: unavailable,
+  search: unavailable,
+};
+const disabledModel: Model = {
+  name: "unconfigured",
+  extract: unavailable,
+  answer: unavailable,
+};
 const store = new Store(
   process.env.PROJECT_MANAGER_DATABASE ?? ".data/projects.sqlite",
 );
 const manager = new Manager(
   store,
-  createWorker(
-    process.env.PROJECT_MANAGER_CLASSIFIER_URL ?? "http://127.0.0.1:8789",
-  ),
-  createAnthropicModel({ model }),
-  { libraryRoot },
+  runtime.capabilities.evidence === "configured" && runtime.classifierUrl
+    ? createWorker(runtime.classifierUrl)
+    : disabledWorker,
+  runtime.capabilities.model === "configured" && runtime.model
+    ? createAnthropicModel({ model: runtime.model })
+    : disabledModel,
+  {
+    libraryRoot: runtime.libraryRoot ?? undefined,
+    canIntake: runtime.capabilities.intake === "configured",
+    canAnswer: runtime.capabilities.conversation === "configured",
+  },
 );
 const handler = createHTTPHandler({
   router: appRouter,
-  createContext: () => ({ manager, model }),
+  createContext: () => ({
+    manager,
+    model: runtime.model ?? "unconfigured",
+    capabilities: runtime.capabilities,
+  }),
 });
 const origin = process.env.STUDIO_ORIGIN ?? "http://localhost:3000";
 const port = Number(process.env.PROJECT_MANAGER_PORT ?? "8788");
@@ -41,12 +64,22 @@ if (!Number.isInteger(port) || port < 1 || port > 65535)
 // No external adapters are enabled in Stage 1. Unknown kinds remain queued.
 const scheduler = new DeliveryScheduler(store.delivery, {});
 const server = createServer((req, res) => {
-  if (req.headers.origin && req.headers.origin !== origin) {
+  if (
+    hosted &&
+    (hasDuplicateSecurityHeaders(req.headersDistinct) ||
+      !verifyServiceRequest(req.headers, hosted))
+  ) {
+    res.writeHead(401, { "Cache-Control": "private, no-store" });
+    res.end();
+    return;
+  }
+  if (!hosted && req.headers.origin && req.headers.origin !== origin) {
     res.writeHead(403);
     res.end();
     return;
   }
-  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Cache-Control", "private, no-store");
+  if (!hosted) res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "content-type,trpc-accept");
   if (req.method === "OPTIONS") {
@@ -56,9 +89,9 @@ const server = createServer((req, res) => {
   }
   handler(req, res);
 });
-server.listen(port, "127.0.0.1", () => {
+server.listen(port, hosted?.bindHost ?? "127.0.0.1", () => {
   scheduler.start();
-  console.log(`Project manager: http://127.0.0.1:${port}`);
+  console.log(`Project manager listening on port ${port}`);
 });
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.once(signal, () => {

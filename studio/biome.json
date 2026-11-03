@@ -5,6 +5,8 @@
       "**",
       "!**/node_modules",
       "!**/.next",
+      "!**/.open-next",
+      "!**/.wrangler",
       "!**/*.css",
       "!**/memory-bank",
       "!**/components/ui",

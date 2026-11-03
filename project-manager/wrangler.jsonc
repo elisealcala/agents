@@ -1,0 +1,27 @@
+{
+  "$schema": "../studio/node_modules/wrangler/config-schema.json",
+  "name": "agents-manager-storage-staging",
+  "main": "src/cloudflare/worker.ts",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "MANAGER_OWNER_ID": "16949569",
+    "MANAGER_IMPORT_MODE": "required",
+    "BACKUP_ENABLED": "true"
+  },
+  "r2_buckets": [
+    { "binding": "BACKUPS", "bucket_name": "agents-manager-staging-backups" }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "MANAGER", "class_name": "DurableManagerObject" },
+      { "name": "EVIDENCE", "class_name": "DurableEvidenceObject" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["DurableManagerObject"] },
+    { "tag": "v2", "new_sqlite_classes": ["DurableEvidenceObject"] }
+  ]
+}

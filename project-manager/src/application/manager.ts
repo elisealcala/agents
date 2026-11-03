@@ -25,7 +25,7 @@ import {
   disputedKeys,
   factKey,
 } from "./facts.ts";
-import type { Store } from "../storage/store.ts";
+import type { ManagerStore } from "../storage/manager-store.ts";
 
 export type SubmitInput = {
   sourceId: string;
@@ -52,12 +52,20 @@ export class Manager {
   private stopped = false;
   private active = new Set<Promise<void>>();
   constructor(
-    readonly store: Store,
+    readonly store: ManagerStore,
     private worker: Worker,
     private model: Model,
-    private options: { libraryRoot?: string } = {},
+    private options: {
+      libraryRoot?: string;
+      canIntake?: boolean;
+      canAnswer?: boolean;
+    } = {},
   ) {}
   submit(projectId: string, input: SubmitInput): Run {
+    if (this.options.canIntake === false)
+      throw new Error(
+        "Note intake is unavailable until evidence and model configuration is complete.",
+      );
     this.assertAvailable(projectId);
     assertDate(input.sourceDate ?? null);
     const project = this.store.get(projectId);
@@ -99,6 +107,10 @@ export class Manager {
     return run;
   }
   retry(projectId: string, noteId: string): Run {
+    if (this.options.canIntake === false)
+      throw new Error(
+        "Note intake is unavailable until evidence and model configuration is complete.",
+      );
     this.assertAvailable(projectId);
     const project = this.store.get(projectId);
     const note = project.notes.find((n) => n.id === noteId);
@@ -204,6 +216,10 @@ export class Manager {
     return project;
   }
   ask(projectId: string, input: AskInput): Run {
+    if (this.options.canAnswer === false)
+      throw new Error(
+        "Conversation is unavailable until evidence and model configuration is complete.",
+      );
     this.assertAvailable(projectId);
     const maxTurns = input.maxTurns ?? MAX_TURNS;
     if (!Number.isInteger(maxTurns) || maxTurns < 1 || maxTurns > MAX_TURNS)

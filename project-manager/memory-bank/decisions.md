@@ -69,3 +69,31 @@ Status: accepted
 Context: Stage 1 needs durable, explicit scope for the two repositories selected by the user, while GitHub authorization and inventory belong to Stage 3.
 Decision: Allow the local manager UI to save only those two repository references using their stable GitHub numeric IDs, verified through GitHub metadata on 2026-11-01. Treat them as local references, not evidence of authorization, a live connection or current work. Notes projects remain independently selected.
 Consequences: Stage 3 must verify current repository identity during connection, add authorized discovery and handle renamed or changed metadata. No external GitHub write or automatic repository import occurs when saving a reference.
+
+## DEC-011: Cloudflare-native hosting and durable storage target
+Date: 2026-11-01
+Status: accepted (hosting direction; migration not implemented)
+Context: Stage 2 originally assumed a persistent Linux host. The user selected Cloudflare, then chose Cloudflare-native storage after being told container disks are temporary and the current manager uses local SQLite.
+Decision: Target Cloudflare-native hosting and durable storage for Stage 2. Preserve the owner-only browser, single-owner integrity, immutable evidence and verified backup/restore requirements while adapting the implementation. The concrete Cloudflare database and Next.js runtime integration remain subject to compatibility and recovery tests.
+Consequences: The original persistent-host topology in DEC-009 is superseded for deployment, not its product or stage gates. Do not deploy the current local SQLite files to ephemeral container storage or claim that a Cloudflare Worker/DO storage adapter exists. Migrate and verify both manager state and evidence before private staging. See docs/implementation/02-cloudflare-native.md.
+
+## DEC-012: Retain automatic cloud backups for 30 days
+Date: 2026-11-02
+Status: accepted
+Context: Stage 2 requires a bounded cloud backup retention policy; the user selected the 30-day option after being told older automatic cloud backups would be deleted.
+Decision: Configure 30-day expiry only for the `manager-backups/` prefix in the dedicated private staging backup bucket. Preserve the complete original local SQLite backups separately.
+Consequences: Apply and verify the bucket lifecycle rule after R2 is enabled; monitor failures and storage use. Backups older than 30 days may be permanently deleted by the provider. No lifecycle rule or bucket has been created yet.
+
+## DEC-013: Implement Stage 3 onward one small GitHub child ticket per session
+Date: 2026-11-02
+Status: accepted
+Context: The user reports exhausting Codex session tokens before finishing a stage and requested GitHub subtasks targeting 3–4 changed files, then specified starting at Stage 3.
+Decision: Keep Stage 3–8 issues #23–#28 as umbrellas and split their remaining planned scope into 74 native child issues (#29–#102), also on the existing implementation Project. Each implementation ticket targets 3–4 source/test files with explicit dependencies, acceptance, focused verification and stopping points. Required component-bank notes are additional. Run one child ticket per fresh session. Separate evidence/acceptance/drill work from implementation fixes.
+Consequences: Stages 1–2 are not split by this task; #29 is the entry point after #22 passes. Later work remains gated by the original stage/capability requirements. Proposed file paths adapt to actual implemented boundaries; split follow-ups instead of silently expanding a session. Parent comments and docs/implementation/small-session-backlog.md index the work. Native parent/child links are configured, but blocked-by dependencies are body references. Creating tickets does not establish implementation completion or production readiness.
+
+## DEC-014: Publish verified Stage 2 foundations and split remaining activation/acceptance work
+Date: 2026-11-02
+Status: accepted
+Context: After splitting Stages 3–8, the user explicitly requested committing and pushing completed Stage 2 work and dividing its remainder into small tickets.
+Decision: Publish the verified local manager/Studio/evidence Cloudflare foundation, preserving disabled capabilities and distinguishing synthetic controls from hosted acceptance. Keep #22 open as an umbrella with 12 native child issues #103–#114, starting at #103. Each session targets 3–4 source/test/configuration/evidence files plus mandatory component-bank notes; account setup, deployed access and restore drills are separate sessions.
+Consequences: DEC-013's initial exclusion of Stage 2 is superseded by this explicit extension. Hosted R2/OAuth/secrets/deployment/cutover/recovery and durable delivery wakeups remain open; backup alarms do not implement delivery scheduling. Original Stage 2 exit gates still block #29. Credentials, actual backups, generated output and unrelated agent/collection edits are not published. Preserve component bank isolation and record publication/check evidence without claiming production readiness.

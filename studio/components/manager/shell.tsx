@@ -22,6 +22,7 @@ const sections = [
   "Work",
   "Inbox",
   "Activity",
+  "Setup",
 ] as const;
 type Section = (typeof sections)[number];
 
@@ -53,6 +54,7 @@ export function ManagerShell({ url }: { url: string | null }) {
 function ManagerHome({ url }: { url: string }) {
   const trpc = useProjectTRPC();
   const repositories = useQuery(trpc.delivery.repositories.queryOptions());
+  const configuration = useQuery(trpc.agent.configuration.queryOptions());
   const projects = useQuery(trpc.projects.list.queryOptions());
   const bind = useMutation(trpc.delivery.bindKnownRepository.mutationOptions());
   const [section, setSection] = useState<Section>("Overview");
@@ -179,6 +181,50 @@ function ManagerHome({ url }: { url: string }) {
         ) : (
           <main className="rounded-lg border p-5">
             <h2 className="text-xl font-semibold">{section}</h2>
+            {section === "Setup" && (
+              <div className="mt-3 space-y-3">
+                <p>
+                  Configuration status does not confirm the provider is
+                  reachable.
+                </p>
+                {configuration.isPending ? (
+                  <p>Checking configuration…</p>
+                ) : configuration.isError ? (
+                  <p role="alert">
+                    Configuration is unavailable. Check the manager connection
+                    and try again.
+                  </p>
+                ) : (
+                  <dl className="space-y-2">
+                    {Object.entries(configuration.data).map(([name, state]) => (
+                      <div
+                        key={name}
+                        className="flex justify-between gap-4 rounded border p-3"
+                      >
+                        <dt className="capitalize">{name}</dt>
+                        <dd>
+                          {state === "configured"
+                            ? "Configured"
+                            : "Not configured"}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                <p>
+                  GitHub connection, quality assurance and automatic delivery
+                  are not enabled yet.
+                </p>
+                <button
+                  className="rounded border px-3 py-2 text-sm"
+                  type="button"
+                  onClick={() => void configuration.refetch()}
+                  disabled={configuration.isFetching}
+                >
+                  Check again
+                </button>
+              </div>
+            )}
             {section === "Overview" && (
               <div className="mt-3 space-y-3">
                 <p>

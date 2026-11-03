@@ -6,6 +6,8 @@
       "!**/node_modules",
       "!**/dist",
       "!**/coverage",
+      "!**/.wrangler",
+      "!**/.data",
       "!**/memory-bank"
     ]
   },
@@ -27,6 +29,12 @@
   "assist": {
     "enabled": false
   },
+  "overrides": [
+    {
+      "includes": ["docs/simulations/*.json"],
+      "formatter": { "enabled": false }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double",

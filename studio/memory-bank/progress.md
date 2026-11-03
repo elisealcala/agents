@@ -2,8 +2,8 @@
 
 ## Status
 
-Current: Local Next.js Studio drives classifier and project-manager through separate typed tRPC clients.
-Next: Configure the live local pilot and measure real-model behavior separately.
+Current: Local Next.js Studio drives classifier and project-manager through separate typed tRPC clients. Stage 2 hosted authentication, private proxy, import/backup interface and Cloudflare build foundations pass local publication checks; real deployment and OAuth acceptance remain open.
+Next: Publish the verified Stage 2 foundations, then complete the manager's small hosted configuration, deployment and acceptance tickets. Measure real-model behavior separately.
 
 ## Checklist
 
@@ -13,8 +13,14 @@ Next: Configure the live local pilot and measure real-model behavior separately.
 - [ ] Live library run from the UI against a real model
 - [x] Review-first project-manager workspace, immutable citation inspector and evaluation report viewer
 - [x] Verify project-manager integration after implementation finishes
+- [x] Verify Stage 2 Studio types, lint/format, 51 route/policy/transport tests and OpenNext production build
+- [ ] Verify real hosted OAuth, owner/non-owner/session access and import/backup/evidence browser journeys
 
 ## Log
+
+### 2026-11-02 — Stage 2 private Cloudflare interface
+
+- Added hosted owner authentication, a restricted same-origin proxy, private manager binding and OpenNext Cloudflare build configuration. Synthetic local checks covered session access decisions and private response headers; real OAuth, deployment and the latest binding integration still need verification.
 
 ### 2026-10-01
 
@@ -74,3 +80,12 @@ Next: Configure the live local pilot and measure real-model behavior separately.
 - Added controls to save the two verified repository IDs as local references, with explicit wording that GitHub is not connected or imported. Clarified that legacy notes projects are independently selected from repository scope.
 - In an isolated browser session, saved both references, refreshed the selected scope, and navigated by keyboard at desktop and mobile widths. Final verification and publication belong to the Stage 1 manager task.
 - Final verifier passed Studio typecheck, lint, format and Webpack production build; full manager suite passed 132 tests. Browser results above used isolated test data.
+
+- Published the Stage 1 Studio work in commit `cf37754`; the manager issue #21 is closed.
+
+### 2026-11-02 — Stage 2 publication verification
+
+- User requested committing/pushing completed Stage 2 work and splitting the remaining work into small tickets. Inspected pending Studio auth, same-origin allowlist/actor/origin checks, hosted-mode guards, private Durable Object transport, backup import/status/download routes, UI, build configuration and dependency lockfile. All pending Studio paths are related to Stage 2; no unrelated source changes or real credential/private backup contents were found in the inspected publication candidates.
+- Fresh verification passed in order: `pnpm typecheck`; `pnpm lint` and `pnpm format:check` (50 files each); all 51 Node route/policy/payload/transport tests; then `pnpm cloudflare:build`, including the Next.js 16.4.1 Webpack production build and OpenNext worker generation. Build artifacts remain ignored; no source code was changed by this verification task.
+- Route tests use mocked sessions and private bindings. This check did not prove real GitHub OAuth, an externally deployed cross-script binding, another-device/non-owner/session-expiry browser access, hosted paired import, R2 backup/download or isolated restore. Those remain acceptance/configuration tickets; unavailable model/intake capabilities must remain explicit. No deployment, cloud resources, original local services or live model calls occurred.
+- Refreshed only this component's progress and active context. Publication Git references and the remainder issue numbers belong to the parent manager task.

@@ -1,0 +1,23 @@
+# Local-only fixture. Do not deploy.
+name = "agents-local-alarm-probe"
+main = "alarm-worker.ts"
+compatibility_date = "2026-10-30"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+
+[[durable_objects.bindings]]
+name = "MANAGER"
+class_name = "FixtureManager"
+
+[[durable_objects.bindings]]
+name = "EVIDENCE"
+class_name = "DurableEvidenceObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["FixtureManager", "DurableEvidenceObject"]
+
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "local-synthetic-alarm-fixture"

@@ -1,7 +1,12 @@
+import { isHostedMode } from "@/lib/manager-mode";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { loadAgents } from "@/lib/registry";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
+  if (isHostedMode()) redirect("/manager");
   const agents = await loadAgents();
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">

@@ -16,7 +16,7 @@ async function context() {
   const store = new Store(filename);
   stores.push(store);
   const caller = appRouter.createCaller({
-    manager: { store } as Manager,
+    manager: { store } as unknown as Manager,
     model: "fixture",
   });
   return { store, caller, filename };

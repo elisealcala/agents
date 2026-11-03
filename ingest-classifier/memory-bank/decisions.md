@@ -224,3 +224,11 @@ Status: accepted
 Context: The accuracy-first project manager requires reliable source identity, project isolation, inspectable citations and duplicate-safe retries while preserving independent classifier operation.
 Decision: Store immutable original Markdown snapshots and project/source/version associations in additive SQLite tables before classification. Bind idempotency keys to stable evidence references and reject conflicting content. Reuse the production adaptive flow for exactly one registered inbox file under the existing lock, with recovery for interrupted filing. Expose bounded worker operations and additive tRPC evidence procedures; keep existing CLI commands and six-tool MCP discovery unchanged. Project-scoped SQL filtering happens before provider compatibility checks, ranking and truncation. Search persists paragraph-aware chunks up to 1,500 UTF-16 units and returns at most five passages using the existing embedding provider. Full reads return the immutable snapshot, and repair/backfill for associated evidence uses that snapshot. Manager facts, reviews and conversations remain owned by the project-manager agent.
 Consequences: The project-evidence server uses a dedicated library without a watcher. Stored evidence with failed classification/indexing returns a partial receipt, remains readable and can be retried by reference. Search reports incomplete embedding coverage. Legacy unassociated documents stay outside project searches. Stable source offsets and checksums survive edits to taxonomy copies; no embedding-method upgrade is assumed by this integration.
+
+## DEC-029: Keep project evidence storage independent on Cloudflare
+
+Date: 2026-11-02
+Status: accepted
+Context: The manager's Stage 2 hosting uses Cloudflare-native durable storage, while the existing classifier evidence database uses local SQLite.
+Decision: Preserve the evidence contract in a shared core with separate Node SQLite and Durable Object SQLite drivers. Retain immutable identity, project filtering and transaction semantics from DEC-028; keep evidence storage separate from manager state.
+Consequences: The local Workers fixture can exercise the storage contract, but a hosted evidence service, ingestion integration and verified migration of existing evidence still need implementation before deployment.
