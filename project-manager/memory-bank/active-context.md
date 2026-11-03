@@ -1,6 +1,8 @@
 # Active context — project-manager
 
 ## Current focus
+Issue #107 deployed source `511cae1ff0a23b6d606c3eebb07a06b840782ace` to the private storage and canonical web Workers. The storage import mode is required, and signed-out entry checks pass. Actual owner-side binding and pre-import lock smoke remains pending; no real data was imported. Earlier versions are placeholders, not compatible application rollbacks. See docs/implementation/evidence/stage-2-deployment.md. #107 and Stage 2 #22 remain open.
+
 The #106 staging secret names are configured and verified on the two placeholder Workers, including OAuth credentials entered directly by the owner. OAuth app URLs are owner-confirmed; secret values and provider app settings were not independently inspected. Placeholder Workers are not an application deployment. Real sign-in, access, and session expiry remain later acceptance work. #106 evidence is ready for review; #22 remains open.
 
 On 2026-11-03 #105 was merged and closed: private Standard `agents-manager-staging-backups` is configured in ENAM with the `manager-backups/` 30-day expiration; hosted binding, backup and restore remain unverified.

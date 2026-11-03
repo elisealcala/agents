@@ -258,3 +258,7 @@ Next: Complete hosted evidence and migration, backup/restore, durable scheduling
 ### 2026-11-03 — OAuth credential names verified (#106)
 
 - Owner entered the GitHub OAuth client ID and secret directly into Cloudflare. Wrangler secret-list readback confirmed both names alongside the session and paired manager token names. Secret values were not retrieved, and presence does not prove their correctness. OAuth app URLs are owner-confirmed; real sign-in and access checks remain after deployment. #106 evidence is ready for review; #22 remains open.
+
+### 2026-11-03 — Staging Workers deployed (#107)
+
+- Deployed merged source `511cae1ff0a23b6d606c3eebb07a06b840782ace`: private storage version `92bbd4ab-c860-48c2-bf4f-e0634554a797` followed by web version `386908ec-ff2a-4041-b63e-2182bd0d2aa2`. Both dry runs and the OpenNext build passed; configured bindings and secret names were read back. Signed-out manager, backup and import requests were denied; storage has no HTTP targets and its workers.dev address returned 404. No data was imported. Owner-side deployed binding and pre-import lock smoke remains pending; #107 and #22 remain open. Earlier Worker versions were placeholders, not compatible application rollbacks. See docs/implementation/evidence/stage-2-deployment.md.
