@@ -71,7 +71,8 @@ flowchart LR
     R2 -.->|"read latest backup"| Manager
     Manager -.->|"owner download"| Studio
     R2 -.->|"restore into a separate owner"| Recovery["Isolated recovery environment"]
-    Local["Original local database backups<br/>retained separately"] -.->|"initial paired import"| Studio
+    Local["Original local database backups<br/>retained separately"] -.->|"export"| Pair["Paired JSON snapshot"]
+    Pair -.->|"initial import"| Studio
 ```
 
 The Durable Objects are the working stores; R2 holds recovery copies. The local originals are retained outside the automatic R2 retention policy. This diagram describes the intended hosted setup, not evidence that deployment or recovery has been verified.
