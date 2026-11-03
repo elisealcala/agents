@@ -176,7 +176,7 @@ describe("private latest verified backup", () => {
       validateSnapshotPair(pair.manager, pair.evidence),
     ).not.toThrow();
     f.failNextPut();
-    vi.setSystemTime(now + 60_000);
+    vi.setSystemTime(f.managerStorage.kv.get("stage2-backup-due") as number);
     await f.target.alarm();
     expect(f.managerStorage.kv.get("stage2-last-good-backup")).toBe(key);
     expect(await (await f.target.fetch(status())).json()).toMatchObject({

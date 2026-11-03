@@ -11,6 +11,7 @@ import { evidenceSnapshotSchema } from "../../../ingest-classifier/src/evidence/
 import type { Model, Worker } from "../application/contracts.ts";
 import { Manager } from "../application/manager.ts";
 import { DurableManagerStore } from "../storage/durable-manager-store.ts";
+import { DeliveryStore } from "../storage/delivery-store.ts";
 import {
   createDurableSqlDriver,
   type DurableSqlStorage,
@@ -29,6 +30,13 @@ import {
 import { validMigrationToken, verifyMigrationToken } from "./migration-auth.ts";
 import { parseHostedConfig, verifyServiceRequest } from "../server/auth.ts";
 import { appRouter } from "../server/router.ts";
+import { DeliveryScheduler, type Adapters } from "../delivery/scheduler.ts";
+import {
+  DELIVERY_BATCH_SIZE,
+  DELIVERY_INTERVAL_MS,
+  DELIVERY_LEASE_MS,
+  nextWakeup,
+} from "./delivery-alarm.ts";
 
 const unavailable = async (): Promise<never> => {
   throw new Error("The provider is not configured.");
@@ -65,6 +73,7 @@ type ManagerState = {
 const markerKey = "stage2-migration";
 const backupStatusKey = "stage2-backup-status";
 const lastBackupKey = "stage2-last-good-backup";
+const backupDueKey = "stage2-backup-due";
 function completeMarker(marker: MigrationMarker | undefined): boolean {
   return (
     marker?.version === 1 &&
@@ -85,6 +94,10 @@ export class DurableManagerObject {
     intake: "unconfigured";
     conversation: "unconfigured";
   };
+  /** Only explicitly supplied adapters can execute; production registers none. */
+  protected deliveryAdapters(): Adapters {
+    return {};
+  }
   constructor(state: ManagerState, env: Environment) {
     this.state = state;
     this.environment = env;
@@ -371,7 +384,10 @@ export class DurableManagerObject {
       ? ((await storage.get<BackupStatus>(backupStatusKey)) ?? null)
       : null;
     const next =
-      configured && storage.getAlarm ? await storage.getAlarm() : null;
+      configured && storage.get
+        ? ((await storage.get<number>(backupDueKey)) ??
+          (storage.getAlarm ? await storage.getAlarm() : null))
+        : null;
     const lastGood = storage.get
       ? await storage.get<unknown>(lastBackupKey)
       : undefined;
@@ -444,106 +460,166 @@ export class DurableManagerObject {
   }
   private async ensureBackupSchedule(): Promise<void> {
     const storage = this.state.storage;
-    if (
-      this.environment.BACKUP_ENABLED !== "true" ||
-      !storage.getAlarm ||
-      !storage.setAlarm
-    )
+    if (!storage.getAlarm || !storage.setAlarm || !storage.get || !storage.put)
       return;
     try {
-      if ((await storage.getAlarm()) === null)
-        await storage.setAlarm(Date.now() + 1000);
+      const existing = await storage.getAlarm();
+      let backup = await storage.get<number>(backupDueKey);
+      if (this.environment.BACKUP_ENABLED === "true" && backup === undefined) {
+        backup = existing ?? Date.now() + 1000;
+        await storage.put(backupDueKey, backup);
+      }
+      const due = nextWakeup(
+        Date.now() + DELIVERY_INTERVAL_MS,
+        this.environment.BACKUP_ENABLED === "true" ? (backup ?? null) : null,
+      );
+      if (existing === null || existing > due) await storage.setAlarm(due);
     } catch {
-      // Setup remains reachable; status remains without a scheduled backup.
+      // Setup remains reachable; a later request can retry scheduling.
     }
   }
   async alarm(): Promise<void> {
     const env = this.environment;
     const storage = this.state.storage;
-    if (env.BACKUP_ENABLED !== "true") return;
-    // A retry is armed before inspecting configuration or making any external call.
-    // If this fails, let Cloudflare's alarm retry mechanism report the failure.
-    if (!storage.setAlarm) throw new Error("Backup alarm unavailable");
-    await storage.setAlarm(Date.now() + BACKUP_RETRY_MS);
-    try {
-      if (
-        !this.backupConfigured() ||
-        !env.BACKUPS ||
-        !env.EVIDENCE ||
-        !storage.get ||
-        !storage.put ||
-        !this.state.blockConcurrencyWhile
-      )
-        throw new Error("Backup is not configured");
-      const marker = await storage.get<MigrationMarker>(markerKey);
-      if (
-        (env.MANAGER_IMPORT_MODE !== undefined &&
-          env.MANAGER_IMPORT_MODE !== "required") ||
-        (marker && !completeMarker(marker)) ||
-        (env.MANAGER_IMPORT_MODE === "required" && !completeMarker(marker))
-      )
-        throw new Error("Manager is locked");
-      const bucket = env.BACKUPS;
-      const evidence = env.EVIDENCE;
-      const block = this.state.blockConcurrencyWhile.bind(this.state);
-      await runScheduledBackup({
-        now: () => Date.now(),
-        schedule: (at) => storage.setAlarm!(at),
-        capture: async () => {
-          let pair: { manager: Snapshot; evidence: Snapshot } | undefined;
-          let failed = false;
-          let cause: unknown;
-          await block(async () => {
-            try {
-              this.manager ??= this.createManager();
-              const manager = captureSnapshot(
-                createDurableSqlDriver(storage),
-                "manager",
-              );
-              const response = await evidence
-                .get(evidence.idFromName("primary"))
-                .fetch(
-                  new Request("https://evidence.internal/backup/snapshot", {
-                    method: "POST",
-                    headers: {
-                      authorization: `Bearer ${this.service.token}`,
-                      "x-manager-actor": this.service.ownerId,
-                    },
-                  }),
-                );
-              if (!response.ok) throw new Error("Evidence backup unavailable");
-              pair = { manager, evidence: (await response.json()) as Snapshot };
-            } catch (error) {
-              failed = true;
-              cause = error;
-            }
-          });
-          if (failed) throw cause;
-          if (!pair) throw new Error("Backup capture unavailable");
-          return pair;
-        },
-        put: async (key, body) => {
-          await bucket.put(key, body);
-        },
-        get: async (key) => (await bucket.get(key))?.text() ?? null,
-        record: async (status) => {
-          if (status.state === "ok" && status.key)
-            await storage.put!(lastBackupKey, status.key);
-          await storage.put!(backupStatusKey, status);
-        },
-        id: () => randomUUID(),
-      });
-    } catch {
-      // Do not rely on the platform's finite automatic retries: the next retry was
-      // already armed above. Keep the reason generic and avoid private data in logs.
+    if (!storage.setAlarm || !storage.get || !storage.put)
+      throw new Error("Alarm storage unavailable");
+    // Pre-arm before reading state or executing work, preserving crash recovery.
+    await storage.setAlarm(Date.now() + DELIVERY_INTERVAL_MS);
+    let backupDue =
+      env.BACKUP_ENABLED === "true"
+        ? ((await storage.get<number>(backupDueKey)) ?? Date.now())
+        : null;
+    await storage.setAlarm(
+      nextWakeup(Date.now() + DELIVERY_INTERVAL_MS, backupDue),
+    );
+    if (
+      env.BACKUP_ENABLED === "true" &&
+      backupDue !== null &&
+      backupDue <= Date.now()
+    ) {
+      // Persist the retry before backup I/O; delivery ticks must not postpone it.
+      backupDue = Date.now() + BACKUP_RETRY_MS;
+      await storage.put(backupDueKey, backupDue);
+      await storage.setAlarm(
+        nextWakeup(Date.now() + DELIVERY_INTERVAL_MS, backupDue),
+      );
       try {
-        await storage.put?.(backupStatusKey, {
-          state: "error",
-          at: new Date().toISOString(),
+        if (
+          !this.backupConfigured() ||
+          !env.BACKUPS ||
+          !env.EVIDENCE ||
+          !storage.get ||
+          !storage.put ||
+          !this.state.blockConcurrencyWhile
+        )
+          throw new Error("Backup is not configured");
+        const marker = await storage.get<MigrationMarker>(markerKey);
+        if (
+          (env.MANAGER_IMPORT_MODE !== undefined &&
+            env.MANAGER_IMPORT_MODE !== "required") ||
+          (marker && !completeMarker(marker)) ||
+          (env.MANAGER_IMPORT_MODE === "required" && !completeMarker(marker))
+        )
+          throw new Error("Manager is locked");
+        const bucket = env.BACKUPS;
+        const evidence = env.EVIDENCE;
+        const block = this.state.blockConcurrencyWhile.bind(this.state);
+        await runScheduledBackup({
+          now: () => Date.now(),
+          schedule: async (at) => {
+            backupDue = at;
+            await storage.put!(backupDueKey, at);
+            await storage.setAlarm!(
+              nextWakeup(Date.now() + DELIVERY_INTERVAL_MS, at),
+            );
+          },
+          capture: async () => {
+            let pair: { manager: Snapshot; evidence: Snapshot } | undefined;
+            let failed = false;
+            let cause: unknown;
+            await block(async () => {
+              try {
+                this.manager ??= this.createManager();
+                const manager = captureSnapshot(
+                  createDurableSqlDriver(storage),
+                  "manager",
+                );
+                const response = await evidence
+                  .get(evidence.idFromName("primary"))
+                  .fetch(
+                    new Request("https://evidence.internal/backup/snapshot", {
+                      method: "POST",
+                      headers: {
+                        authorization: `Bearer ${this.service.token}`,
+                        "x-manager-actor": this.service.ownerId,
+                      },
+                    }),
+                  );
+                if (!response.ok)
+                  throw new Error("Evidence backup unavailable");
+                pair = {
+                  manager,
+                  evidence: (await response.json()) as Snapshot,
+                };
+              } catch (error) {
+                failed = true;
+                cause = error;
+              }
+            });
+            if (failed) throw cause;
+            if (!pair) throw new Error("Backup capture unavailable");
+            return pair;
+          },
+          put: async (key, body) => {
+            await bucket.put(key, body);
+          },
+          get: async (key) => (await bucket.get(key))?.text() ?? null,
+          record: async (status) => {
+            if (status.state === "ok" && status.key)
+              await storage.put!(lastBackupKey, status.key);
+            await storage.put!(backupStatusKey, status);
+          },
+          id: () => randomUUID(),
         });
       } catch {
-        /* the retry stays armed */
+        // Do not rely on the platform's finite automatic retries: the next retry was
+        // already armed above. Keep the reason generic and avoid private data in logs.
+        try {
+          await storage.put?.(backupStatusKey, {
+            state: "error",
+            at: new Date().toISOString(),
+          });
+        } catch {
+          /* the retry stays armed */
+        }
       }
     }
+    // Never execute delivery against a partially imported pair.
+    const marker = await storage.get<MigrationMarker>(markerKey);
+    if (
+      (env.MANAGER_IMPORT_MODE !== undefined &&
+        env.MANAGER_IMPORT_MODE !== "required") ||
+      (marker && !completeMarker(marker)) ||
+      (env.MANAGER_IMPORT_MODE === "required" && !completeMarker(marker))
+    )
+      return;
+    const delivery = new DeliveryStore(createDurableSqlDriver(storage));
+    const scheduler = new DeliveryScheduler(delivery, this.deliveryAdapters(), {
+      leaseMs: DELIVERY_LEASE_MS,
+      maxAttempts: DELIVERY_BATCH_SIZE,
+    });
+    try {
+      await scheduler.tick();
+    } finally {
+      await scheduler.stop();
+    }
+    await storage.setAlarm(
+      nextWakeup(
+        Date.now() + DELIVERY_INTERVAL_MS,
+        env.BACKUP_ENABLED === "true"
+          ? ((await storage.get<number>(backupDueKey)) ?? null)
+          : null,
+      ),
+    );
   }
 }

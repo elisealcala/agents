@@ -7,7 +7,14 @@ const [phase, directory] = process.argv.slice(2);
 if (
   !directory ||
   !path.isAbsolute(directory) ||
-  !["locked", "import", "rearm", "inspect"].includes(phase)
+  ![
+    "locked",
+    "import",
+    "rearm",
+    "inspect",
+    "delivery-seed",
+    "delivery-inspect",
+  ].includes(phase)
 )
   throw new Error(
     "Usage: alarm-check.ts locked|import|rearm|inspect <fixture-directory>",
@@ -28,7 +35,20 @@ const status = async () =>
     latest: { state: string; key?: string } | null;
     next: number | null;
   };
-if (phase === "locked") {
+if (phase === "delivery-seed") {
+  assert.equal((await call("/jobs", { method: "POST" })).status, 200);
+} else if (phase === "delivery-inspect") {
+  await new Promise((resolve) => setTimeout(resolve, 2500));
+  const jobs = (await (await call("/jobs")).json()) as {
+    id: string;
+    status: string;
+  }[];
+  assert.equal(
+    jobs.find((job) => job.id === "fixture-job")?.status,
+    "completed",
+  );
+  assert.equal(jobs.find((job) => job.id === "unknown-job")?.status, "queued");
+} else if (phase === "locked") {
   assert.equal((await schedule()).status, 200);
   await new Promise((resolve) => setTimeout(resolve, 2500));
   const result = await status();

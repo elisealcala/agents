@@ -23,6 +23,8 @@ The runner refuses arguments, a dirty checkout and Cloudflare/Wrangler deploymen
 
 ## Before release
 
+Delivery and backups share the manager Durable Object alarm. Once initialized, it wakes delivery every 60 seconds and processes at most five registered jobs or outbox operations per tick; no production delivery adapters are registered. Backup deadlines and retries are persisted separately and take precedence when earlier. This is approximately 43,200 alarm invocations per 30-day month for one continuously initialized object, before retries; account for them when checking Cloudflare costs. Batch limits cap operations and recovered rows; database query scan costs can grow with the size of the queue. Local synthetic restart checks do not prove hosted scheduling.
+
 1. Confirm the account, worker names, R2 activation, account spending and the selected GitHub owner (`elisealcala`, numeric ID `16949569`). Confirm GitHub OAuth registration uses the selected HTTPS origin and the exact callback `/api/auth/callback/github`. GitHub sign-in grants no Projects or repository integration authority.
 2. Preserve complete original database backups separately. The prepared copy and import file are described in the manager memory bank. Recheck that both original processes are stopped and that the snapshot pair is current and quiescent. Use `src/storage/backup-pair-cli.ts` and `src/storage/snapshot-export.ts` if a fresh pair is needed; never copy a live SQLite main file alone while ignoring its WAL.
 3. Run the source checks, Cloudflare dry-run, synthetic cross-Worker test and alarm/R2 restart test. Build the exact reviewed release source and record its commit SHA. Confirm no real credentials or user backup files are in the release artifact or version control.

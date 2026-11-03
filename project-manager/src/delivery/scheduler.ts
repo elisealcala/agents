@@ -6,7 +6,7 @@ import { runOutbox } from "./outbox.ts";
 
 type Job = { id: string; repository_id: string; kind: string };
 type Intent = Job & { revision: number };
-type Adapters = {
+export type Adapters = {
   jobs?: Record<string, (item: Job, signal: AbortSignal) => Promise<void>>;
   outbox?: Record<string, (item: Intent, signal: AbortSignal) => Promise<void>>;
 };
@@ -15,6 +15,7 @@ type Options = {
   leaseMs?: number;
   now?: () => Date;
   onError?: (error: unknown) => void;
+  maxAttempts?: number;
 };
 
 export class DeliveryScheduler {
@@ -25,6 +26,7 @@ export class DeliveryScheduler {
   private readonly leaseMs: number;
   private readonly now: () => Date;
   private readonly onError: (error: unknown) => void;
+  private readonly maxAttempts: number;
   constructor(
     private readonly store: DeliveryStore,
     private readonly adapters: Adapters,
@@ -32,11 +34,14 @@ export class DeliveryScheduler {
   ) {
     this.intervalMs = options.intervalMs ?? 5000;
     this.leaseMs = options.leaseMs ?? 60000;
+    this.maxAttempts = options.maxAttempts ?? Number.MAX_SAFE_INTEGER;
     if (
       !Number.isSafeInteger(this.intervalMs) ||
       this.intervalMs < 1 ||
       !Number.isSafeInteger(this.leaseMs) ||
-      this.leaseMs < 1
+      this.leaseMs < 1 ||
+      !Number.isSafeInteger(this.maxAttempts) ||
+      this.maxAttempts < 1
     )
       throw new Error("Invalid scheduler timing");
     this.now = options.now ?? (() => new Date());
@@ -57,7 +62,7 @@ export class DeliveryScheduler {
   tick(): Promise<void> {
     if (this.stopped) return Promise.resolve();
     if (this.active) {
-      this.store.recoverExpired(this.now().toISOString());
+      this.store.recoverExpired(this.now().toISOString(), this.maxAttempts);
       return this.active;
     }
     const current = this.process();
@@ -99,13 +104,26 @@ export class DeliveryScheduler {
     }
   }
   private async process(): Promise<void> {
-    this.store.recoverExpired(this.now().toISOString());
-    for (const job of this.store.queuedJobs()) {
+    this.store.recoverExpired(this.now().toISOString(), this.maxAttempts);
+    let attempted = 0;
+    const intents = this.store.queuedOutbox(
+      Object.keys(this.adapters.outbox ?? {}),
+      this.maxAttempts,
+    );
+    const jobsLimit = intents.length
+      ? Math.max(1, Math.ceil(this.maxAttempts / 2))
+      : this.maxAttempts;
+    for (const job of this.store.queuedJobs(
+      Object.keys(this.adapters.jobs ?? {}),
+      jobsLimit,
+    )) {
       if (this.stopped) return;
       const adapter = Object.hasOwn(this.adapters.jobs ?? {}, job.kind)
         ? this.adapters.jobs?.[job.kind]
         : undefined;
       if (!adapter) continue;
+      if (attempted >= this.maxAttempts) return;
+      attempted++;
       const now = this.now();
       try {
         await runJob(
@@ -120,16 +138,18 @@ export class DeliveryScheduler {
           () => this.now().toISOString(),
         );
       } catch (error) {
-        this.store.recoverExpired(this.now().toISOString());
+        this.store.recoverExpired(this.now().toISOString(), this.maxAttempts);
         this.onError(error);
       }
     }
-    for (const intent of this.store.queuedOutbox()) {
+    for (const intent of intents) {
       if (this.stopped) return;
       const adapter = Object.hasOwn(this.adapters.outbox ?? {}, intent.kind)
         ? this.adapters.outbox?.[intent.kind]
         : undefined;
       if (!adapter) continue;
+      if (attempted >= this.maxAttempts) return;
+      attempted++;
       const now = this.now();
       try {
         await runOutbox(
@@ -144,7 +164,7 @@ export class DeliveryScheduler {
           () => this.now().toISOString(),
         );
       } catch (error) {
-        this.store.recoverExpired(this.now().toISOString());
+        this.store.recoverExpired(this.now().toISOString(), this.maxAttempts);
         this.onError(error);
       }
     }
