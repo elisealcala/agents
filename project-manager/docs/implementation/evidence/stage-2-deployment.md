@@ -1,6 +1,6 @@
 # Stage 2 deployment evidence
 
-Status: **deployment completed; owner-side binding and import-lock smoke pending**, 2026-11-03. Stage 2 #22 remains open; no real data was imported.
+Status: **deployment and owner-side smoke completed**, 2026-11-03. Stage 2 #22 remains open; no real data was imported.
 
 ## Release
 
@@ -12,7 +12,8 @@ Status: **deployment completed; owner-side binding and import-lock smoke pending
 ## Signed-out HTTP smoke
 
 - `/` redirected to `/manager`; `/manager` and `/manager/setup` redirected to `/login`. `GET /api/manager/projects`, `GET /api/manager-backup`, and `POST /api/manager-migration` returned 401; the manager response included `Cache-Control: private, no-store`. `/api/auth/session` returned `null`.
-- The storage workers.dev address returned 404. The deployment reported no storage HTTP targets. These checks do not prove owner access or exercise the private binding.
-- Independent local verification passed manager typecheck, lint and 14 focused migration/object tests. Source and local synthetic tests enforce the required import marker and fail-closed credential checks. Actual pre-import owner requests across the deployed private binding still require owner-side verification; the setup page alone does not invoke the binding. Missing-credential behavior has not been tested by removing real deployed secrets.
+- The storage workers.dev address returned 404. The deployment reported no storage HTTP targets. These checks alone do not prove owner access or exercise the private binding.
+- The owner signed in and reported that the setup page loads. The manager showed “A backup is not scheduled” and “Manager is unavailable” before import; no project data was displayed. The backup message is rendered only after an owner-authenticated `/api/manager-backup` request successfully reads status through the private Durable Object binding. The generic manager error is consistent with the configured import lock, but does not by itself distinguish that lock from another backend error.
+- Independent local verification passed manager typecheck, lint and 14 focused migration/object tests, including the required import marker and fail-closed credential checks. The deployed storage configuration requires import; missing-credential behavior has not been tested by removing real deployed secrets.
 
 Real OAuth acceptance, cross-origin/forged actor tests, real-data import, hosted backup and restore are separate follow-ups; do not claim them from this evidence.

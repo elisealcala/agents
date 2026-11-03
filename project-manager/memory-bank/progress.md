@@ -262,3 +262,7 @@ Next: Complete hosted evidence and migration, backup/restore, durable scheduling
 ### 2026-11-03 — Staging Workers deployed (#107)
 
 - Deployed merged source `511cae1ff0a23b6d606c3eebb07a06b840782ace`: private storage version `92bbd4ab-c860-48c2-bf4f-e0634554a797` followed by web version `386908ec-ff2a-4041-b63e-2182bd0d2aa2`. Both dry runs and the OpenNext build passed; configured bindings and secret names were read back. Signed-out manager, backup and import requests were denied; storage has no HTTP targets and its workers.dev address returned 404. No data was imported. Owner-side deployed binding and pre-import lock smoke remains pending; #107 and #22 remain open. Earlier Worker versions were placeholders, not compatible application rollbacks. See docs/implementation/evidence/stage-2-deployment.md.
+
+### 2026-11-03 — Owner-side staging smoke (#107)
+
+- Owner reported successful sign-in and setup page access, a backup status of not scheduled, and manager unavailable before import. The displayed backup status requires a successful authenticated private Durable Object call. The generic manager error is consistent with the import lock but does not distinguish it from other backend errors; the required-mode configuration and focused local tests supply additional evidence. No backup was uploaded and no real data imported. Full OAuth/boundary/backup acceptance remains later Stage 2 work.
