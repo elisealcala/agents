@@ -59,8 +59,25 @@ The helper takes SQLite write locks while making the copies and checks the canon
 
 ## Hosted backups and retention
 
+The planned hosted data and recovery flow is:
+
+```mermaid
+flowchart LR
+    Owner["Owner's browser"] -->|"HTTPS and sign-in"| Studio["Studio web Worker"]
+    Studio -->|"private binding"| Manager["Manager Durable Object<br/>working project state and jobs"]
+    Manager -->|"private binding"| Evidence["Evidence Durable Object<br/>source evidence"]
+    Manager -->|"scheduled paired snapshots"| R2["Private R2 backup bucket<br/>manager-backups/ · 30-day retention"]
+    Evidence -.->|"evidence included in snapshot"| Manager
+    R2 -.->|"read latest backup"| Manager
+    Manager -.->|"owner download"| Studio
+    R2 -.->|"restore into a separate owner"| Recovery["Isolated recovery environment"]
+    Local["Original local database backups<br/>retained separately"] -.->|"initial paired import"| Studio
+```
+
+The Durable Objects are the working stores; R2 holds recovery copies. The local originals are retained outside the automatic R2 retention policy. This diagram describes the intended hosted setup, not evidence that deployment or recovery has been verified.
+
 When enabled and bound to a private R2 bucket, a Durable Object alarm captures a paired manager/evidence snapshot, verifies note/source consistency, writes it to `manager-backups/`, reads it back, and records the result. A retry is scheduled before the attempt; failures record a generic status and retry rather than depending on the browser. The manager shows backup status and lets the owner download the last verified backup, including after a later failed attempt. Snapshots larger than 8 MiB or with in-flight work are rejected rather than producing a backup the current restore path cannot safely use.
 
-The user selected **30 days** of retention on 2026-11-02. Once R2 is enabled and the dedicated bucket is created, apply `wrangler r2 bucket lifecycle add agents-manager-staging-backups manager-backup-30-days manager-backups/ --expire-days 30` and verify the rule. The local original SQLite backups are outside that policy. R2's published standard free tier includes 10 GB-month of storage; usage above included limits may incur charges. Configure and check actual account costs and monitor backup failures. The R2 service is not enabled on the account yet; no bucket, lifecycle rule or hosted data has been created by this work. See [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/).
+The user selected **30 days** of retention on 2026-11-02. The private Standard bucket `agents-manager-staging-backups` has a verified rule expiring only `manager-backups/` objects after 30 days. The local original SQLite backups are outside that policy. R2's published standard free tier includes 10 GB-month of storage; usage above included limits may incur charges. Configure and check actual account costs and monitor backup failures. On 2026-11-03 the owner activated R2; the bucket and rule were created and verified. The owner confirmed no spending limit or billing alert is configured and chose to proceed using the free allowance. Hosted backup execution and recovery remain unverified. See [Cloudflare R2 pricing](https://developers.cloudflare.com/r2/pricing/).
 
 The alarm/R2 implementation has passed synthetic local Workers tests across a restart and an overdue alarm. A local restore drill using the existing backup pair passed for one project and one evidence source in 10 ms; this timing is a local observation, not a hosted recovery objective. An isolated deployed restore drill, deployed alarm behavior, owner access and external monitoring remain release gates. Evidence writes must remain disabled or coordinated through the manager's snapshot barrier; independent evidence writers require a new cross-store consistency protocol.
