@@ -1,0 +1,53 @@
+name: Manager Cloudflare validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-cloudflare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          version: 10.9.0
+          run_install: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22.22.0
+          cache: pnpm
+          cache-dependency-path: |
+            ingest-classifier/pnpm-lock.yaml
+            project-manager/pnpm-lock.yaml
+            studio/pnpm-lock.yaml
+      - name: Install independent locked dependencies
+        run: |
+          pnpm --dir ingest-classifier install --frozen-lockfile
+          pnpm --dir project-manager install --frozen-lockfile
+          pnpm --dir studio install --frozen-lockfile
+      - name: Manager checks and tests
+        run: |
+          pnpm --dir project-manager check
+          pnpm --dir project-manager test
+      - name: Studio checks and production Worker build
+        run: |
+          pnpm --dir studio check
+          pnpm --dir studio cloudflare:build
+      - name: Run disposable local Worker probes
+        env:
+          CI_REPORT_PATH: ${{ runner.temp }}/manager-cloudflare-report.json
+        run: pnpm --dir project-manager exec tsx tests/cloudflare/ci-check.ts
+      - name: Publish non-sensitive revision and results
+        uses: actions/upload-artifact@v7
+        with:
+          name: manager-cloudflare-report-${{ github.run_id }}
+          path: ${{ runner.temp }}/manager-cloudflare-report.json
+          if-no-files-found: error
+          retention-days: 14
