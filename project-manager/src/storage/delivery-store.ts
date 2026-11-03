@@ -222,19 +222,36 @@ export class DeliveryStore {
       .all(repositoryId) as { data: string }[];
     return rows.map((row) => workItemSchema.parse(JSON.parse(row.data)));
   }
-  queuedJobs() {
+  queuedJobs(kinds?: string[], limit?: number) {
+    if (kinds && kinds.length === 0) return [];
+    const filter = kinds
+      ? ` AND j.kind IN (${kinds.map(() => "?").join(",")})`
+      : "";
+    const bounded = limit === undefined ? "" : " LIMIT ?";
     return this.db
       .prepare(
-        "SELECT j.* FROM delivery_jobs j JOIN delivery_repositories r ON r.id=j.repository_id WHERE j.status='queued' AND r.status != 'paused' ORDER BY j.rowid",
+        `SELECT j.* FROM delivery_jobs j JOIN delivery_repositories r ON r.id=j.repository_id WHERE j.status='queued' AND r.status != 'paused'${filter} ORDER BY j.rowid${bounded}`,
       )
-      .all() as { id: string; repository_id: string; kind: string }[];
+      .all(...(kinds ?? []), ...(limit === undefined ? [] : [limit])) as {
+      id: string;
+      repository_id: string;
+      kind: string;
+    }[];
   }
-  queuedOutbox() {
+  queuedOutbox(kinds?: string[], limit?: number) {
+    if (kinds && kinds.length === 0) return [];
+    const filter = kinds
+      ? ` AND o.kind IN (${kinds.map(() => "?").join(",")})`
+      : "";
+    const bounded = limit === undefined ? "" : " LIMIT ?";
     return this.db
       .prepare(
-        "SELECT o.* FROM delivery_outbox o JOIN delivery_repositories r ON r.id=o.repository_id WHERE o.status='queued' AND r.status != 'paused' AND r.revision=o.revision ORDER BY o.rowid",
+        `SELECT o.* FROM delivery_outbox o JOIN delivery_repositories r ON r.id=o.repository_id WHERE o.status='queued' AND r.status != 'paused' AND r.revision=o.revision${filter} ORDER BY o.rowid${bounded}`,
       )
-      .all() as OutboxRow[];
+      .all(
+        ...(kinds ?? []),
+        ...(limit === undefined ? [] : [limit]),
+      ) as OutboxRow[];
   }
   enqueueJob(id: string, repositoryId: string, kind: string): void {
     if (!id.trim() || !kind.trim()) throw new Error("Invalid job");
@@ -307,8 +324,26 @@ export class DeliveryStore {
       )
       .run(outcome, id);
   }
-  recoverExpired(now: string): number {
+  recoverExpired(now: string, limit?: number): number {
     if (!validTime(now)) throw new Error("Invalid time");
+    if (limit !== undefined) {
+      if (!Number.isSafeInteger(limit) || limit < 1)
+        throw new Error("Invalid recovery limit");
+      const expired = this.db
+        .prepare(
+          "SELECT id, kind FROM (SELECT id, 'outbox' AS kind, julianday(lease_expires_at) AS expires FROM delivery_outbox WHERE status='dispatching' UNION ALL SELECT id, 'job' AS kind, julianday(lease_expires_at) AS expires FROM delivery_jobs WHERE status='running') WHERE expires <= julianday(?) ORDER BY expires, kind, id LIMIT ?",
+        )
+        .all(now, limit) as { id: string; kind: "job" | "outbox" }[];
+      let recovered = 0;
+      for (const row of expired) {
+        const statement =
+          row.kind === "job"
+            ? "UPDATE delivery_jobs SET status='reconciling', attempt_id=NULL, lease_expires_at=NULL WHERE id=? AND status='running'"
+            : "UPDATE delivery_outbox SET status='unknown', attempt_id=NULL, lease_expires_at=NULL WHERE id=? AND status='dispatching'";
+        recovered += Number(this.db.prepare(statement).run(row.id).changes);
+      }
+      return recovered;
+    }
     // ISO timestamps validated at entry and compared as instants, not strings.
     const rows = this.db
       .prepare(

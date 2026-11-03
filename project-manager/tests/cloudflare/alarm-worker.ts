@@ -1,5 +1,7 @@
 /** Local-only alarm/R2 fixture; do not deploy or bind real data. */
 import { DurableManagerObject } from "../../src/cloudflare/manager-object.ts";
+import { DurableManagerStore } from "../../src/storage/durable-manager-store.ts";
+import type { Adapters } from "../../src/delivery/scheduler.ts";
 export { DurableEvidenceObject } from "../../src/cloudflare/evidence-object.ts";
 
 type FixtureEnv = {
@@ -32,6 +34,9 @@ export class FixtureManager extends DurableManagerObject {
   ) {
     super(fixtureState, fixtureEnv);
   }
+  protected override deliveryAdapters(): Adapters {
+    return { jobs: { "fixture-scan": async () => {} } };
+  }
   override async fetch(request: Request): Promise<Response> {
     if (this.fixtureEnv.FIXTURE_ACCESS !== "local-test-only")
       return new Response(null, { status: 404 });
@@ -41,8 +46,37 @@ export class FixtureManager extends DurableManagerObject {
     ) {
       const delay =
         new URL(request.url).searchParams.get("delay") === "6000" ? 6000 : 200;
-      await this.fixtureState.storage.setAlarm(Date.now() + delay);
+      const due = Date.now() + delay;
+      await this.fixtureState.storage.put!("stage2-backup-due", due);
+      await this.fixtureState.storage.setAlarm(due);
       return Response.json({ ok: true });
+    }
+    if (
+      new URL(request.url).pathname === "/__fixture/jobs" &&
+      request.method === "POST"
+    ) {
+      const delivery = new DurableManagerStore(this.fixtureState.storage)
+        .delivery;
+      delivery.registerRepository({
+        provider: "github",
+        repositoryId: "fixture",
+        owner: "fixture",
+        name: "fixture",
+      });
+      delivery.enqueueJob("fixture-job", "fixture", "fixture-scan");
+      delivery.enqueueJob("unknown-job", "fixture", "unregistered");
+      await this.fixtureState.storage.setAlarm(Date.now() + 6000);
+      return Response.json({ ok: true });
+    }
+    if (
+      new URL(request.url).pathname === "/__fixture/jobs" &&
+      request.method === "GET"
+    ) {
+      return Response.json(
+        new DurableManagerStore(this.fixtureState.storage).delivery.listJobs(
+          "fixture",
+        ),
+      );
     }
     return super.fetch(request);
   }
@@ -62,13 +96,15 @@ export default {
     const target =
       path === "/schedule"
         ? `/__fixture/schedule${new URL(request.url).search}`
-        : path === "/status"
-          ? "/backup/status"
-          : path === "/latest"
-            ? "/backup/latest"
-            : path === "/import"
-              ? "/migration/import"
-              : null;
+        : path === "/jobs"
+          ? "/__fixture/jobs"
+          : path === "/status"
+            ? "/backup/status"
+            : path === "/latest"
+              ? "/backup/latest"
+              : path === "/import"
+                ? "/migration/import"
+                : null;
     if (!target) return new Response(null, { status: 404 });
     const headers = new Headers({
       authorization: `Bearer ${env.MANAGER_SERVICE_TOKEN}`,
@@ -78,7 +114,12 @@ export default {
     });
     return env.MANAGER.get(env.MANAGER.idFromName("synthetic-alarm")).fetch(
       new Request(`https://fixture.invalid${target}`, {
-        method: path === "/status" || path === "/latest" ? "GET" : "POST",
+        method:
+          path === "/status" ||
+          path === "/latest" ||
+          (path === "/jobs" && request.method === "GET")
+            ? "GET"
+            : "POST",
         headers,
         body: path === "/import" ? await request.arrayBuffer() : undefined,
       }),

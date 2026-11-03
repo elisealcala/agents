@@ -176,10 +176,19 @@ try {
   await sleep(7000);
   await start(8795, alarmArgs);
   await check("tests/cloudflare/alarm-check.ts", "inspect");
+  await check("tests/cloudflare/alarm-check.ts", "delivery-seed");
+  await stop();
+  await sleep(7000);
+  await start(8795, alarmArgs);
+  await check("tests/cloudflare/alarm-check.ts", "delivery-inspect");
   await stop();
   const report = {
     revision,
-    checks: ["two-worker import and restart", "alarm and local R2 restart"],
+    checks: [
+      "two-worker import and restart",
+      "alarm and local R2 restart",
+      "delivery alarm restart",
+    ],
     result: "passed",
     scope: "synthetic local fixtures; not hosted acceptance",
   };

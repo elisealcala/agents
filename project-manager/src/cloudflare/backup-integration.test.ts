@@ -12,6 +12,7 @@ import {
   type Snapshot,
 } from "../storage/snapshot.ts";
 import { BACKUP_INTERVAL_MS, BACKUP_RETRY_MS } from "./backup-scheduler.ts";
+import { DELIVERY_INTERVAL_MS } from "./delivery-alarm.ts";
 import { DurableEvidenceObject } from "./evidence-object.ts";
 import { DurableManagerObject } from "./manager-object.ts";
 
@@ -223,8 +224,11 @@ describe("durable object backup integration", () => {
     manager.save(project);
     await f.target.fetch(listRequest());
     f.managerStorage.consumeAlarm();
+    vi.setSystemTime(now + 1000);
     await f.target.alarm();
-    expect(f.managerStorage.events).toContain(`alarm:${now + BACKUP_RETRY_MS}`);
+    expect(f.managerStorage.kv.get("stage2-backup-due")).toBe(
+      now + 1000 + BACKUP_INTERVAL_MS,
+    );
     expect(f.calls).toEqual(["put", "get"]);
     expect(f.objects.size).toBe(1);
     const [key, contents] = [...f.objects.entries()][0];
@@ -245,18 +249,14 @@ describe("durable object backup integration", () => {
     expect(status).toEqual({
       configured: true,
       hasBackup: true,
-      latest: { state: "ok", at: "2026-11-02T12:34:00.000Z", key },
-      next: now + BACKUP_INTERVAL_MS,
+      latest: { state: "ok", at: "2026-11-02T12:34:01.000Z", key },
+      next: now + 1000 + BACKUP_INTERVAL_MS,
     });
     const scheduleEvents = f.managerStorage.events.filter((event) =>
       event.startsWith("alarm:"),
     );
-    expect(scheduleEvents).toEqual([
-      `alarm:${now + 1000}`,
-      `alarm:${now + BACKUP_RETRY_MS}`,
-      `alarm:${now + BACKUP_RETRY_MS}`,
-      `alarm:${now + BACKUP_INTERVAL_MS}`,
-    ]);
+    expect(scheduleEvents[0]).toBe(`alarm:${now + 1000}`);
+    expect(f.managerStorage.alarm()).toBe(now + 1000 + DELIVERY_INTERVAL_MS);
   });
 
   it.each(["put", "readback"] as const)(
@@ -267,16 +267,17 @@ describe("durable object backup integration", () => {
       const f = fixture();
       await f.target.fetch(listRequest());
       f.managerStorage.consumeAlarm();
+      vi.setSystemTime(now + 1000);
       f.setFailPut(failure === "put");
       f.setAlterRead(failure === "readback");
       await f.target.alarm();
-      expect(f.managerStorage.alarm()).toBe(now + BACKUP_RETRY_MS);
+      expect(f.managerStorage.alarm()).toBe(now + 1000 + DELIVERY_INTERVAL_MS);
       const status = await (await f.target.fetch(statusRequest())).json();
       expect(status).toEqual({
         configured: true,
         hasBackup: false,
-        latest: { state: "error", at: "2026-11-02T12:34:00.000Z" },
-        next: now + BACKUP_RETRY_MS,
+        latest: { state: "error", at: "2026-11-02T12:34:01.000Z" },
+        next: now + 1000 + BACKUP_RETRY_MS,
       });
       expect(JSON.stringify(status)).not.toContain("private bucket error");
     },
@@ -296,7 +297,10 @@ describe("durable object backup integration", () => {
     await f.target.alarm();
     expect(f.objects.size).toBe(0);
     expect(f.evidenceFetch).not.toHaveBeenCalled();
-    expect(f.managerStorage.alarm()).toBe(now + BACKUP_RETRY_MS);
+    expect(f.managerStorage.alarm()).toBe(now + DELIVERY_INTERVAL_MS);
+    expect(f.managerStorage.kv.get("stage2-backup-due")).toBe(
+      now + BACKUP_RETRY_MS,
+    );
   });
 
   it("keeps retrying and reports an error if backups are enabled but storage is missing", async () => {
@@ -310,11 +314,15 @@ describe("durable object backup integration", () => {
     expect((await target.fetch(listRequest())).status).toBe(200);
     expect(f.managerStorage.alarm()).toBe(now + 1000);
     f.managerStorage.consumeAlarm();
+    vi.setSystemTime(now + 1000);
     await target.alarm();
-    expect(f.managerStorage.alarm()).toBe(now + BACKUP_RETRY_MS);
+    expect(f.managerStorage.alarm()).toBe(now + 1000 + DELIVERY_INTERVAL_MS);
+    expect(f.managerStorage.kv.get("stage2-backup-due")).toBe(
+      now + 1000 + BACKUP_RETRY_MS,
+    );
     expect(f.managerStorage.kv.get("stage2-backup-status")).toEqual({
       state: "error",
-      at: "2026-11-02T12:34:00.000Z",
+      at: "2026-11-02T12:34:01.000Z",
     });
     expect(f.evidenceFetch).not.toHaveBeenCalled();
   });
@@ -329,7 +337,7 @@ describe("durable object backup integration", () => {
     });
     expect((await target.fetch(listRequest())).status).toBe(200);
     await target.alarm();
-    expect(f.managerStorage.alarm()).toBeNull();
+    expect(f.managerStorage.alarm()).toBe(now + DELIVERY_INTERVAL_MS);
     expect(f.objects.size).toBe(0);
     expect(f.evidenceFetch).not.toHaveBeenCalled();
   });
