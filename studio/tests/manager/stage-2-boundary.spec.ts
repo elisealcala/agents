@@ -14,8 +14,10 @@ const skip =
   !origin || /localhost|127\.0\.0\.1|\[::1\]/.test(origin)
     ? "set BOUNDARY_ORIGIN to the deployed https origin"
     : false;
-const skipStorage = skip || !storageOrigin ? skip || "set BOUNDARY_STORAGE_ORIGIN" : false;
-const skipOwner = skip || (ownerCookie ? false : "BOUNDARY_OWNER_COOKIE not set");
+const skipStorage =
+  skip || !storageOrigin ? skip || "set BOUNDARY_STORAGE_ORIGIN" : false;
+const skipOwner =
+  skip || (ownerCookie ? false : "BOUNDARY_OWNER_COOKIE not set");
 
 const reads = ["/api/manager/projects.list", "/api/manager-backup"];
 const forged = {
@@ -58,7 +60,10 @@ test("signed-out reads are denied and private", { skip }, async () => {
 });
 
 test("signed-out mutations are denied", { skip }, async () => {
-  for (const path of ["/api/manager-migration", "/api/manager/projects.create"]) {
+  for (const path of [
+    "/api/manager-migration",
+    "/api/manager/projects.create",
+  ]) {
     const res = await fetch(url(path), {
       method: "POST",
       redirect: "manual",
@@ -71,7 +76,9 @@ test("signed-out mutations are denied", { skip }, async () => {
   }
 });
 
-test("forged identity and target headers do not grant access", { skip }, async () => {
+test("forged identity and target headers do not grant access", {
+  skip,
+}, async () => {
   for (const path of reads) {
     const res = await fetch(url(path), { redirect: "manual", headers: forged });
     assert.equal(res.status, 401, path);
@@ -88,8 +95,15 @@ test("forged identity and target headers do not grant access", { skip }, async (
   await assertSafeBody(mutation);
 });
 
-test("direct storage endpoints are not the manager", { skip: skipStorage }, async () => {
-  for (const path of ["/", "/backup/status", "/migration/import", "/trpc/projects.list"]) {
+test("direct storage endpoints are not the manager", {
+  skip: skipStorage,
+}, async () => {
+  for (const path of [
+    "/",
+    "/backup/status",
+    "/migration/import",
+    "/trpc/projects.list",
+  ]) {
     for (const method of ["GET", "POST"] as const) {
       const res = await fetch(url(path, storageOrigin), {
         method,
@@ -99,46 +113,48 @@ test("direct storage endpoints are not the manager", { skip: skipStorage }, asyn
       });
       assert.equal(res.status, 404, `${method} ${path}`);
       const text = await res.text();
-      assert.doesNotMatch(text, /"configured"|"hasBackup"|projects\.list|AUTH_SECRET/);
+      assert.doesNotMatch(
+        text,
+        /"configured"|"hasBackup"|projects\.list|AUTH_SECRET/,
+      );
     }
   }
 });
 
-test(
-  "owner cross-origin mutations fail after authentication",
-  { skip: skipOwner },
-  async () => {
-    for (const bad of ["https://evil.example", "null"]) {
-      const res = await fetch(url("/api/manager-migration"), {
-        method: "POST",
-        redirect: "manual",
-        headers: {
-          cookie: ownerCookie!,
-          origin: bad,
-          "content-type": "application/json",
-        },
-        body: "{}",
-      });
-      assert.equal(res.status, 403, `origin ${bad} got ${res.status}`);
-      assertPrivate(res);
-      await assertSafeBody(res);
-    }
-  },
-);
-
-test(
-  "owner same-origin backup reaches the binding and ignores forged headers",
-  { skip: skipOwner },
-  async () => {
-    const res = await fetch(url("/api/manager-backup"), {
+test("owner cross-origin mutations fail after authentication", {
+  skip: skipOwner,
+}, async () => {
+  for (const bad of ["https://evil.example", "null"]) {
+    const res = await fetch(url("/api/manager-migration"), {
+      method: "POST",
       redirect: "manual",
-      headers: { cookie: ownerCookie!, ...forged },
+      headers: {
+        cookie: ownerCookie!,
+        origin: bad,
+        "content-type": "application/json",
+      },
+      body: "{}",
     });
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 403, `origin ${bad} got ${res.status}`);
     assertPrivate(res);
-    const text = await assertSafeBody(res);
-    const data = JSON.parse(text) as { configured?: unknown; hasBackup?: unknown };
-    assert.equal(typeof data.configured, "boolean");
-    assert.equal(typeof data.hasBackup, "boolean");
-  },
-);
+    await assertSafeBody(res);
+  }
+});
+
+test("owner same-origin backup reaches the binding and ignores forged headers", {
+  skip: skipOwner,
+}, async () => {
+  const res = await fetch(url("/api/manager-backup"), {
+    redirect: "manual",
+    headers: { cookie: ownerCookie!, ...forged },
+  });
+  assert.equal(res.status, 200);
+  assertPrivate(res);
+  const text = await assertSafeBody(res);
+  const data = JSON.parse(text) as {
+    configured?: unknown;
+    hasBackup?: unknown;
+  };
+  assert.equal(typeof data.configured, "boolean");
+  assert.equal(typeof data.hasBackup, "boolean");
+});
