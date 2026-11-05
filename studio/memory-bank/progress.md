@@ -18,6 +18,10 @@ Next: Publish the verified Stage 2 foundations, then complete the manager's smal
 
 ## Log
 
+### 2026-11-05 — Hosted boundary check (#108)
+
+- Added a manual `node:test` file, `tests/manager/stage-2-boundary.spec.ts`, for the deployed same-origin boundary. It is not part of the default test script. With the staging origin and storage origin set, four signed-out and direct-storage checks passed and the two owner-cookie checks skipped. The owner binding proof was collected in the signed-in browser without storing a session cookie.
+
 ### 2026-11-02 — Stage 2 private Cloudflare interface
 
 - Added hosted owner authentication, a restricted same-origin proxy, private manager binding and OpenNext Cloudflare build configuration. Synthetic local checks covered session access decisions and private response headers; real OAuth, deployment and the latest binding integration still need verification.
