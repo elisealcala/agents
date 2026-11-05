@@ -85,3 +85,27 @@ Status: accepted
 Context: The memory audit found that DEC-008 still described ESLint, although commit `0ba86c7` (2026-09-28) already changed the optional preset to Biome. This entry records the existing implementation, not a new tooling migration.
 Decision: The optional TypeScript preset uses Biome for lint and formatting, with warnings failing the lint gate, and `tsc --noEmit` for types. Preserve independent package configuration, responsibility folders and the assembled-starter CI job from DEC-008.
 Consequences: DEC-008's ESLint/Biome split is superseded. Product tooling decisions remain in owning banks; no root runtime or shared product memory is introduced.
+
+## DEC-012: Personal usefulness guides the next collection priority
+
+Date: 2026-10-29
+Status: accepted
+Context: The user reports low engagement with this personal agent repository and uncertainty about which of several ideas to pursue. Asked what would make it useful over the next two weeks, they chose an agent used for a real personal task.
+Decision: Evaluate the next collection priority by whether it produces a useful result for the user's own task. This criterion is user-confirmed; no particular agent, feature or roadmap has been selected.
+Consequences: Propose a bounded personal-use experiment before committing to product implementation. Keep agent-specific design and progress in the owning bank once a direction is selected.
+
+## DEC-013: Prioritize job and freelance search
+
+Date: 2026-10-29
+Status: accepted
+Context: After discussing possible personal-use agents, the user explicitly asked to prioritize job and freelance search too.
+Decision: Include both employment and freelance opportunities as an explicit near-term collection priority. The user subsequently confirmed a mix of their current specialty and AI-focused work as the target, and remote work they can do from Peru now as the initial location constraint. Their relative emphasis and ordering against other personal goals remain unspecified.
+Consequences: Frame the next experiment around a useful career-search result covering both kinds of opportunity. This selects a problem area, not a product architecture or authorization to implement a new agent. Detailed product work must use an owning bank.
+
+## DEC-014: Register the user-selected career assistant
+
+Date: 2026-10-30
+Status: accepted
+Context: The user explicitly returned to the small career-assistant idea as a way to reengage with this personal agent repository.
+Decision: Register `career-assistant/` as the next independent agent, scaffolded from the language-neutral template with its own memory bank. This records the selected direction without choosing a runtime or claiming a working implementation.
+Consequences: Further career-assistant design and progress belong in its owning bank. Existing agents and their runtimes remain independent; collection records track registration only.

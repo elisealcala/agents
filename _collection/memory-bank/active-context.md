@@ -1,17 +1,29 @@
 # Active context — _collection
 
 ## Current focus
-On 2026-10-29, removed out-of-scope draft documentation from the working tree after reviewing the pending changes. No application code changes remained; the collection bank records this repository cleanup.
 
-Memory-bank audit completed on 2026-10-28 against local `main` at `b9fd369` and existing uncommitted work. Collection rules, template and CI registration were inspected. Each registered product/application has its own required bank files; detailed product findings remain in those banks.
+On 2026-10-30, the user selected the small career-assistant idea as the next focus for reengaging with this repository. `career-assistant/` is registered from the language-neutral template (DEC-014). It owns its own memory bank; its design, first milestone and subsequent product work stay there.
 
-The optional TypeScript preset already uses Biome for lint and formatting. DEC-011 backfills this existing implementation and supersedes the tooling portion of DEC-008. The root README now reflects the implemented provider configuration.
+The collection's near-term priority remains personal usefulness (DEC-012). DEC-013 records the user's selected problem area; it does not define a shared runtime or merge agent responsibilities.
+
+## Collection boundaries
+
+Root files hold protocol only. Each independent agent owns its runtime and memory bank. No cross-agent integration is required by the new registration.
+
+The optional TypeScript preset uses Biome for lint and formatting (DEC-011). The new scaffold has not selected that preset or a runtime; registration does not imply runnable software, completed evaluations or a CI job.
 
 ## Version-control status
-The pilot (`7e5a940`), Studio CI correction (`2b1b45d`) and publication bookkeeping (`b9fd369`) exist in local history. On 2026-10-28 the user authorized committing and pushing the pending checkout. A fresh fetch confirmed local and remote `main` matched before publication. The reviewed changes and audit records are included in that publication batch; consult Git commit/branch references for its resulting identity. Ignored runtime data stays excluded.
+
+On 2026-11-04 the user asked to review local `main` and commit and push. Local `main` was nine commits behind `origin/main`; the local project-manager edits were older copies of work already merged through PRs #115–#119, and its #108 notes belong to the unmerged `codex/issue-108-private-boundary` branch, so main kept the upstream versions. The October 29–November 4 collection records and the `career-assistant/` scaffold were committed and pushed on top of `origin/main`. Pre-sync local state is kept in the stash "pre-sync backup 2026-11-04 (local main work)". Check Git references for publication identity.
 
 ## Next steps
-Preserve independent banks and capture future changes in the owning decision registry. Publication is authorized for the reviewed local work and bank updates. Historical test and server observations must carry their dates.
 
-## Audit limits
-This checks on-disk records and source alignment. It cannot prove that every past chat-only decision was recorded, that a remote contains uncommitted work, or that a previously started process is still running. `_template` placeholders are intentional scaffold content.
+Continue selected product work in `career-assistant/memory-bank/`. Use this collection bank for future registration, root protocol or template changes. Keep product detail out of collection status and capture lasting collection choices in its decision registry.
+
+## External learning guide — 2026-11-03
+
+The user requested frontend-background explanations and visual maps of the personal repositories. The external learning library now starts at `/Users/elizabethalcala/Sites/obsidian/work/personal-projects/START-HERE.md` following the user's vault reorganization. On November 4, Coding Harness was added as the fourth repository; the library contains 30 notes and 14 canvases. Product evidence stays in those learning notes and the owning sources; this is not a shared project memory bank.
+
+The guide is a dated research snapshot, with explicit local/remote differences and verification limits. Refresh current source and issue evidence before using it to choose implementation work. No product priority, architecture, code, issue state or deployment was changed. Existing local collection/product edits were preserved; no commit or push was requested.
+
+The user-level `refresh-project-learning` skill is installed at `/Users/elizabethalcala/.codex/skills/refresh-project-learning/`. It checks the four repositories, reviews stale learning content and updates focused notes/canvases while preserving personal edits and per-agent memory boundaries. The existing three-product content retains its November 3 evidence dates; adding Coding Harness did not silently recertify it. First full skill invocation requires baseline review rather than assuming existing notes are current.
