@@ -2,6 +2,8 @@
 
 ## Current focus
 
+Issue #108 (2026-11-05): `tests/manager/stage-2-boundary.spec.ts` passed its signed-out and direct-storage checks against staging. The owner binding proof was made in the signed-in browser, not by supplying `BOUNDARY_OWNER_COOKIE` to that file. Details are in the project-manager evidence file for this issue.
+
 Stage 2 publication verification (2026-11-02): hosted mode has owner-only GitHub session checks, a same-origin allowlisted private manager proxy, a Cloudflare Durable Object binding, guarded paired-backup import and private backup status/download interfaces. Fresh Studio verification passed typecheck, Biome lint/format (50 files), all 51 Node tests and the complete OpenNext Cloudflare/Next.js 16.4.1 Webpack production build. The pending Studio changes inspected are Stage 2 foundations and contain no real credential or private backup contents. The user has authorized publishing the completed work and splitting the remainder into small GitHub tickets; the parent manager task owns publication and ticket references.
 
 These are local source/test/build results. Mocked session/binding tests do not establish real OAuth, deployed cross-script service binding, owner/non-owner/session-expiry access from another device, hosted evidence/import/backup flows, R2 operation or isolated hosted restore. No deployment, real cloud resource creation or live model operation occurred in this verification. Preserve those acceptance gates and explicit disabled capabilities.
