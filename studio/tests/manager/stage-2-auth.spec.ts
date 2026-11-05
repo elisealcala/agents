@@ -30,7 +30,10 @@ function url(path: string) {
 
 function assertPrivate(res: Response) {
   const cc = (res.headers.get("cache-control") ?? "").toLowerCase();
-  assert.ok(cc.includes("no-store") && cc.includes("private"), `cache-control "${cc}"`);
+  assert.ok(
+    cc.includes("no-store") && cc.includes("private"),
+    `cache-control "${cc}"`,
+  );
 }
 
 async function assertDenied(cookie: string | undefined, label: string) {
@@ -41,33 +44,53 @@ async function assertDenied(cookie: string | undefined, label: string) {
   assert.ok([401, 403].includes(api.status), `${label} API got ${api.status}`);
   assertPrivate(api);
   const body = await api.text();
-  assert.doesNotMatch(body, /"hasBackup"|"configured"|localhost|AUTH_SECRET|Error:/);
+  assert.doesNotMatch(
+    body,
+    /"hasBackup"|"configured"|localhost|AUTH_SECRET|Error:/,
+  );
 
   const page = await fetch(url("/manager"), {
     redirect: "manual",
     headers: cookie ? { cookie } : {},
   });
-  assert.ok(page.status >= 300 && page.status < 400, `${label} page got ${page.status}`);
+  assert.ok(
+    page.status >= 300 && page.status < 400,
+    `${label} page got ${page.status}`,
+  );
   const location = new URL(page.headers.get("location") ?? "", origin).pathname;
   assert.match(location, /^\/login/, `${label} redirected to ${location}`);
 }
 
-test("owner session reaches the protected API and page", { skip: need(owner, "AUTH_OWNER_COOKIE") }, async () => {
-  const api = await fetch(url(read), { redirect: "manual", headers: { cookie: owner! } });
+test("owner session reaches the protected API and page", {
+  skip: need(owner, "AUTH_OWNER_COOKIE"),
+}, async () => {
+  const api = await fetch(url(read), {
+    redirect: "manual",
+    headers: { cookie: owner! },
+  });
   assert.equal(api.status, 200);
   assertPrivate(api);
-  const page = await fetch(url("/manager"), { redirect: "manual", headers: { cookie: owner! } });
+  const page = await fetch(url("/manager"), {
+    redirect: "manual",
+    headers: { cookie: owner! },
+  });
   assert.equal(page.status, 200);
   assertPrivate(page);
-  const session = await fetch(url("/api/auth/session"), { headers: { cookie: owner! } });
+  const session = await fetch(url("/api/auth/session"), {
+    headers: { cookie: owner! },
+  });
   assert.equal(session.status, 200);
 });
 
-test("a different real GitHub identity is denied", { skip: need(nonOwner, "AUTH_NON_OWNER_COOKIE (second real account)") }, async () => {
+test("a different real GitHub identity is denied", {
+  skip: need(nonOwner, "AUTH_NON_OWNER_COOKIE (second real account)"),
+}, async () => {
   await assertDenied(nonOwner, "non-owner");
 });
 
-test("expired or signed-out session is denied", { skip: need(expired, "AUTH_EXPIRED_COOKIE") }, async () => {
+test("expired or signed-out session is denied", {
+  skip: need(expired, "AUTH_EXPIRED_COOKIE"),
+}, async () => {
   await assertDenied(expired, "expired");
 });
 
@@ -75,24 +98,39 @@ test("signed-out direct HTML and API access is denied", { skip }, async () => {
   await assertDenied(undefined, "signed-out");
 });
 
-test("callback without valid OAuth state does not sign in", { skip }, async () => {
+test("callback without valid OAuth state does not sign in", {
+  skip,
+}, async () => {
   for (const query of ["", "?code=forged&state=forged"]) {
-    const res = await fetch(url(`/api/auth/callback/github${query}`), { redirect: "manual" });
+    const res = await fetch(url(`/api/auth/callback/github${query}`), {
+      redirect: "manual",
+    });
     const setCookie = res.headers.get("set-cookie") ?? "";
-    assert.doesNotMatch(setCookie, /session-token=[^;]+/i, "session cookie issued");
+    assert.doesNotMatch(
+      setCookie,
+      /session-token=[^;]+/i,
+      "session cookie issued",
+    );
     const location = res.headers.get("location");
-    if (location) assert.equal(new URL(location, origin).origin, new URL(origin!).origin);
+    if (location)
+      assert.equal(new URL(location, origin).origin, new URL(origin!).origin);
     const session = await fetch(url("/api/auth/session"));
-    assert.equal(((await session.text()).trim()), "null");
+    assert.equal((await session.text()).trim(), "null");
   }
 });
 
-test("authenticated cross-origin mutation is rejected", { skip: need(owner, "AUTH_OWNER_COOKIE") }, async () => {
+test("authenticated cross-origin mutation is rejected", {
+  skip: need(owner, "AUTH_OWNER_COOKIE"),
+}, async () => {
   for (const bad of ["https://evil.example", "null"]) {
     const res = await fetch(url("/api/manager-migration"), {
       method: "POST",
       redirect: "manual",
-      headers: { cookie: owner!, origin: bad, "content-type": "application/json" },
+      headers: {
+        cookie: owner!,
+        origin: bad,
+        "content-type": "application/json",
+      },
       body: "{}",
     });
     assert.equal(res.status, 403, `origin ${bad}`);
