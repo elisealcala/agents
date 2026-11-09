@@ -206,3 +206,15 @@ Next: Continue the selected work in `career-assistant/memory-bank/`. Existing ag
 
 - The user asked to review local `main` and to commit and push. A fetch showed local `main` nine commits behind `origin/main`. Local project-manager files were older copies of content merged in PRs #115–#119. The #108 boundary notes belong to the unmerged `codex/issue-108-private-boundary` branch, so main kept the upstream project-manager versions and no product bank was rewritten.
 - Fast-forwarded to `origin/main`, then committed the collection bank records (DEC-012–DEC-014 and logs) and the `career-assistant/` design scaffold. Checked the scaffold for personal data: it has synthetic examples only. Docs only; no code, so no typecheck or tests ran. The full pre-sync working tree is kept in the stash "pre-sync backup 2026-11-04 (local main work)".
+
+### 2026-11-05 — First full external technical-guide refresh
+
+- Ran the user-level refresh skill across all four configured source repositories at the user's request. Reorganized external Obsidian documentation into per-project folders and expanded it from introductory descriptions into source-backed technical references. Shared entry points remain at the guide root.
+- The external library now has 47 Markdown notes, 18 canvases and four JSON inventories. Inventoried 26 package manifests, 180 direct dependency declarations and 2,617 lockfile/name/version tuples; documented exact SDK/API/storage/configuration mechanisms and commands/workflow definitions. Product-specific implementation/CI findings remain in the external guide and owning sources rather than this collection bank.
+- Read current GitHub PR/run/job/step evidence and one failed job log; distinguished harness verification packets, Actions results, legacy statuses and uninspected branch-rule enforcement. Corrected dated source/tracker claims in place. No source application checks, provider calls, hosted probes or external writes were executed.
+- Updated the installed skill's documentation to maintain project folders and the requested technical depth. Its bundled validator and installed guide structural validation pass. Checked 198 absolute source links; all 187 original Canvas nodes retain IDs and geometry. Native Obsidian recognized the folders but did not reliably refresh the canvas preview, so no full visual inspection is claimed.
+- Saved a reviewed checkpoint for all four projects only after source fingerprints remained stable and installed links/Canvas validation passed. Preserved personal layouts, existing edits and pre-move copies. No application source, product bank, workflow/policy, issue state, deployment, commit or push changed. Refreshed collection pointer/bookkeeping only; no new collection architecture decision.
+
+### 2026-11-09 — Publish November 5 collection records
+
+- The user asked to commit and push the remaining local work on `main`. After a fetch, local `main` matched `origin/main` (including #121). The only pending changes were the November 5 collection records for the external guide refresh. They were committed and pushed. Docs only; no product bank, source or workflow changed.
