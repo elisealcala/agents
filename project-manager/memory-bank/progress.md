@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: Stage 1 is published and issue #21 is closed. Stage 2 Cloudflare implementation is in progress; private staging has not been deployed and issue #22 remains open.
-Next: Complete hosted evidence and migration, backup/restore, durable scheduling and real owner-only staging acceptance. Follow the staged browser and integration gates; existing live accuracy gaps remain open.
+Current: Stage 1 is published and issue #21 is closed. The private staging Workers are deployed. On 2026-11-10 the verified pair was imported and the first R2 backup matched it. Issues #109–#114 and #22 remain open.
+Next: Finish natural session expiry (#109); real second-account denial, authenticated origin rejection and the save/refresh/re-authentication mutation check now pass. Update existing PR #122 and merge only after expiry and verification pass. Then complete the isolated restore (#112) and remaining backup, setup, and acceptance gates. Do not close #22 until those hosted checks pass.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -272,3 +272,31 @@ Next: Complete hosted evidence and migration, backup/restore, durable scheduling
 ### 2026-11-03 — Owner-side staging smoke (#107)
 
 - Owner reported successful sign-in and setup page access, a backup status of not scheduled, and manager unavailable before import. The displayed backup status requires a successful authenticated private Durable Object call. The generic manager error is consistent with the import lock but does not distinguish it from other backend errors; the required-mode configuration and focused local tests supply additional evidence. No backup was uploaded and no real data imported. Full OAuth/boundary/backup acceptance remains later Stage 2 work.
+
+### 2026-11-10 — Hosted import, first backup, and partial auth (#109–#113)
+
+- Confirmed no listeners on 8788 or 8789. The owner GitHub session (`elisealcala`, id `16949569`) signed in to `https://project-manager.ezth.workers.dev/manager` on web version `386908ec-ff2a-4041-b63e-2182bd0d2aa2` and storage version `92bbd4ab-c860-48c2-bf4f-e0634554a797` from source `511cae1`. Sign-out returned to `/login` and unsigned manager/backup calls returned 401. A callback without a valid OAuth state redirected to `error=Configuration` and did not create a session. The browser had no second GitHub account, and the 8-hour session was not old enough to expire. #109 stays open.
+- Imported the validated 2026-11-02 pair. Both posts of that same pair returned 200. The hosted project list still has one project, one `review` note, and the evidence checksum prefix `287c8196`. Twelve pending review proposals for source `b9fd369` were visible and were not decided. A conflicting or interrupted live import was not induced. Import remains enabled and the migration secrets are still present, so #110 stays open.
+- The alarm wrote one private R2 object at `2026-11-10T15:54:58.334Z` (78664 bytes) under `manager-backups/`. Owner download matched the pair checksums. The next wakeup is `2026-11-11T14:54:58.489Z`. r2.dev is disabled, there is no custom domain, and the 30-day rule still covers only that prefix. The browser was open when the first alarm ran, a backup failure was not induced, and a non-owner download was not tried. #111 stays open.
+- Setup shows evidence configured and model, intake, and conversation not configured. The pre-import outage still says to check that the local manager is running. #113 stays open. No isolated restore was run, so #112 and #114 stay open. Evidence is in `docs/implementation/evidence/stage-2-auth-browser.md`, `stage-2-cutover.md`, `stage-2-backups.md`, and `stage-2-setup.md`.
+
+### 2026-11-10 — Real second-account and idle-expiry preparation (#109)
+
+- Read #109 and its empty issue discussion, the required manager bank, the existing auth evidence and open PR #122. Preserved prior uncommitted cutover/backup/setup evidence and bank changes. No product code, secrets, deployment settings, facts or runtime records were changed.
+- Cloudflare readback confirmed the same web/storage versions. Owner sign-in again reached `/manager`; the session document showed user ID `16949569` and expiry `2026-11-11T04:33:35.621Z`. Navigated the owner's test tab to `about:blank` and reserved the `elizabeth` Chrome profile for the check after 23:34 Lima on 2026-11-10. No cookie was copied. Earlier unauthenticated access cannot be attributed to expiry without a known session deadline.
+- The user signed in a real second GitHub identity in the separate `Your Chrome` profile. Selected it in OAuth; the application consent screen requests read-only profile/email access and awaits explicit confirmation before the grant. Application denial is not yet recorded.
+- Existing hosted boundary spec: four passed, zero failed, two owner-cookie checks skipped. Added redacted evidence and a runbook distinguishing real non-owner OAuth, natural expiry, cookie deletion/sign-out and mutation replay. Real expiry, authenticated origin rejection and a successful mutation across refresh/re-authentication remain open; #109/#22 stay open. PR #122 remains unchanged and unmerged.
+- Independent documentation verification passed local links, whitespace, evidence boundaries and the UTC-to-Lima expiry conversion, with no findings. Product checks were not repeated for documentation-only changes. The browser remains at the second identity's OAuth consent pending the user's decision; no new grant has been accepted by the agent.
+
+### 2026-11-10 — Real non-owner OAuth denial verified (#109)
+
+- The user approved GitHub's displayed read-only profile/email permissions. Accepted that specific consent for the real second identity. GitHub completed authorization and the app returned `/api/auth/error?error=AccessDenied` with “You do not have permission to sign in.” The denial screenshot was visually inspected; no OAuth code, token, email or cookie was retained in evidence.
+- In the same profile, the session document had no user, direct `/manager` returned to `/login`, and manager projects, backup status and latest-backup endpoints displayed their generic denial JSON. Browser status/cache metadata was not captured. The extension blocked final return navigation after the denial bodies were read; no further browser interaction was attempted. No mutation, deployment or authentication-setting change occurred.
+- Updated the auth evidence and current/next-step bank notes. Real non-owner denial now passes. The owner profile remains untouched for expiry after 23:34 Lima today; natural expiry, authenticated origin rejection and a safe successful mutation across refresh/re-authentication remain open. #109/#22 and PR #122 were not closed/merged, and no source changes were committed or pushed.
+
+### 2026-11-10 — Origin and mutation checks passed; existing PR #122 corrections (#109)
+
+- User authorized completing the remaining checks and correcting/merging existing PR #122 once all gates pass. Reused a new owner OAuth session in `Your Chrome`; the reserved `elizabeth` session remains untouched until after 23:34 Lima. No new PR is planned.
+- Saved the intended `agents` local repository reference once, immediately refreshed, signed out and re-authenticated, then read exactly one reference (repository ID `1355217430`, revision 0). The UI prevented another save. This local reference remains present; no GitHub connection, work import, note or review decision occurred. The observed journey does not establish idempotency for every mutation or a forced network interruption.
+- A transient form on the storage hostname's Cloudflare 404 document submitted a harmless different-origin POST to the web migration route. User completed the Chrome console-paste handoff. The application returned the origin-error body; DevTools and navigation timing both showed HTTP403. This response follows owner authentication and precedes forwarding. A subsequent same-profile backup-status read succeeded. Two form submissions were rejected; neither carried a backup or changed deployed code/configuration. No cookie was extracted.
+- Expanded the redacted auth evidence and removed its dependency on the uncommitted cutover note by recording the release identity directly. Delegated only Studio auth-spec corrections and its owning bank to the test-writer; no other agent bank was read by this manager task. Natural browser expiry is the remaining live gate. The existing PR stays open until expiry and focused verification pass.
