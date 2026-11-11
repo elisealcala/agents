@@ -1,8 +1,8 @@
 # Progress — project-manager
 
 ## Status
-Current: Stage 1 is published and issue #21 is closed. The private staging Workers are deployed. On 2026-11-10 the verified pair was imported and the first R2 backup matched it. Issues #109–#114 and #22 remain open.
-Next: Land the completed #109 evidence through existing PR #122 after final checks. Then complete the isolated restore (#112) and remaining cutover, backup, setup, and acceptance gates. Do not close #22 until those hosted checks pass.
+Current: Stage 1 is published and issue #21 is closed. The private staging Workers are deployed. On 2026-11-10 the verified pair was imported and the first R2 backup matched it. Issue #109 closed as completed through PR #122. Stage 2 #22 and its remaining gates are separate.
+Next: Complete the isolated restore (#112) and remaining cutover, backup, setup, and acceptance gates. Do not close #22 until those hosted checks pass.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -314,3 +314,9 @@ Next: Land the completed #109 evidence through existing PR #122 after final chec
 
 - The owner reported completing the reserved-browser check after 23:34 Lima on November 10. Explicitly confirmed no session user, `/manager` redirect to login and backup API denial, followed by successful owner sign-in to the protected manager. All three acceptance items were also checked on GitHub. The manual result supplies the last live gate; exact HTTP metadata and expired-token replay were not captured. No browser session was touched by the agent.
 - Readback confirmed the same 100% deployed web/storage versions. Added the redacted owner result and prior CI links to the auth evidence, refreshed the bank and prepared existing PR #122 to close #109 after verification. No runtime, deployment or setup changes were made; #22 remains open.
+
+- Final documentation head `605583e5139f5953685807a076bc4950da577218` passed [Agent quality](https://github.com/elisealcala/agents/actions/runs/43041852274) and [Manager Cloudflare validation](https://github.com/elisealcala/agents/actions/runs/43041852168). Squash-merged existing PR #122 into `main` as `a02f3e18b43fc2d95441fb68ab8bf9aa0a7d9c35` with the verified head. GitHub confirmed issue #109 closed as completed at `2026-11-11T14:50:49Z`; Stage 2 #22 remains open. The earlier unpublished backup/cutover/setup files were preserved.
+
+### 2026-11-11 — Reconciled Stage 2 evidence with `main`
+
+- Saved a recovery stash of the ten local files from `pm-205b`, switched to `main`, and fast-forwarded to the merged #109 revision `a02f3e1`. Five files matched GitHub `main` byte for byte. Retained the three evidence notes for #110, #111 and #113 and the two project-manager bank updates recording #109 closure. The evidence notes describe the November 10 observations. Issues #110, #111 and #113 were confirmed open.
