@@ -57,6 +57,10 @@ node --import tsx src/storage/snapshot-export.ts /absolute/path/to/new-backup-di
 
 The helper takes SQLite write locks while making the copies and checks the canonical manager owner lock. An already-running manager using an older version of the code may hold a lock under an alias, and an idle classifier can resume writing after locks are released. Therefore, the operator must independently stop both original services and keep them stopped throughout cutover; locks alone do not establish this. Paths must be canonical, source databases must be single-link regular files, and the output directory must not already exist. If the backup contains an active run, intake or delivery attempt, the import rejects it; resolve that state on the original system before taking a fresh backup. Secure and retain the complete original backup files separately from the import JSON.
 
+## Cutover status (PM-205b)
+
+The hosted cutover of the verified manager/evidence pair has **not** been performed. The procedure and a comparison record are in `evidence/stage-2-cutover.md` and the deploy runbook. Retries use only the same pair; conflicting destination data is preserved, never overwritten; original owners stay stopped and originals stay outside Git. After a successful, independently compared import, disable web import and remove migration secrets. The next prerequisite is the actual hosted import run.
+
 ## Hosted backups and retention
 
 The planned hosted data and recovery flow is:
