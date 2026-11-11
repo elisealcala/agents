@@ -2,7 +2,7 @@
 
 ## Status
 Current: Stage 1 is published and issue #21 is closed. The private staging Workers are deployed. On 2026-11-10 the verified pair was imported and the first R2 backup matched it. Issues #109–#114 and #22 remain open.
-Next: Finish natural session expiry (#109); real second-account denial, authenticated origin rejection and the save/refresh/re-authentication mutation check now pass. Update existing PR #122 and merge only after expiry and verification pass. Then complete the isolated restore (#112) and remaining backup, setup, and acceptance gates. Do not close #22 until those hosted checks pass.
+Next: Land the completed #109 evidence through existing PR #122 after final checks. Then complete the isolated restore (#112) and remaining cutover, backup, setup, and acceptance gates. Do not close #22 until those hosted checks pass.
 
 ## Checklist
 - [x] Record system-design proposal and benchmark evidence
@@ -300,3 +300,17 @@ Next: Finish natural session expiry (#109); real second-account denial, authenti
 - Saved the intended `agents` local repository reference once, immediately refreshed, signed out and re-authenticated, then read exactly one reference (repository ID `1355217430`, revision 0). The UI prevented another save. This local reference remains present; no GitHub connection, work import, note or review decision occurred. The observed journey does not establish idempotency for every mutation or a forced network interruption.
 - A transient form on the storage hostname's Cloudflare 404 document submitted a harmless different-origin POST to the web migration route. User completed the Chrome console-paste handoff. The application returned the origin-error body; DevTools and navigation timing both showed HTTP403. This response follows owner authentication and precedes forwarding. A subsequent same-profile backup-status read succeeded. Two form submissions were rejected; neither carried a backup or changed deployed code/configuration. No cookie was extracted.
 - Expanded the redacted auth evidence and removed its dependency on the uncommitted cutover note by recording the release identity directly. Delegated only Studio auth-spec corrections and its owning bank to the test-writer; no other agent bank was read by this manager task. Natural browser expiry is the remaining live gate. The existing PR stays open until expiry and focused verification pass.
+
+- Published the reviewed test/evidence/runbook and required bank updates to existing PR #122 on `pm-201` as `f62940f21b06eb5e082e16001189371f9d9c9d7a`, using a lease on the prior head. The current main checkout and its unpublished backup/cutover/setup evidence were preserved; no new PR was created. Independent Studio verification passed typecheck, focused Biome, 51/51 default tests, one local guard and three public hosted auth checks; three credential checks skipped. Five malformed/premature inputs rejected safely. The PR description now honestly records pending natural expiry; CI is being checked, and no merge/issue closure occurred.
+- CI for `f62940f` passed: Agent quality https://github.com/elisealcala/agents/actions/runs/42901366115 (all four jobs) and Manager Cloudflare validation https://github.com/elisealcala/agents/actions/runs/42901366053 (including Worker build and local probes). These are source/fixture checks, not natural browser expiry. The session deadline remains `2026-11-11T04:33:35.621Z`; checking it before the deadline would refresh the session, so no reserved-profile requests are made while waiting.
+
+### 2026-11-10 — User took over natural-expiry check (#109)
+
+- The user explicitly requested stopping the automated wait and said they will check expiry manually. The interruptible clock wait ended on that message. No further browser/session/API requests or monitoring were performed.
+- Existing PR #122 remains open at `f62940f21b06eb5e082e16001189371f9d9c9d7a`, with Agent quality and Manager Cloudflare validation passing. Natural expiry and post-expiry owner re-authentication still need the user's result; #109/#22 remain open and no merge occurred.
+- Recorded the manual handoff in active context. The reserved elizabeth profile deadline is 23:33:35 Lima on November 10; check after 23:34 without signing out or re-authenticating first. Subsequent local CI/handoff notes are not yet published to the PR.
+
+### 2026-11-11 — Owner confirmed natural expiry (#109)
+
+- The owner reported completing the reserved-browser check after 23:34 Lima on November 10. Explicitly confirmed no session user, `/manager` redirect to login and backup API denial, followed by successful owner sign-in to the protected manager. All three acceptance items were also checked on GitHub. The manual result supplies the last live gate; exact HTTP metadata and expired-token replay were not captured. No browser session was touched by the agent.
+- Readback confirmed the same 100% deployed web/storage versions. Added the redacted owner result and prior CI links to the auth evidence, refreshed the bank and prepared existing PR #122 to close #109 after verification. No runtime, deployment or setup changes were made; #22 remains open.

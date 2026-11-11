@@ -1,6 +1,6 @@
 # Stage 2 owner sign-in evidence (GH-109)
 
-Status: **owner sign-in, sign-out, unsigned callback, real second-account denial, authenticated origin rejection, and one mutation across refresh/re-authentication recorded on 2026-11-10.** Natural expiry remains unverified. Issue #109 stays open. Issue #22 stays open.
+Status: **#109 acceptance checks complete.** Owner sign-in, sign-out, unsigned callback, real second-account denial, authenticated origin rejection, and one mutation across refresh/re-authentication were observed on 2026-11-10. The owner confirmed natural browser expiry and successful re-authentication on 2026-11-11. PR #122 closes #109 on merge. Stage 2 #22 remains open.
 
 ## Release under test
 
@@ -66,6 +66,18 @@ The browser supplied its real session cookie and the different initiating origin
 
 The form was submitted twice while obtaining the status evidence; both responses displayed the same origin error. Neither contained a valid import body or reached the import binding. The existing reference count remained one in the earlier post-reauthentication read. The reserved owner profile was not touched.
 
-## Remaining gate
+## Natural expiry and re-authentication — owner verified
 
-After 23:34 Lima on 2026-11-10, use the reserved `elizabeth` profile to check natural expiry before signing in again. Confirm no session user, direct HTML/API denial, and successful owner re-authentication. Do not close #109 or merge existing PR #122 until this result and required PR verification are recorded. The optional expired-token replay check in the spec is separate from browser-cookie expiry and must not use sign-out as a substitute.
+The reserved owner browser session reported expiry `2026-11-11T04:33:35.621Z` (23:33:35 Lima on November 10). The owner took over the manual check; automated waiting stopped and no further requests were sent from that profile by the agent. On 2026-11-11 the owner confirmed that after 23:34 Lima all three results passed:
+
+1. The session endpoint showed no user.
+2. Direct `/manager` navigation redirected to login and `/api/manager-backup` denied access.
+3. Signing in again returned to the protected manager.
+
+These are owner-reported observations. The owner also checked all acceptance items on [#109](https://github.com/elisealcala/agents/issues/109). Exact observation time, HTTP status/headers and an expired-token replay were not captured for this manual journey. No cookie or credential was shared. A subsequent readback on 2026-11-11 confirmed both Workers were still serving the versions recorded above.
+
+## Verification and existing PR
+
+Existing [PR #122](https://github.com/elisealcala/agents/pull/122) was updated to `f62940f21b06eb5e082e16001189371f9d9c9d7a`; no new PR was created. Independent local verification passed Studio typecheck, focused Biome, all 51 default Studio tests, the auth-spec guard check, and five malformed/premature input rejection cases with no cookie sentinel in output. With no credential inputs, the canonical hosted auth run passed three checks and skipped the owner-cookie, expired-token and owner-origin checks. These skips remain distinct from the real browser results above.
+
+The updated PR's [Agent quality run](https://github.com/elisealcala/agents/actions/runs/42901366115) passed all four jobs. Its [Manager Cloudflare validation run](https://github.com/elisealcala/agents/actions/runs/42901366053) passed, including manager/Studio checks, the production Worker build and disposable local Worker probes. These CI runs do not test natural browser expiry. The owner-reported result above supplies that acceptance evidence.
