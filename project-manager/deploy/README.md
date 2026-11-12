@@ -1,6 +1,6 @@
 # Stage 2 private staging release
 
-This is a release and recovery checklist, not evidence of a deployed application. The web Worker is configured for `https://project-manager.ezth.workers.dev`; the storage Worker has no public endpoint. Keep existing local manager and classifier processes stopped throughout the cutover. The approved 30-day expiration applies only to automatic objects under `manager-backups/`, not the original local backups.
+This is a release and recovery checklist, not evidence of a deployed application. The web Worker is configured for `https://project-manager.ezth.workers.dev`; the storage Worker has no public endpoint. Acceptance status is tracked in `docs/implementation/evidence/stage-2-acceptance.md` (not accepted; #22 open). Keep existing local manager and classifier processes stopped throughout the cutover. The approved 30-day expiration applies only to automatic objects under `manager-backups/`, not the original local backups.
 
 ## Reproducible local validation
 
