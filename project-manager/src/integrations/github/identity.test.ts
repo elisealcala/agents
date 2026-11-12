@@ -6,13 +6,26 @@ import {
   type GitHubInstallationInfo,
   type GitHubRepositoryInfo,
 } from "./client";
-import { checkInstallationCapabilities, type ExpectedIdentity } from "./identity";
+import {
+  checkInstallationCapabilities,
+  type ExpectedIdentity,
+} from "./identity";
 
 const SECRET = "ghs_supersecret";
 const NOW = new Date("2025-01-01T00:00:00Z");
 
-const agents: GitHubRepositoryInfo = { repositoryId: 1, fullName: "acme/agents", ownerId: 10, ownerLogin: "acme" };
-const design: GitHubRepositoryInfo = { repositoryId: 2, fullName: "acme/chore-design", ownerId: 10, ownerLogin: "acme" };
+const agents: GitHubRepositoryInfo = {
+  repositoryId: 1,
+  fullName: "acme/agents",
+  ownerId: 10,
+  ownerLogin: "acme",
+};
+const design: GitHubRepositoryInfo = {
+  repositoryId: 2,
+  fullName: "acme/chore-design",
+  ownerId: 10,
+  ownerLogin: "acme",
+};
 
 const installation: GitHubInstallationInfo = {
   installationId: 99,
@@ -37,7 +50,10 @@ function double(overrides: Partial<GitHubAppTransport> = {}) {
     getInstallation: async () => installation,
     createInstallationToken: async () => {
       calls.mint += 1;
-      return { token: `${SECRET}_${calls.mint}`, expiresAt: "2025-01-01T01:00:00Z" };
+      return {
+        token: `${SECRET}_${calls.mint}`,
+        expiresAt: "2025-01-01T01:00:00Z",
+      };
     },
     listInstallationRepositories: async () => {
       calls.list += 1;
@@ -92,13 +108,21 @@ describe("checkInstallationCapabilities", () => {
   });
 
   it("denies a wrong account", async () => {
-    const { client } = double({ getInstallation: async () => ({ ...installation, accountId: 11 }) });
-    expect(await checkInstallationCapabilities(client, expected)).toEqual({ ok: false, reason: "account_mismatch" });
+    const { client } = double({
+      getInstallation: async () => ({ ...installation, accountId: 11 }),
+    });
+    expect(await checkInstallationCapabilities(client, expected)).toEqual({
+      ok: false,
+      reason: "account_mismatch",
+    });
   });
 
   it("denies missing permissions", async () => {
     const { client } = double({
-      getInstallation: async () => ({ ...installation, permissions: { contents: "read" } }),
+      getInstallation: async () => ({
+        ...installation,
+        permissions: { contents: "read" },
+      }),
     });
     expect(await checkInstallationCapabilities(client, expected)).toEqual({
       ok: false,
@@ -115,8 +139,16 @@ describe("checkInstallationCapabilities", () => {
     expect(result).toMatchObject({
       ok: true,
       repositories: [
-        { repositoryId: 1, status: "denied", reason: "repository_identity_mismatch" },
-        { repositoryId: 2, status: "denied", reason: "repository_not_accessible" },
+        {
+          repositoryId: 1,
+          status: "denied",
+          reason: "repository_identity_mismatch",
+        },
+        {
+          repositoryId: 2,
+          status: "denied",
+          reason: "repository_not_accessible",
+        },
       ],
     });
   });
@@ -127,6 +159,9 @@ describe("checkInstallationCapabilities", () => {
         throw new GitHubTransportError("forbidden");
       },
     });
-    expect(await checkInstallationCapabilities(client, expected)).toEqual({ ok: false, reason: "access_denied" });
+    expect(await checkInstallationCapabilities(client, expected)).toEqual({
+      ok: false,
+      reason: "access_denied",
+    });
   });
 });

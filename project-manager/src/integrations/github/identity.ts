@@ -1,4 +1,8 @@
-import type { GitHubAppClient, GitHubPermissionLevel, GitHubRepositoryInfo } from "./client";
+import type {
+  GitHubAppClient,
+  GitHubPermissionLevel,
+  GitHubRepositoryInfo,
+} from "./client";
 
 /** Expected stable identity of a repository (numeric IDs, not names). */
 export interface ExpectedRepository {
@@ -19,10 +23,20 @@ export type RepositoryCapabilityDenial =
 
 export type RepositoryCapability =
   | { repositoryId: number; fullName: string; status: "available" }
-  | { repositoryId: number; fullName: string; status: "denied"; reason: RepositoryCapabilityDenial };
+  | {
+      repositoryId: number;
+      fullName: string;
+      status: "denied";
+      reason: RepositoryCapabilityDenial;
+    };
 
 export type InstallationCapabilityResult =
-  | { ok: true; installationId: number; accountId: number; repositories: readonly RepositoryCapability[] }
+  | {
+      ok: true;
+      installationId: number;
+      accountId: number;
+      repositories: readonly RepositoryCapability[];
+    }
   | {
       ok: false;
       reason:
@@ -35,7 +49,11 @@ export type InstallationCapabilityResult =
       missingPermissions?: readonly string[];
     };
 
-const LEVELS: Record<GitHubPermissionLevel, number> = { read: 1, write: 2, admin: 3 };
+const LEVELS: Record<GitHubPermissionLevel, number> = {
+  read: 1,
+  write: 2,
+  admin: 3,
+};
 
 /** Verifies installation account, permissions and repository identities. Results never contain credentials. */
 export async function checkInstallationCapabilities(
@@ -46,11 +64,17 @@ export async function checkInstallationCapabilities(
   if (!installation.ok) {
     return {
       ok: false,
-      reason: installation.reason === "not_found" ? "installation_not_found" : installation.reason,
+      reason:
+        installation.reason === "not_found"
+          ? "installation_not_found"
+          : installation.reason,
     };
   }
   const info = installation.value;
-  if (info.installationId !== expected.installationId || info.accountId !== expected.accountId) {
+  if (
+    info.installationId !== expected.installationId ||
+    info.accountId !== expected.accountId
+  ) {
     return { ok: false, reason: "account_mismatch" };
   }
 
@@ -61,38 +85,61 @@ export async function checkInstallationCapabilities(
     })
     .map(([name]) => name);
   if (missing.length > 0) {
-    return { ok: false, reason: "missing_permissions", missingPermissions: missing };
+    return {
+      ok: false,
+      reason: "missing_permissions",
+      missingPermissions: missing,
+    };
   }
 
   const listed = await client.listRepositories(expected.installationId);
   if (!listed.ok) {
-    return { ok: false, reason: listed.reason === "not_found" ? "installation_not_found" : listed.reason };
+    return {
+      ok: false,
+      reason:
+        listed.reason === "not_found"
+          ? "installation_not_found"
+          : listed.reason,
+    };
   }
-  const byId = new Map<number, GitHubRepositoryInfo>(listed.value.map((r) => [r.repositoryId, r]));
+  const byId = new Map<number, GitHubRepositoryInfo>(
+    listed.value.map((r) => [r.repositoryId, r]),
+  );
 
-  const repositories = expected.repositories.map((repo): RepositoryCapability => {
-    const found = byId.get(repo.repositoryId);
-    if (!found) {
+  const repositories = expected.repositories.map(
+    (repo): RepositoryCapability => {
+      const found = byId.get(repo.repositoryId);
+      if (!found) {
+        return {
+          repositoryId: repo.repositoryId,
+          fullName: repo.fullName,
+          status: "denied",
+          reason: "repository_not_accessible",
+        };
+      }
+      if (
+        found.ownerId !== expected.accountId ||
+        found.fullName.toLowerCase() !== repo.fullName.toLowerCase()
+      ) {
+        return {
+          repositoryId: repo.repositoryId,
+          fullName: repo.fullName,
+          status: "denied",
+          reason: "repository_identity_mismatch",
+        };
+      }
       return {
         repositoryId: repo.repositoryId,
-        fullName: repo.fullName,
-        status: "denied",
-        reason: "repository_not_accessible",
+        fullName: found.fullName,
+        status: "available",
       };
-    }
-    if (
-      found.ownerId !== expected.accountId ||
-      found.fullName.toLowerCase() !== repo.fullName.toLowerCase()
-    ) {
-      return {
-        repositoryId: repo.repositoryId,
-        fullName: repo.fullName,
-        status: "denied",
-        reason: "repository_identity_mismatch",
-      };
-    }
-    return { repositoryId: repo.repositoryId, fullName: found.fullName, status: "available" };
-  });
+    },
+  );
 
-  return { ok: true, installationId: info.installationId, accountId: info.accountId, repositories };
+  return {
+    ok: true,
+    installationId: info.installationId,
+    accountId: info.accountId,
+    repositories,
+  };
 }

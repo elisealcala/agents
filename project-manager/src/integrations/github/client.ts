@@ -23,7 +23,11 @@ export interface GitHubRepositoryInfo {
   ownerLogin: string;
 }
 
-export type GitHubTransportErrorKind = "unauthorized" | "forbidden" | "not_found" | "unavailable";
+export type GitHubTransportErrorKind =
+  | "unauthorized"
+  | "forbidden"
+  | "not_found"
+  | "unavailable";
 
 export class GitHubTransportError extends Error {
   readonly kind: GitHubTransportErrorKind;
@@ -37,13 +41,24 @@ export class GitHubTransportError extends Error {
 /** Low-level provider boundary; implementations must not put credentials in error messages. */
 export interface GitHubAppTransport {
   getInstallation(installationId: number): Promise<GitHubInstallationInfo>;
-  createInstallationToken(installationId: number): Promise<GitHubInstallationToken>;
-  listInstallationRepositories(token: string): Promise<readonly GitHubRepositoryInfo[]>;
+  createInstallationToken(
+    installationId: number,
+  ): Promise<GitHubInstallationToken>;
+  listInstallationRepositories(
+    token: string,
+  ): Promise<readonly GitHubRepositoryInfo[]>;
 }
 
 export type GitHubClientResult<T> =
   | { ok: true; value: T }
-  | { ok: false; reason: "credentials_expired" | "access_denied" | "not_found" | "unavailable" };
+  | {
+      ok: false;
+      reason:
+        | "credentials_expired"
+        | "access_denied"
+        | "not_found"
+        | "unavailable";
+    };
 
 export interface GitHubAppClientOptions {
   transport: GitHubAppTransport;
@@ -64,8 +79,13 @@ export class GitHubAppClient {
     this.skewMs = options.refreshSkewMs ?? 60_000;
   }
 
-  private fresh(token: GitHubInstallationToken | undefined): token is GitHubInstallationToken {
-    return token !== undefined && Date.parse(token.expiresAt) - this.skewMs > this.now().getTime();
+  private fresh(
+    token: GitHubInstallationToken | undefined,
+  ): token is GitHubInstallationToken {
+    return (
+      token !== undefined &&
+      Date.parse(token.expiresAt) - this.skewMs > this.now().getTime()
+    );
   }
 
   private async run<T>(fn: () => Promise<T>): Promise<GitHubClientResult<T>> {
@@ -88,22 +108,30 @@ export class GitHubAppClient {
     }
   }
 
-  getInstallation(installationId: number): Promise<GitHubClientResult<GitHubInstallationInfo>> {
+  getInstallation(
+    installationId: number,
+  ): Promise<GitHubClientResult<GitHubInstallationInfo>> {
     return this.run(() => this.transport.getInstallation(installationId));
   }
 
   /** Lists repositories visible to the installation, refreshing an expired token once. */
-  async listRepositories(installationId: number): Promise<GitHubClientResult<readonly GitHubRepositoryInfo[]>> {
+  async listRepositories(
+    installationId: number,
+  ): Promise<GitHubClientResult<readonly GitHubRepositoryInfo[]>> {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let token = this.tokens.get(installationId);
       if (!this.fresh(token)) {
-        const minted = await this.run(() => this.transport.createInstallationToken(installationId));
+        const minted = await this.run(() =>
+          this.transport.createInstallationToken(installationId),
+        );
         if (!minted.ok) return minted;
         token = minted.value;
         this.tokens.set(installationId, token);
       }
       const bearer = token.token;
-      const result = await this.run(() => this.transport.listInstallationRepositories(bearer));
+      const result = await this.run(() =>
+        this.transport.listInstallationRepositories(bearer),
+      );
       if (result.ok || result.reason !== "credentials_expired") return result;
       // Server rejected the cached token: drop it and retry once with a new one.
       this.tokens.delete(installationId);
