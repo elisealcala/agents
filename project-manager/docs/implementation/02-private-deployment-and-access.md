@@ -1,6 +1,6 @@
 # Stage 2 — Private hosted application and access
 
-Status: In progress; the Cloudflare-native target and migration boundary are described in [02-cloudflare-native.md](02-cloudflare-native.md). Depends on [Stage 1](01-foundation-and-ui.md). Next: [Stage 3](03-github-connections-and-sync.md).
+Status: In progress; hosted acceptance was reviewed and **not accepted** (see [evidence/stage-2-acceptance.md](evidence/stage-2-acceptance.md)): restore drill (#112), import lockdown (#110), backup gaps (#111) and outage copy (#113) remain open. Stage 3 stays gated. The Cloudflare-native target and migration boundary are described in [02-cloudflare-native.md](02-cloudflare-native.md). Depends on [Stage 1](01-foundation-and-ui.md). Next: [Stage 3](03-github-connections-and-sync.md).
 
 ## Outcome
 
