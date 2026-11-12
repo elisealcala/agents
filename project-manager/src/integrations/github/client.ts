@@ -27,7 +27,7 @@ export type GitHubTransportErrorKind = "unauthorized" | "forbidden" | "not_found
 
 export class GitHubTransportError extends Error {
   readonly kind: GitHubTransportErrorKind;
-  constructor(kind: GitHubTransportErrorKind, message = kind) {
+  constructor(kind: GitHubTransportErrorKind, message: string = kind) {
     super(message);
     this.name = "GitHubTransportError";
     this.kind = kind;
