@@ -111,7 +111,11 @@ describe("projects authorization", () => {
 
   it("never discloses credentials in outcomes", async () => {
     reply = () =>
-      Response.json({ connected: true, scopes: ["project"], token: "gho_leak" });
+      Response.json({
+        connected: true,
+        scopes: ["project"],
+        token: "gho_leak",
+      });
     for (const outcome of [
       "connected",
       "disconnected",

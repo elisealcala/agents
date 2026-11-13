@@ -86,9 +86,6 @@ export async function POST(request: Request): Promise<Response> {
   const action = new URL(request.url).searchParams.get("action");
   if (action !== "refresh" && action !== "rotate" && action !== "disconnect")
     return outcomeResponse("rejected", false);
-  const outcome = await manageProjectsConnection(
-    ctx,
-    action as ProjectsAction,
-  );
+  const outcome = await manageProjectsConnection(ctx, action as ProjectsAction);
   return outcomeResponse(outcome, false);
 }
