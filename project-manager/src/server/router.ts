@@ -2,18 +2,129 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { Manager } from "../application/manager.ts";
+import {
+  ConnectionError,
+  connectionKinds,
+} from "../integrations/github/connections.ts";
+import type { ConnectionStore } from "../storage/connection-store.ts";
 import type { RuntimeCapabilities } from "./runtime-config.ts";
 const t = initTRPC
   .context<{
     manager: Manager;
     model: string;
     capabilities?: RuntimeCapabilities;
+    /** Set by the authenticated server layer only; connection routes require it. */
+    owner?: boolean;
+    connections?: ConnectionStore;
   }>()
   .create();
 const id = z.string().uuid();
 const text = z.string().trim().min(1);
 const procedure = t.procedure;
+const ownerProcedure = t.procedure.use(({ ctx, next }) => {
+  if (ctx.owner !== true) throw new TRPCError({ code: "UNAUTHORIZED" });
+  if (!ctx.connections)
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Connections are not configured",
+    });
+  return next({ ctx: { ...ctx, connections: ctx.connections } });
+});
+/** Store errors are already credential-free; map them to stable API codes. */
+function guarded<T>(run: () => T): T {
+  try {
+    return run();
+  } catch (error) {
+    if (!(error instanceof ConnectionError)) throw error;
+    const code = /conflict|exists/i.test(error.message)
+      ? "CONFLICT"
+      : /unknown/i.test(error.message)
+        ? "NOT_FOUND"
+        : "BAD_REQUEST";
+    throw new TRPCError({ code, message: error.message });
+  }
+}
+const connectionId = text.max(200);
+const revision = z.number().int().nonnegative();
+const capabilityInput = z.strictObject({
+  repositoryRead: z.boolean().optional(),
+  projectsRead: z.boolean().optional(),
+  inventorySync: z.boolean().optional(),
+  projectWrites: z.boolean().optional(),
+});
 export const appRouter = t.router({
+  connections: t.router({
+    list: ownerProcedure.query(({ ctx }) =>
+      guarded(() => ctx.connections.list()),
+    ),
+    get: ownerProcedure
+      .input(z.strictObject({ id: connectionId }))
+      .query(({ ctx, input }) => guarded(() => ctx.connections.get(input.id))),
+    receipts: ownerProcedure
+      .input(z.strictObject({ id: connectionId }))
+      .query(({ ctx, input }) =>
+        guarded(() => {
+          ctx.connections.get(input.id);
+          return ctx.connections.receipts(input.id);
+        }),
+      ),
+    connect: ownerProcedure
+      .input(
+        z.strictObject({
+          id: connectionId,
+          kind: z.enum(connectionKinds),
+          externalRef: text.max(500),
+          credential: z.string().min(1).max(8192),
+          capabilities: capabilityInput.optional(),
+        }),
+      )
+      .mutation(({ ctx, input }) =>
+        guarded(() => ctx.connections.create(input)),
+      ),
+    updateState: ownerProcedure
+      .input(
+        z.strictObject({
+          id: connectionId,
+          expectedRevision: revision,
+          status: z.enum(["connected", "degraded"]),
+          capabilities: capabilityInput,
+        }),
+      )
+      .mutation(({ ctx, input }) =>
+        guarded(() =>
+          ctx.connections.updateState(
+            input.id,
+            input.expectedRevision,
+            input.status,
+            input.capabilities,
+          ),
+        ),
+      ),
+    rotate: ownerProcedure
+      .input(
+        z.strictObject({
+          id: connectionId,
+          expectedRevision: revision,
+          credential: z.string().min(1).max(8192),
+        }),
+      )
+      .mutation(({ ctx, input }) =>
+        guarded(() =>
+          ctx.connections.rotate(
+            input.id,
+            input.expectedRevision,
+            input.credential,
+          ),
+        ),
+      ),
+    disconnect: ownerProcedure
+      .input(z.strictObject({ id: connectionId, expectedRevision: revision }))
+      .mutation(({ ctx, input }) =>
+        guarded(() =>
+          ctx.connections.disconnect(input.id, input.expectedRevision),
+        ),
+      ),
+  }),
   delivery: t.router({
     bindKnownRepository: procedure
       .input(z.strictObject({ name: z.enum(["agents", "chore-design"]) }))

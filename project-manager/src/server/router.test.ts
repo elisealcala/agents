@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
+import { DatabaseSync } from "node:sqlite";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -10,6 +11,8 @@ import type {
   Worker,
 } from "../application/contracts.ts";
 import { Manager } from "../application/manager.ts";
+import { ConnectionStore } from "../storage/connection-store.ts";
+import { createNodeSqlDriver } from "../storage/sql-driver.ts";
 import { Store } from "../storage/store.ts";
 import { appRouter } from "./router.ts";
 
@@ -464,5 +467,123 @@ describe("project-manager router", () => {
     await expect(
       ctx.caller.evaluations.get({ id: "missing-report" }),
     ).rejects.toThrow("Unknown evaluation");
+  });
+});
+
+describe("github connections router", () => {
+  const key = new Uint8Array(32).fill(7);
+  const secret = "ghs_super_secret_token";
+  const rotated = "ghs_rotated_secret_token";
+  const app = {
+    id: "app-1",
+    kind: "app" as const,
+    externalRef: "install-1",
+    credential: secret,
+    capabilities: { repositoryRead: true },
+  };
+
+  async function connected(owner = true) {
+    const ctx = await context();
+    const file = path.join(ctx.root, "connections.sqlite");
+    const open = () => {
+      const db = new DatabaseSync(file);
+      return { db, store: new ConnectionStore(createNodeSqlDriver(db), key) };
+    };
+    const callerFor = (store: ConnectionStore) =>
+      appRouter.createCaller({
+        manager: ctx.manager,
+        model: "fixture",
+        owner,
+        connections: store,
+      });
+    const first = open();
+    return { first, open, callerFor, caller: callerFor(first.store) };
+  }
+
+  it("rejects unauthenticated reads and writes", async () => {
+    const { caller, first } = await connected(false);
+    await expect(caller.connections.list()).rejects.toThrow("UNAUTHORIZED");
+    await expect(caller.connections.connect(app)).rejects.toThrow(
+      "UNAUTHORIZED",
+    );
+    expect(first.store.list()).toEqual([]);
+    first.db.close();
+  });
+
+  it("keeps App status independent, rejects duplicates and never leaks secrets", async () => {
+    const { caller, first } = await connected();
+    const projects = await caller.connections.connect({
+      id: "projects-1",
+      kind: "projects",
+      externalRef: "owner-1",
+      credential: "ghu_projects_secret",
+    });
+    const repo = await caller.connections.connect(app);
+    const degraded = await caller.connections.updateState({
+      id: "projects-1",
+      expectedRevision: projects.revision,
+      status: "degraded",
+      capabilities: { projectsRead: false },
+    });
+    expect(degraded.status).toBe("degraded");
+    expect(await caller.connections.get({ id: "app-1" })).toEqual(repo);
+    const all = JSON.stringify([
+      await caller.connections.list(),
+      await caller.connections.receipts({ id: "app-1" }),
+    ]);
+    expect(all).not.toContain(secret);
+    expect(all).not.toContain("ghu_projects_secret");
+    await expect(caller.connections.connect(app)).rejects.toThrow(
+      "Connection exists",
+    );
+    await expect(
+      caller.connections.updateState({
+        id: "app-1",
+        expectedRevision: 0,
+        status: "connected",
+        capabilities: { projectWrites: true },
+      }),
+    ).rejects.toThrow("Capability is not available yet");
+    first.db.close();
+  });
+
+  it("detects revision conflicts, revokes credentials and persists across restart", async () => {
+    const { caller, first, open, callerFor } = await connected();
+    await caller.connections.connect(app);
+    const id = "app-1";
+    await caller.connections.rotate({
+      id,
+      expectedRevision: 0,
+      credential: rotated,
+    });
+    await expect(
+      caller.connections.rotate({ id, expectedRevision: 0, credential: "x" }),
+    ).rejects.toThrow("Revision conflict");
+    expect(first.store.readCredential(id)).toBe(rotated);
+    const gone = await caller.connections.disconnect({
+      id,
+      expectedRevision: 1,
+    });
+    expect(gone).toMatchObject({
+      status: "disconnected",
+      hasCredential: false,
+    });
+    expect(() => first.store.readCredential(id)).toThrow(
+      "Credential unavailable",
+    );
+    first.db.close();
+    const second = open();
+    const again = callerFor(second.store);
+    expect(await again.connections.get({ id })).toEqual(gone);
+    const receipts = await again.connections.receipts({ id });
+    expect(receipts.map((r) => r.action)).toEqual([
+      "created",
+      "rotated",
+      "disconnected",
+    ]);
+    await expect(again.connections.get({ id: "missing" })).rejects.toThrow(
+      "Unknown connection",
+    );
+    second.db.close();
   });
 });
