@@ -26,6 +26,7 @@ import {
   factKey,
 } from "./facts.ts";
 import type { ManagerStore } from "../storage/manager-store.ts";
+import { ProjectsService } from "../services/projects.ts";
 
 export type SubmitInput = {
   sourceId: string;
@@ -48,6 +49,7 @@ export type AskInput = {
 const MAX_TURNS = 6;
 const TOP_K = 5;
 export class Manager {
+  readonly projects: ProjectsService;
   private busy = new Set<string>();
   private stopped = false;
   private active = new Set<Promise<void>>();
@@ -60,7 +62,9 @@ export class Manager {
       canIntake?: boolean;
       canAnswer?: boolean;
     } = {},
-  ) {}
+  ) {
+    this.projects = new ProjectsService(store.projects);
+  }
   submit(projectId: string, input: SubmitInput): Run {
     if (this.options.canIntake === false)
       throw new Error(

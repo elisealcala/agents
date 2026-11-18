@@ -5,17 +5,22 @@ import type {
   Project,
   Run,
 } from "../application/contracts.ts";
+import type { ProjectsRepository } from "../contracts/projects.ts";
+import { projectTableSql } from "../db/schema/project.ts";
+import { createProject } from "../domain/projects.ts";
+import { SqlProjectsRepository } from "../infrastructure/projects.ts";
 import { DeliveryStore } from "./delivery-store.ts";
 import type { SqlDriver } from "./sql-driver.ts";
 
 export class ManagerStore {
+  readonly projects: ProjectsRepository;
   readonly delivery: DeliveryStore;
   constructor(
     private readonly db: SqlDriver,
     options: { recoverOnStartup?: boolean } = {},
   ) {
     this.db.transaction(() => {
-      this.db.exec(`CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY,data TEXT NOT NULL);
+      this.db.exec(`${projectTableSql}
           CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,data TEXT NOT NULL);
           CREATE TABLE IF NOT EXISTS evaluations(id TEXT PRIMARY KEY,data TEXT NOT NULL);
           CREATE TABLE IF NOT EXISTS manager_migrations(version INTEGER PRIMARY KEY);`);
@@ -37,6 +42,7 @@ export class ManagerStore {
           CREATE TABLE IF NOT EXISTS delivery_jobs(id TEXT PRIMARY KEY, repository_id TEXT NOT NULL REFERENCES delivery_repositories(id), kind TEXT NOT NULL, status TEXT NOT NULL, attempt_id TEXT, lease_expires_at TEXT);
           INSERT INTO manager_migrations(version) VALUES (2);`);
     });
+    this.projects = new SqlProjectsRepository(this.db);
     this.delivery = new DeliveryStore(this.db);
     if (options.recoverOnStartup === false) return;
     this.delivery.recoverExpired(new Date().toISOString());
@@ -67,29 +73,22 @@ export class ManagerStore {
     }
   }
   create(name: string): Project {
-    const project: Project = {
+    const project = createProject({
       id: randomUUID(),
       name,
-      revision: 0,
       createdAt: new Date().toISOString(),
-      notes: [],
-      candidates: [],
-      approved: [],
-      history: [],
-      reviews: [],
-      conversations: [],
-    };
+    });
     this.save(project);
     return project;
   }
   list(): Project[] {
-    return this.all<Project>("projects");
+    return this.projects.list();
   }
   get(id: string): Project {
-    return this.one<Project>("projects", id);
+    return this.projects.get(id);
   }
   save(project: Project): void {
-    this.write("projects", project);
+    this.projects.save(project);
   }
   runs(projectId?: string): Run[] {
     return this.all<Run>("runs").filter(
@@ -119,27 +118,22 @@ export class ManagerStore {
     });
   }
   close(): void {}
-  private all<T>(table: "projects" | "runs" | "evaluations"): T[] {
+  private all<T>(table: "runs" | "evaluations"): T[] {
     return (
       this.db
         .prepare(`SELECT data FROM ${table} ORDER BY rowid DESC`)
         .all() as { data: string }[]
     ).map((r) => JSON.parse(r.data) as T);
   }
-  private one<T>(table: "projects" | "runs" | "evaluations", id: string): T {
+  private one<T>(table: "runs" | "evaluations", id: string): T {
     const row = this.db
       .prepare(`SELECT data FROM ${table} WHERE id=?`)
       .get(id) as { data: string } | undefined;
     if (!row)
-      throw new Error(
-        `Unknown ${table === "projects" ? "project" : table === "runs" ? "run" : "evaluation"}`,
-      );
+      throw new Error(`Unknown ${table === "runs" ? "run" : "evaluation"}`);
     return JSON.parse(row.data) as T;
   }
-  private write(
-    table: "projects" | "runs" | "evaluations",
-    value: { id: string },
-  ): void {
+  private write(table: "runs" | "evaluations", value: { id: string }): void {
     this.db
       .prepare(
         `INSERT INTO ${table}(id,data) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data`,

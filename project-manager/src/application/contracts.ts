@@ -1,6 +1,8 @@
 /** Review-first project wire contracts. Source spans refer to immutable snapshots. */
 import { z } from "zod";
 
+export type { Project } from "../domain/projects.ts";
+
 export const fieldSchema = z.enum([
   "description",
   "owner",
@@ -116,18 +118,6 @@ export type Message = {
   createdAt: string;
 };
 export type Conversation = { id: string; messages: Message[] };
-export type Project = {
-  id: string;
-  name: string;
-  revision: number;
-  createdAt: string;
-  notes: Note[];
-  candidates: Candidate[];
-  approved: ApprovedFact[];
-  history: ApprovedFact[];
-  reviews: Review[];
-  conversations: Conversation[];
-};
 export type Answer = {
   text: string;
   claims: Array<{
