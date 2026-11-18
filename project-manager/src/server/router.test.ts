@@ -137,6 +137,39 @@ async function submit(ctx: Context, projectId: string, owner = "Ada") {
 }
 
 describe("project-manager router", () => {
+  it("routes local projects through the service while preserving transport validation and errors", async () => {
+    const ctx = await context();
+    const create = vi.spyOn(ctx.manager.projects, "create");
+    const list = vi.spyOn(ctx.manager.projects, "list");
+    const get = vi.spyOn(ctx.manager.projects, "get");
+
+    await expect(
+      ctx.caller.projects.create({ name: "a".repeat(201) }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(create).not.toHaveBeenCalled();
+    expect(ctx.store.list()).toEqual([]);
+
+    const project = await ctx.caller.projects.create({ name: "  Atlas  " });
+    expect(create).toHaveBeenCalledExactlyOnceWith("Atlas");
+    expect(await ctx.caller.projects.list()).toEqual([project]);
+    expect(list).toHaveBeenCalledOnce();
+    expect(await ctx.caller.projects.get({ projectId: project.id })).toEqual(
+      project,
+    );
+    expect(get).toHaveBeenCalledExactlyOnceWith(project.id);
+
+    await expect(
+      ctx.caller.projects.get({ projectId: "invalid" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(get).toHaveBeenCalledOnce();
+    await expect(
+      ctx.caller.projects.get({ projectId: randomUUID() }),
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Unknown project",
+    });
+  });
+
   it("exposes manager identity and persists explicit project selection", async () => {
     const ctx = await context();
     expect(await ctx.caller.agent.identity()).toEqual({

@@ -1,42 +1,19 @@
 /** Independent manager router. Every project operation carries its project identity. */
-import { initTRPC, TRPCError } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import type { Manager } from "../application/manager.ts";
 import {
   ConnectionError,
   connectionKinds,
 } from "../integrations/github/connections.ts";
-import {
-  createMissingProject,
-  type ProjectCreateReceiptStore,
-  type ProjectCreateTransport,
-} from "../integrations/github/project-create.ts";
+import { createMissingProject } from "../integrations/github/project-create.ts";
 import {
   adoptProject,
   discoverProjects,
-  type GitHubProjectsTransport,
 } from "../integrations/github/projects.ts";
 import type { ConnectionStore } from "../storage/connection-store.ts";
-import {
-  ProjectBindingError,
-  type ProjectBindingStore,
-} from "../storage/project-bindings.ts";
-import type { RuntimeCapabilities } from "./runtime-config.ts";
-const t = initTRPC
-  .context<{
-    manager: Manager;
-    model: string;
-    capabilities?: RuntimeCapabilities;
-    /** Set by the authenticated server layer only; connection routes require it. */
-    owner?: boolean;
-    connections?: ConnectionStore;
-    /** Server-side Projects provider boundary; never exposed to clients. */
-    projectsTransport?: GitHubProjectsTransport & ProjectCreateTransport;
-    projectBindings?: ProjectBindingStore;
-    /** Durable creation receipts (must survive restarts). */
-    projectCreateReceipts?: ProjectCreateReceiptStore;
-  }>()
-  .create();
+import { ProjectBindingError } from "../storage/project-bindings.ts";
+import { projectsRouter, t } from "../infrastructure/trpc.ts";
 const id = z.string().uuid();
 const text = z.string().trim().min(1);
 const procedure = t.procedure;
@@ -394,15 +371,7 @@ export const appRouter = t.router({
       model: ctx.model,
     })),
   }),
-  projects: t.router({
-    create: procedure
-      .input(z.object({ name: text.max(200) }))
-      .mutation(({ ctx, input }) => ctx.manager.store.create(input.name)),
-    list: procedure.query(({ ctx }) => ctx.manager.store.list()),
-    get: procedure
-      .input(z.object({ projectId: id }))
-      .query(({ ctx, input }) => ctx.manager.store.get(input.projectId)),
-  }),
+  projects: projectsRouter,
   notes: t.router({
     submit: procedure
       .input(
