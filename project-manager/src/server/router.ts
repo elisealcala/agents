@@ -6,7 +6,21 @@ import {
   ConnectionError,
   connectionKinds,
 } from "../integrations/github/connections.ts";
+import {
+  createMissingProject,
+  type ProjectCreateReceiptStore,
+  type ProjectCreateTransport,
+} from "../integrations/github/project-create.ts";
+import {
+  adoptProject,
+  discoverProjects,
+  type GitHubProjectsTransport,
+} from "../integrations/github/projects.ts";
 import type { ConnectionStore } from "../storage/connection-store.ts";
+import {
+  ProjectBindingError,
+  type ProjectBindingStore,
+} from "../storage/project-bindings.ts";
 import type { RuntimeCapabilities } from "./runtime-config.ts";
 const t = initTRPC
   .context<{
@@ -16,6 +30,11 @@ const t = initTRPC
     /** Set by the authenticated server layer only; connection routes require it. */
     owner?: boolean;
     connections?: ConnectionStore;
+    /** Server-side Projects provider boundary; never exposed to clients. */
+    projectsTransport?: GitHubProjectsTransport & ProjectCreateTransport;
+    projectBindings?: ProjectBindingStore;
+    /** Durable creation receipts (must survive restarts). */
+    projectCreateReceipts?: ProjectCreateReceiptStore;
   }>()
   .create();
 const id = z.string().uuid();
@@ -30,6 +49,75 @@ const ownerProcedure = t.procedure.use(({ ctx, next }) => {
     });
   return next({ ctx: { ...ctx, connections: ctx.connections } });
 });
+/** Owner-only Projects boundary: requires transport, binding store and receipts. */
+const projectsProcedure = ownerProcedure.use(({ ctx, next }) => {
+  if (
+    !ctx.projectsTransport ||
+    !ctx.projectBindings ||
+    !ctx.projectCreateReceipts
+  )
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Projects are not configured",
+    });
+  return next({
+    ctx: {
+      ...ctx,
+      projectsTransport: ctx.projectsTransport,
+      projectBindings: ctx.projectBindings,
+      projectCreateReceipts: ctx.projectCreateReceipts,
+    },
+  });
+});
+type ProjectsCtx = {
+  manager: Manager;
+  connections: ConnectionStore;
+};
+/** Resolves the separate Projects credential server-side; never returned to callers. */
+function projectsToken(
+  ctx: ProjectsCtx,
+): { ok: true; token: string } | { ok: false; reason: string } {
+  const connection = ctx.connections
+    .list()
+    .find(
+      (c) =>
+        c.kind === "projects" && c.status !== "disconnected" && c.hasCredential,
+    );
+  if (!connection || connection.capabilities.projectsRead === false)
+    return { ok: false, reason: "projects_access_denied" };
+  try {
+    return { ok: true, token: ctx.connections.readCredential(connection.id) };
+  } catch {
+    return { ok: false, reason: "projects_access_denied" };
+  }
+}
+/** Requires a verified immutable numeric repository ID known to the manager. */
+function verifyRepository(
+  ctx: ProjectsCtx,
+  input: { repositoryId: number; owner?: string; name?: string },
+): void {
+  const repo = ctx.manager.store.delivery
+    .listRepositories()
+    .find((r) => r.identity.repositoryId === String(input.repositoryId));
+  if (!repo)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Unknown repository",
+    });
+  if (
+    (input.owner !== undefined && repo.identity.owner !== input.owner) ||
+    (input.name !== undefined && repo.identity.name !== input.name)
+  )
+    throw new TRPCError({
+      code: "CONFLICT",
+      message: "Repository identity mismatch",
+    });
+}
+const repositoryInput = {
+  repositoryId: z.number().int().positive().safe(),
+  owner: text.max(200).optional(),
+  name: text.max(200).optional(),
+};
 /** Store errors are already credential-free; map them to stable API codes. */
 function guarded<T>(run: () => T): T {
   try {
@@ -53,6 +141,123 @@ const capabilityInput = z.strictObject({
   projectWrites: z.boolean().optional(),
 });
 export const appRouter = t.router({
+  githubProjects: t.router({
+    /** Read-only discovery with the Projects credential. */
+    discover: projectsProcedure.query(async ({ ctx }) => {
+      const access = projectsToken(ctx);
+      if (!access.ok) return { ok: false as const, code: access.reason };
+      const result = await discoverProjects(
+        ctx.projectsTransport,
+        access.token,
+      );
+      return result.ok
+        ? { ok: true as const, projects: result.value }
+        : { ok: false as const, code: result.reason };
+    }),
+    binding: projectsProcedure
+      .input(z.strictObject(repositoryInput))
+      .query(({ ctx, input }) => {
+        verifyRepository(ctx, input);
+        return {
+          ok: true as const,
+          binding: ctx.projectBindings.get(input.repositoryId) ?? null,
+        };
+      }),
+    adopt: projectsProcedure
+      .input(
+        z.strictObject({
+          ...repositoryInput,
+          projectId: text.max(200),
+          statusFieldId: text.max(200).optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        verifyRepository(ctx, input);
+        const existing = ctx.projectBindings.get(input.repositoryId);
+        if (existing && existing.projectId !== input.projectId)
+          return { ok: false as const, code: "already_bound" };
+        const access = projectsToken(ctx);
+        if (!access.ok) return { ok: false as const, code: access.reason };
+        try {
+          const result = await adoptProject(
+            ctx.projectsTransport,
+            access.token,
+            ctx.projectBindings,
+            {
+              repositoryId: input.repositoryId,
+              projectId: input.projectId,
+              fieldMapping:
+                input.statusFieldId === undefined
+                  ? undefined
+                  : { statusFieldId: input.statusFieldId },
+            },
+          );
+          if (result.ok) return { ok: true as const, binding: result.binding };
+          return {
+            ok: false as const,
+            code: result.reason,
+            candidates: "candidates" in result ? result.candidates : undefined,
+          };
+        } catch (error) {
+          if (error instanceof ProjectBindingError)
+            return { ok: false as const, code: "already_bound" };
+          return { ok: false as const, code: "unavailable" };
+        }
+      }),
+    /** Creates the board only; adoption/mapping is a separate step. */
+    create: projectsProcedure
+      .input(
+        z.strictObject({
+          ...repositoryInput,
+          operationId: text.max(200),
+          title: text.max(200),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        verifyRepository(ctx, input);
+        const receipt = ctx.projectCreateReceipts.get(input.operationId);
+        if (
+          receipt &&
+          (receipt.repositoryId !== input.repositoryId ||
+            receipt.title !== input.title)
+        )
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "Operation belongs to a different request",
+          });
+        const access = projectsToken(ctx);
+        if (!access.ok) return { ok: false as const, code: access.reason };
+        try {
+          const result = await createMissingProject(
+            ctx.projectsTransport,
+            access.token,
+            ctx.projectCreateReceipts,
+            {
+              operationId: input.operationId,
+              repositoryId: input.repositoryId,
+              title: input.title,
+            },
+          );
+          if (result.ok)
+            return {
+              ok: true as const,
+              projectId: result.projectId,
+              projectNumber: result.projectNumber,
+              created: result.created,
+            };
+          return {
+            ok: false as const,
+            code:
+              result.reason === "ambiguous"
+                ? "ambiguous_create"
+                : result.reason,
+            candidates: result.candidates,
+          };
+        } catch {
+          return { ok: false as const, code: "unavailable" };
+        }
+      }),
+  }),
   connections: t.router({
     list: ownerProcedure.query(({ ctx }) =>
       guarded(() => ctx.connections.list()),

@@ -11,7 +11,14 @@ import type {
   Worker,
 } from "../application/contracts.ts";
 import { Manager } from "../application/manager.ts";
+import { GitHubTransportError } from "../integrations/github/client.ts";
+import type {
+  ProjectCreateReceipt,
+  ProjectCreateReceiptStore,
+} from "../integrations/github/project-create.ts";
+import type { ProjectField } from "../integrations/github/projects.ts";
 import { ConnectionStore } from "../storage/connection-store.ts";
+import { ProjectBindingStore } from "../storage/project-bindings.ts";
 import { createNodeSqlDriver } from "../storage/sql-driver.ts";
 import { Store } from "../storage/store.ts";
 import { appRouter } from "./router.ts";
@@ -585,5 +592,337 @@ describe("github connections router", () => {
       "Unknown connection",
     );
     second.db.close();
+  });
+});
+
+describe("github projects router", () => {
+  const key = new Uint8Array(32).fill(9);
+  const token = "ghu_projects_token_secret";
+  const repositoryId = 1355217430;
+  const statusField: ProjectField = {
+    id: "F_status",
+    name: "Status",
+    type: "single_select",
+    options: [
+      { id: "O_todo", name: "Todo" },
+      { id: "O_done", name: "Done" },
+    ],
+  };
+
+  function receiptStore(db: DatabaseSync): ProjectCreateReceiptStore {
+    db.exec(
+      "CREATE TABLE IF NOT EXISTS t_receipts(id TEXT PRIMARY KEY, body TEXT NOT NULL)",
+    );
+    return {
+      get: (operationId) => {
+        const row = db
+          .prepare("SELECT body FROM t_receipts WHERE id=?")
+          .get(operationId) as { body: string } | undefined;
+        return row ? (JSON.parse(row.body) as ProjectCreateReceipt) : undefined;
+      },
+      save: (receipt) => {
+        db.prepare("INSERT OR REPLACE INTO t_receipts VALUES (?, ?)").run(
+          receipt.operationId,
+          JSON.stringify(receipt),
+        );
+      },
+      hasBinding: (id) =>
+        new ProjectBindingStore(createNodeSqlDriver(db)).get(id) !== undefined,
+    };
+  }
+
+  async function projectsContext(options: { connect?: boolean } = {}) {
+    const ctx = await context();
+    const file = path.join(ctx.root, "projects.sqlite");
+    const remote = {
+      projects: [
+        { id: "P_1", number: 1, title: "Existing", ownerLogin: "elisealcala" },
+      ],
+      fields: [statusField] as ProjectField[],
+      failure: undefined as GitHubTransportError | undefined,
+      createFailure: undefined as Error | undefined,
+      creates: 0,
+      tokens: [] as string[],
+    };
+    const transport = {
+      listOwnerProjects: async (t: string) => {
+        remote.tokens.push(t);
+        if (remote.failure) throw remote.failure;
+        return structuredClone(remote.projects);
+      },
+      listProjectFields: async () => structuredClone(remote.fields),
+      createProject: async (_t: string, title: string) => {
+        remote.creates += 1;
+        if (remote.createFailure) throw remote.createFailure;
+        const project = {
+          id: `P_new${remote.creates}`,
+          number: 10 + remote.creates,
+          title,
+          ownerLogin: "elisealcala",
+        };
+        remote.projects.push(project);
+        return project;
+      },
+    };
+    const open = () => {
+      const db = new DatabaseSync(file);
+      const connections = new ConnectionStore(createNodeSqlDriver(db), key);
+      return {
+        db,
+        connections,
+        caller: appRouter.createCaller({
+          manager: ctx.manager,
+          model: "fixture",
+          owner: true,
+          connections,
+          projectsTransport: transport,
+          projectBindings: new ProjectBindingStore(createNodeSqlDriver(db)),
+          projectCreateReceipts: receiptStore(db),
+        }),
+      };
+    };
+    const first = open();
+    if (options.connect !== false)
+      first.connections.create({
+        id: "projects-1",
+        kind: "projects",
+        externalRef: "owner-1",
+        credential: token,
+        capabilities: { projectsRead: true },
+      });
+    await ctx.caller.delivery.bindKnownRepository({ name: "agents" });
+    return { ...ctx, remote, open, first };
+  }
+
+  it("discovers projects read-only with the Projects credential", async () => {
+    const p = await projectsContext();
+    const result = await p.first.caller.githubProjects.discover();
+    expect(result).toEqual({
+      ok: true,
+      projects: [{ project: p.remote.projects[0], fields: [statusField] }],
+    });
+    expect(p.remote.tokens).toEqual([token]);
+    expect(p.remote.creates).toBe(0);
+    p.first.db.close();
+  });
+
+  it("rejects non-owners and maps denied/expired/unavailable safely", async () => {
+    const p = await projectsContext();
+    const anonymous = appRouter.createCaller({
+      manager: p.manager,
+      model: "fixture",
+    });
+    await expect(anonymous.githubProjects.discover()).rejects.toThrow(
+      "UNAUTHORIZED",
+    );
+    for (const [kind, code] of [
+      ["forbidden", "projects_access_denied"],
+      ["unauthorized", "projects_credentials_expired"],
+      ["unavailable", "unavailable"],
+    ] as const) {
+      p.remote.failure = new GitHubTransportError(kind, `boom ${token}`);
+      const result = await p.first.caller.githubProjects.discover();
+      expect(result).toEqual({ ok: false, code });
+      expect(JSON.stringify(result)).not.toContain(token);
+    }
+    p.first.db.close();
+    const none = await projectsContext({ connect: false });
+    expect(await none.first.caller.githubProjects.discover()).toEqual({
+      ok: false,
+      code: "projects_access_denied",
+    });
+    none.first.db.close();
+  });
+
+  it("rejects unknown and mismatched repository identities", async () => {
+    const p = await projectsContext();
+    const { caller } = p.first;
+    await expect(
+      caller.githubProjects.adopt({ repositoryId: 42, projectId: "P_1" }),
+    ).rejects.toThrow("Unknown repository");
+    await expect(
+      caller.githubProjects.adopt({
+        repositoryId,
+        name: "chore-design",
+        projectId: "P_1",
+      }),
+    ).rejects.toThrow("Repository identity mismatch");
+    await expect(
+      caller.githubProjects.create({
+        repositoryId: 42,
+        operationId: "op",
+        title: "X",
+      }),
+    ).rejects.toThrow("Unknown repository");
+    await expect(
+      caller.githubProjects.binding({ repositoryId: 42 }),
+    ).rejects.toThrow("Unknown repository");
+    expect(p.remote.tokens).toEqual([]);
+    p.first.db.close();
+  });
+
+  it("adopts read-only, is idempotent, persists across restart and rejects conflicts", async () => {
+    const p = await projectsContext();
+    const { caller } = p.first;
+    const adopted = await caller.githubProjects.adopt({
+      repositoryId,
+      projectId: "P_1",
+    });
+    expect(adopted).toEqual({
+      ok: true,
+      binding: {
+        repositoryId,
+        projectId: "P_1",
+        projectNumber: 1,
+        mapping: {
+          statusFieldId: "F_status",
+          statusOptionIds: ["O_todo", "O_done"],
+        },
+      },
+    });
+    expect(
+      await caller.githubProjects.adopt({ repositoryId, projectId: "P_1" }),
+    ).toEqual(adopted);
+    expect(p.remote.creates).toBe(0);
+    expect(
+      await caller.githubProjects.adopt({ repositoryId, projectId: "P_2" }),
+    ).toEqual({ ok: false, code: "already_bound" });
+    p.first.db.close();
+    const second = p.open();
+    expect(
+      await second.caller.githubProjects.binding({ repositoryId }),
+    ).toEqual({ ok: true, binding: adopted.ok ? adopted.binding : null });
+    second.db.close();
+  });
+
+  it("returns mapping candidates instead of guessing a field", async () => {
+    const p = await projectsContext();
+    const { caller } = p.first;
+    p.remote.fields = [
+      { ...statusField, id: "F_a", name: "Stage" },
+      { ...statusField, id: "F_b", name: "Phase" },
+    ];
+    expect(
+      await caller.githubProjects.adopt({ repositoryId, projectId: "P_1" }),
+    ).toEqual({
+      ok: false,
+      code: "mapping_required",
+      candidates: ["F_a", "F_b"],
+    });
+    expect(
+      await caller.githubProjects.adopt({
+        repositoryId,
+        projectId: "P_1",
+        statusFieldId: "F_missing",
+      }),
+    ).toMatchObject({ ok: false, code: "mapping_invalid" });
+    expect(await caller.githubProjects.binding({ repositoryId })).toEqual({
+      ok: true,
+      binding: null,
+    });
+    const chosen = await caller.githubProjects.adopt({
+      repositoryId,
+      projectId: "P_1",
+      statusFieldId: "F_b",
+    });
+    expect(chosen).toMatchObject({
+      ok: true,
+      binding: { mapping: { statusFieldId: "F_b" } },
+    });
+    p.first.db.close();
+  });
+
+  it("creates once, rejects duplicate titles and bound repositories, reconciles unknown outcomes", async () => {
+    const p = await projectsContext();
+    const { caller } = p.first;
+    expect(
+      await caller.githubProjects.create({
+        repositoryId,
+        operationId: "op-dup",
+        title: "Existing",
+      }),
+    ).toEqual({ ok: false, code: "title_exists", candidates: undefined });
+    // Unknown outcome: GitHub created the board but the response was lost.
+    p.remote.createFailure = new GitHubTransportError("unavailable", token);
+    const lost = await caller.githubProjects.create({
+      repositoryId,
+      operationId: "op-1",
+      title: "Board",
+    });
+    expect(lost).toMatchObject({ ok: false, code: "unavailable" });
+    expect(JSON.stringify(lost)).not.toContain(token);
+    p.remote.createFailure = undefined;
+    p.remote.projects.push({
+      id: "P_lost",
+      number: 5,
+      title: "Board",
+      ownerLogin: "elisealcala",
+    });
+    p.first.db.close();
+    const second = p.open();
+    const retried = await second.caller.githubProjects.create({
+      repositoryId,
+      operationId: "op-1",
+      title: "Board",
+    });
+    expect(retried).toEqual({
+      ok: true,
+      projectId: "P_lost",
+      projectNumber: 5,
+      created: false,
+    });
+    expect(p.remote.creates).toBe(1);
+    await expect(
+      second.caller.githubProjects.create({
+        repositoryId,
+        operationId: "op-1",
+        title: "Other",
+      }),
+    ).rejects.toThrow("Operation belongs to a different request");
+    // Creation did not bind; adoption is a separate step.
+    expect(
+      await second.caller.githubProjects.binding({ repositoryId }),
+    ).toEqual({ ok: true, binding: null });
+    await second.caller.githubProjects.adopt({
+      repositoryId,
+      projectId: "P_lost",
+    });
+    expect(
+      await second.caller.githubProjects.create({
+        repositoryId,
+        operationId: "op-2",
+        title: "Another",
+      }),
+    ).toMatchObject({ ok: false, code: "already_bound" });
+    second.db.close();
+  });
+
+  it("reports ambiguous creates", async () => {
+    const p = await projectsContext();
+    p.remote.createFailure = new GitHubTransportError("unavailable");
+    await p.first.caller.githubProjects.create({
+      repositoryId,
+      operationId: "op-amb",
+      title: "Twin",
+    });
+    for (const id of ["P_a", "P_b"])
+      p.remote.projects.push({
+        id,
+        number: 7,
+        title: "Twin",
+        ownerLogin: "elisealcala",
+      });
+    expect(
+      await p.first.caller.githubProjects.create({
+        repositoryId,
+        operationId: "op-amb",
+        title: "Twin",
+      }),
+    ).toEqual({
+      ok: false,
+      code: "ambiguous_create",
+      candidates: ["P_a", "P_b"],
+    });
+    p.first.db.close();
   });
 });
