@@ -19,7 +19,7 @@ Next: Complete the isolated restore (#112) and remaining cutover, backup, setup,
 - [x] Verify Stage 2 local foundation for authorized publication and split its hosted/scheduling remainder into 12 child issues (DEC-014)
 - [ ] Implement and verify the expanded GitHub delivery loop
 - [x] Inspect the uncommitted projects-layer scaffold and record a projects-only migration plan (2026-11-18)
-- [ ] Implement, verify, and open a PR for the approved projects-only layer migration
+- [x] Implement, verify, and open a PR for the approved projects-only layer migration (#142)
 
 ## Log
 
@@ -337,3 +337,5 @@ Next: Complete the isolated restore (#112) and remaining cutover, backup, setup,
 - Retained the legacy store facade, shared-driver atomic project/run commits, startup recovery, public type/router exports, validation/error behavior, existing JSON format and migration versions. Notes, reviews, conversations, GitHub Projects, authentication and deployment behavior remain outside scope. Recorded accepted DEC-015.
 - Test-writer added service/SQL compatibility coverage and a route traversal/error regression. Focused confirmation passed 32 tests. Independent manager typecheck, lint, format and whitespace checks and Studio typecheck passed. The restricted full suite passed 325/333; eight MCP cases could not listen on localhost. The verifier reran the MCP suite with listener access and passed 20/20, covering all 333 tests across those runs. No material code-review findings.
 - Studio Worker build and the clean-checkout disposable Cloudflare probes are pending. No original services, real databases, hosted acceptance, deployment, merge, or live model calls were involved. Commit/PR publication is the remaining requested outcome.
+- Final verification of implementation commit `c0316277ac84be8392066a192c5955c348cc32fd` passed Studio Cloudflare Worker build and the revision-linked local probes: two-worker import/restart, alarm/local R2 restart, and delivery alarm restart. The build succeeded on an unchanged retry after Next.js displayed its existing security upgrade reminder; dependencies and build settings were not changed. These are synthetic local checks, not hosted acceptance.
+- Published `codex/projects-layer-migration` and opened PR #142: https://github.com/elisealcala/agents/pull/142. The implementation is complete and independently verified; review/CI and any merge remain separate. The final follow-up commit records this verification/publication in the owning bank only.

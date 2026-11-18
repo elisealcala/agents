@@ -1,7 +1,7 @@
 # Projects-only layer migration
 
 Date: 2026-11-18
-Status: approved for implementation and PR on `codex/projects-layer-migration`; verification pending.
+Status: implemented and independently verified; open PR #142 on `codex/projects-layer-migration`.
 
 ## Goal and scope
 
@@ -109,3 +109,5 @@ Independent documentation verification passed: source/path claims, proposed scop
 ## Implementation verification — 2026-11-18
 
 Runtime extraction is implemented on `codex/projects-layer-migration`, following DEC-015. The test-writer's focused run passed 32 tests. Independent verification passed manager typecheck/lint/format, Studio typecheck, whitespace, and code review with no material findings. The restricted full manager run passed 325/333; eight MCP cases were blocked by localhost listener permissions. A listener-enabled MCP rerun passed 20/20, covering all 333 current tests across those runs. The Studio Worker build and clean-checkout local Cloudflare probes remain pending before PR publication.
+
+Final verification passed the Studio Worker build on an unchanged retry after its existing Next.js upgrade reminder. Revision-linked local Cloudflare probes passed two-worker import/restart, alarm/local R2 restart, and delivery alarm restart against implementation commit `c0316277ac84be8392066a192c5955c348cc32fd`. Published branch and opened https://github.com/elisealcala/agents/pull/142. The final follow-up changes only the owning bank to record these results. Review/CI and merge remain separate from the completed implementation/PR task; hosted acceptance is not claimed.
